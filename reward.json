@@ -1,0 +1,48 @@
+{
+  "name": "Reward",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Name of the reward"
+    },
+    "description": {
+      "type": "string",
+      "description": "Description of the reward"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "cosmetics",
+        "electronics",
+        "books",
+        "gift_cards",
+        "clothing",
+        "accessories"
+      ],
+      "description": "Reward category"
+    },
+    "points_cost": {
+      "type": "number",
+      "description": "Points required to redeem"
+    },
+    "image_url": {
+      "type": "string",
+      "description": "Image of the reward"
+    },
+    "stock": {
+      "type": "number",
+      "description": "Available stock"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true,
+      "description": "Whether reward is available"
+    }
+  },
+  "required": [
+    "name",
+    "category",
+    "points_cost"
+  ]
+}

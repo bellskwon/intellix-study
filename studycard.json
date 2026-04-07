@@ -1,0 +1,50 @@
+{
+  "name": "StudyCard",
+  "type": "object",
+  "properties": {
+    "deck_name": {
+      "type": "string",
+      "description": "Name of the flashcard deck"
+    },
+    "subject": {
+      "type": "string",
+      "enum": [
+        "math",
+        "science",
+        "history",
+        "geography",
+        "english",
+        "foreign_language",
+        "computer_science",
+        "art",
+        "music",
+        "other"
+      ],
+      "description": "Subject"
+    },
+    "front": {
+      "type": "string",
+      "description": "Front of the card (term/question)"
+    },
+    "back": {
+      "type": "string",
+      "description": "Back of the card (definition/answer)"
+    },
+    "is_language_card": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether this is a language pronunciation card"
+    },
+    "mastery_level": {
+      "type": "number",
+      "default": 0,
+      "description": "How well the student knows this card (0-5)"
+    }
+  },
+  "required": [
+    "deck_name",
+    "subject",
+    "front",
+    "back"
+  ]
+}

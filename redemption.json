@@ -1,0 +1,34 @@
+{
+  "name": "Redemption",
+  "type": "object",
+  "properties": {
+    "reward_id": {
+      "type": "string",
+      "description": "ID of the redeemed reward"
+    },
+    "reward_name": {
+      "type": "string",
+      "description": "Name of the redeemed reward"
+    },
+    "points_spent": {
+      "type": "number",
+      "description": "Points spent on this redemption"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "shipped",
+        "delivered",
+        "cancelled"
+      ],
+      "default": "pending",
+      "description": "Delivery status"
+    }
+  },
+  "required": [
+    "reward_id",
+    "reward_name",
+    "points_spent"
+  ]
+}

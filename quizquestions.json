@@ -1,0 +1,52 @@
+{
+  "name": "QuizQuestion",
+  "type": "object",
+  "properties": {
+    "submission_id": {
+      "type": "string",
+      "description": "ID of the submission this quiz is for"
+    },
+    "question_text": {
+      "type": "string",
+      "description": "The quiz question"
+    },
+    "question_type": {
+      "type": "string",
+      "enum": [
+        "short_answer",
+        "fill_blank",
+        "multiple_choice"
+      ],
+      "description": "Type of question"
+    },
+    "options": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Options for multiple choice questions"
+    },
+    "correct_answer": {
+      "type": "string",
+      "description": "The correct answer"
+    },
+    "student_answer": {
+      "type": "string",
+      "description": "Student's submitted answer"
+    },
+    "is_correct": {
+      "type": "boolean",
+      "description": "Whether the student answered correctly"
+    },
+    "question_number": {
+      "type": "number",
+      "description": "Order of question in the quiz"
+    }
+  },
+  "required": [
+    "submission_id",
+    "question_text",
+    "question_type",
+    "correct_answer"
+  ]
+}

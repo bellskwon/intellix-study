@@ -1,0 +1,102 @@
+
+ {
+  "name": "Submission",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "description": "Title of the study session"
+    },
+    "subject": {
+      "type": "string",
+      "enum": [
+        "math",
+        "science",
+        "history",
+        "geography",
+        "english",
+        "foreign_language",
+        "computer_science",
+        "art",
+        "music",
+        "other"
+      ],
+      "description": "Subject studied"
+    },
+    "grade_level": {
+      "type": "string",
+      "enum": [
+        "6th",
+        "7th",
+        "8th",
+        "9th",
+        "10th",
+        "11th",
+        "12th",
+        "college"
+      ],
+      "description": "Student grade level"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "video",
+        "notes",
+        "flashcards"
+      ],
+      "description": "Type of submission"
+    },
+    "file_url": {
+      "type": "string",
+      "description": "URL of uploaded video or notes image"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending_review",
+        "quiz_required",
+        "approved",
+        "rejected",
+        "flagged"
+      ],
+      "default": "pending_review",
+      "description": "Review status of submission"
+    },
+    "ai_verification_score": {
+      "type": "number",
+      "description": "AI confidence score that content is legitimate (0-100)"
+    },
+    "ai_difficulty_score": {
+      "type": "number",
+      "description": "AI-determined difficulty level (1-10)"
+    },
+    "points_awarded": {
+      "type": "number",
+      "default": 0,
+      "description": "Points earned from this submission"
+    },
+    "rejection_reason": {
+      "type": "string",
+      "description": "Reason for rejection if flagged/rejected"
+    },
+    "video_hash": {
+      "type": "string",
+      "description": "Hash to detect duplicate video uploads"
+    },
+    "quiz_score": {
+      "type": "number",
+      "description": "Quiz score percentage (0-100)"
+    },
+    "quiz_passed": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether the student passed the quiz (80%+)"
+    }
+  },
+  "required": [
+    "title",
+    "subject",
+    "grade_level",
+    "type"
+  ]
+}
