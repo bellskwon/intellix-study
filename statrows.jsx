@@ -8,7 +8,7 @@ const stats = [
   { label: 'Day Streak', key: 'streak', icon: Flame, color: 'text-chart-5', bg: 'bg-chart-5/10' },
 ];
 
-export default function StatsRow({ submissions = [] }) {
+export default function StatsRow({ submissions = [], streak = 0 }) {
   const approved = submissions.filter(s => s.status === 'approved');
   const quizzesPassed = submissions.filter(s => s.quiz_passed).length;
   const totalPoints = approved.reduce((sum, s) => sum + (s.points_awarded || 0), 0);
@@ -17,7 +17,7 @@ export default function StatsRow({ submissions = [] }) {
     points: totalPoints,
     submissions: submissions.length,
     quizzes: quizzesPassed,
-    streak: 0,
+    streak,
   };
 
   return (

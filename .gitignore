@@ -1,6 +1,8 @@
-#env
+# env — ignore real secrets, but keep example templates
 .env
 .env.*
+!.env.example
+!**/.env.example
 
 # Logs
 /logs
@@ -15,6 +17,10 @@ node_modules
 dist
 dist-ssr
 *.local
+
+# Uploaded files (keep the folder, ignore contents)
+backend/uploads/*
+!backend/uploads/.gitkeep
 
 # Editor directories and files
 .vscode/*

@@ -1,0 +1,122 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id               String    @id @default(cuid())
+  email            String    @unique
+  full_name        String?
+  display_name     String?
+  avatar_emoji     String?
+  avatar_color     String?
+  avatar_image_url String?
+  premium_plan     String    @default("free")
+  trial_end_date   DateTime?
+  referral_code    String    @unique
+  referred_by      String?
+  google_id        String?   @unique
+  created_date     DateTime  @default(now())
+  updated_at       DateTime  @updatedAt
+
+  submissions      Submission[]
+  study_cards      StudyCard[]
+  redemptions      Redemption[]
+  calendar_events  CalendarEvent[]
+  sent_friendships     Friendship[] @relation("Requester")
+  received_friendships Friendship[] @relation("Recipient")
+}
+
+model Submission {
+  id                    String   @id @default(cuid())
+  title                 String
+  subject               String
+  grade_level           String
+  type                  String   @default("notes")
+  file_url              String?
+  notes_text            String?
+  status                String   @default("pending_review")
+  ai_verification_score Float?
+  ai_difficulty_score   Float?
+  quiz_score            Float?
+  quiz_passed           Boolean  @default(false)
+  points_awarded        Int      @default(0)
+  rejection_reason      String?
+  video_hash            String?
+  created_by            String
+  created_date          DateTime @default(now())
+
+  user           User           @relation(fields: [created_by], references: [email])
+  quiz_questions QuizQuestion[]
+}
+
+model QuizQuestion {
+  id              String   @id @default(cuid())
+  submission_id   String
+  question_number Int
+  question_text   String
+  question_type   String
+  options         String[]
+  correct_answer  String
+  student_answer  String?
+  is_correct      Boolean?
+  hint            String?
+  created_date    DateTime @default(now())
+
+  submission Submission @relation(fields: [submission_id], references: [id], onDelete: Cascade)
+}
+
+model StudyCard {
+  id               String   @id @default(cuid())
+  deck_name        String
+  subject          String
+  front            String
+  back             String
+  is_language_card Boolean  @default(false)
+  mastery_level    Int      @default(0)
+  created_by       String
+  created_date     DateTime @default(now())
+
+  user User @relation(fields: [created_by], references: [email])
+}
+
+model Redemption {
+  id               String   @id @default(cuid())
+  reward_id        String
+  reward_name      String
+  points_spent     Int
+  status           String   @default("pending")
+  shipping_address String?
+  created_by       String
+  created_date     DateTime @default(now())
+
+  user User @relation(fields: [created_by], references: [email])
+}
+
+model Friendship {
+  id              String   @id @default(cuid())
+  requester_email String
+  recipient_email String
+  status          String   @default("pending")
+  created_date    DateTime @default(now())
+
+  requester User @relation("Requester", fields: [requester_email], references: [email])
+  recipient User @relation("Recipient", fields: [recipient_email], references: [email])
+}
+
+model CalendarEvent {
+  id           String   @id @default(cuid())
+  title        String
+  date         String
+  type         String   @default("other")
+  subject      String?
+  notes        String?
+  created_by   String
+  created_date DateTime @default(now())
+
+  user User @relation(fields: [created_by], references: [email])
+}
