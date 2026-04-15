@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import { Menu, Flame, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import Sidebar from './Sidebar';
+import Sidebar from '@/components/layout/Sidebar';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 // Redemption entity used by PointsBadge
