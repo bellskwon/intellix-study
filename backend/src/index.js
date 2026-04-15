@@ -17,6 +17,11 @@ const calendarEventRoutes = require('./routes/calendar-events');
 const userRoutes = require('./routes/users');
 const uploadRoutes = require('./routes/upload');
 const aiRoutes = require('./routes/ai');
+const orderRoutes = require('./routes/orders');
+const moderationRoutes = require('./routes/moderation');
+const stripeRoutes = require('./routes/stripe');
+const classroomRoutes = require('./routes/classroom');
+const notificationRoutes = require('./routes/notifications');
 
 const app = express();
 
@@ -33,6 +38,9 @@ app.use(cors({
   ],
   credentials: true,
 }));
+
+// ─── Stripe webhook (raw body MUST come before express.json) ─────────────────
+app.use('/api/stripe/webhook', express.raw({ type: 'application/json' }));
 
 // ─── Body Parsing ─────────────────────────────────────────────────────────────
 app.use(express.json({ limit: '10mb' }));
@@ -52,6 +60,11 @@ app.use('/api/calendar-events', calendarEventRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/ai', aiRoutes);
+app.use('/api/orders', orderRoutes);
+app.use('/api/moderation', moderationRoutes);
+app.use('/api/stripe', stripeRoutes);
+app.use('/api/classroom', classroomRoutes);
+app.use('/api/notifications', notificationRoutes);
 
 // ─── Health check ─────────────────────────────────────────────────────────────
 app.get('/api/health', (req, res) => res.json({ status: 'ok', app: 'intellix-backend' }));

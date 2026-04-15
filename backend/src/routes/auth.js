@@ -5,6 +5,12 @@ const prisma = require('../lib/prisma');
 const { requireAuth } = require('../middleware/auth');
 
 const router = express.Router();
+
+// ─── EDIT THIS to change how many points a user earns when someone signs up ──
+// using their referral link. Set to 0 to disable referral bonuses entirely.
+const REFERRAL_BONUS_POINTS = 200;
+// ─────────────────────────────────────────────────────────────────────────────
+
 const oauthClient = new OAuth2Client(
   process.env.GOOGLE_CLIENT_ID,
   process.env.GOOGLE_CLIENT_SECRET,
@@ -79,6 +85,27 @@ router.get('/callback', async (req, res) => {
         premium_plan: 'free',
       },
     });
+
+    // Award bonus points to the referrer if a valid referral code was used
+    if (referredBy && REFERRAL_BONUS_POINTS > 0) {
+      const referrer = await prisma.user.findUnique({
+        where: { referral_code: referredBy },
+      });
+      if (referrer && referrer.email !== email) {
+        await prisma.submission.create({
+          data: {
+            title:          `Referral Bonus — ${email} joined with your link`,
+            subject:        'other',
+            grade_level:    'n/a',
+            type:           'referral',
+            status:         'approved',
+            points_awarded: REFERRAL_BONUS_POINTS,
+            quiz_passed:    false,
+            created_by:     referrer.email,
+          },
+        });
+      }
+    }
   } else if (!user.google_id) {
     user = await prisma.user.update({
       where: { email },
@@ -145,8 +172,57 @@ router.put('/me', requireAuth, async (req, res) => {
 
 // ─── GET /api/auth/logout ────────────────────────────────────────────────────
 router.get('/logout', (req, res) => {
-  const returnUrl = req.query.return_url || process.env.FRONTEND_URL;
+  const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+  let returnUrl = frontendUrl;
+
+  // Validate return_url to prevent open-redirect attacks — only allow same origin
+  try {
+    const allowed = new URL(frontendUrl);
+    const requested = new URL(req.query.return_url || frontendUrl);
+    if (requested.origin === allowed.origin) returnUrl = requested.toString();
+  } catch { /* bad URL — fall back to frontendUrl */ }
+
   res.redirect(returnUrl);
+});
+
+// ─── GET /api/auth/shared/:shareCode ─────────────────────────────────────────
+// Public — no auth required. Returns limited read-only stats for a user.
+// shareCode = the user's referral_code (already unique + random).
+router.get('/shared/:shareCode', async (req, res) => {
+  const user = await prisma.user.findUnique({
+    where: { referral_code: req.params.shareCode },
+    select: {
+      display_name: true, full_name: true,
+      avatar_emoji: true, avatar_color: true,
+      created_date: true,
+      submissions: {
+        select: { quiz_score: true, quiz_passed: true, points_awarded: true, subject: true, created_date: true, status: true },
+      },
+    },
+  });
+
+  if (!user) return res.status(404).json({ message: 'Profile not found' });
+
+  const subs = user.submissions;
+  const graded = subs.filter(s => s.quiz_score != null);
+  const passed = subs.filter(s => s.quiz_passed);
+  const totalPoints = subs.filter(s => s.status === 'approved').reduce((a, s) => a + (s.points_awarded || 0), 0);
+  const avgScore = graded.length ? Math.round(graded.reduce((a, s) => a + s.quiz_score, 0) / graded.length) : null;
+
+  res.json({
+    display_name: user.display_name || user.full_name || 'Student',
+    avatar_emoji: user.avatar_emoji || '🎓',
+    avatar_color: user.avatar_color || '#7c3aed',
+    member_since: user.created_date,
+    total_quizzes: graded.length,
+    passed_quizzes: passed.length,
+    avg_score: avgScore,
+    total_points: totalPoints,
+    subjects_studied: [...new Set(subs.map(s => s.subject).filter(Boolean))],
+    recent_activity: graded.slice(-5).reverse().map(s => ({
+      subject: s.subject, score: s.quiz_score, passed: s.quiz_passed, date: s.created_date,
+    })),
+  });
 });
 
 module.exports = router;

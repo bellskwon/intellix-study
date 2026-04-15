@@ -103,6 +103,59 @@ export const base44 = {
     User:          makeEntity('users'),
   },
 
+  // ── Orders ────────────────────────────────────────────────────────────────
+  orders: {
+    // Creates a redemption record + sends an admin email with the order details
+    create: (data) =>
+      apiFetch('/api/orders', { method: 'POST', body: JSON.stringify(data) }),
+  },
+
+  // ── Notifications ─────────────────────────────────────────────────────────
+  notifications: {
+    // Check if the user qualifies for a comeback bonus (call on dashboard load).
+    // Returns { bonus: boolean, points?: number }
+    checkComeback: () => apiFetch('/api/notifications/comeback-check'),
+  },
+
+  // ── Stripe ───────────────────────────────────────────────────────────────
+  stripe: {
+    // Creates a Stripe Checkout session. Returns { url } — redirect the browser to it.
+    // type: 'subscription' | 'gift' | 'points_pack'
+    createCheckoutSession: (data) =>
+      apiFetch('/api/stripe/checkout-session', { method: 'POST', body: JSON.stringify(data) }),
+
+    // Opens the Stripe Customer Portal (manage/cancel subscription). Returns { url }.
+    createPortalSession: () =>
+      apiFetch('/api/stripe/portal-session', { method: 'POST' }),
+  },
+
+  // ── Classroom ─────────────────────────────────────────────────────────────
+  classroom: {
+    list: () => apiFetch('/api/classroom'),
+    create: (data) => apiFetch('/api/classroom', { method: 'POST', body: JSON.stringify(data) }),
+    join: (joinCode) => apiFetch('/api/classroom/join', { method: 'POST', body: JSON.stringify({ join_code: joinCode }) }),
+    get: (id) => apiFetch(`/api/classroom/${id}`),
+    delete: (id) => apiFetch(`/api/classroom/${id}`, { method: 'DELETE' }),
+    removeMember: (id, email) =>
+      apiFetch(`/api/classroom/${id}/members/${encodeURIComponent(email)}`, { method: 'DELETE' }),
+  },
+
+  // ── Moderation ────────────────────────────────────────────────────────────
+  moderation: {
+    // Check content before saving a submission.
+    // Returns { flagged, reason, warnings, isFinal, accountPaused, logId }
+    check: (data) =>
+      apiFetch('/api/moderation/check', { method: 'POST', body: JSON.stringify(data) }),
+
+    // Send an appeal email to admin for a flagged content decision.
+    appeal: (data) =>
+      apiFetch('/api/moderation/appeal', { method: 'POST', body: JSON.stringify(data) }),
+
+    // Flag an AI-generated question as inaccurate.
+    reportQuestion: (data) =>
+      apiFetch('/api/moderation/report-question', { method: 'POST', body: JSON.stringify(data) }),
+  },
+
   // ── Integrations ──────────────────────────────────────────────────────────
   integrations: {
     Core: {

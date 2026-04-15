@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 // React is used in ResultsStep via React.useState
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
@@ -40,7 +40,24 @@ export default function Challenge() {
   const queryClient = useQueryClient();
 
   const { data: user } = useQuery({ queryKey: ['currentUser'], queryFn: () => base44.auth.me() });
-  const isPremium = user?.premium_plan && user.premium_plan !== 'free' && user?.trial_end_date && new Date(user.trial_end_date) > new Date();
+
+  // Pre-select subject from a challenge link: /challenge?subject=math&challenger=friend@email.com
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const subjectParam = params.get('subject');
+    const challenger = params.get('challenger');
+    if (subjectParam && subjects.some(s => s.value === subjectParam)) {
+      setSubject(subjectParam);
+    }
+    if (challenger) {
+      toast.info(`${challenger.split('@')[0]} challenged you to a ${subjectParam || 'knowledge'} quiz! Good luck!`, { duration: 5000 });
+      // Clean the URL without refreshing
+      window.history.replaceState({}, '', '/challenge');
+    }
+  }, []);
+  // Premium if plan is non-free AND either (a) no trial date = paid subscriber, or (b) trial still active
+  const isPremium = user?.premium_plan && user.premium_plan !== 'free' &&
+    (!user?.trial_end_date || new Date(user.trial_end_date) > new Date());
 
   const challengeDayKey = `intellix_challenge_uses_${new Date().toISOString().slice(0,10)}`;
   const getChallengeUses = () => { try { return parseInt(localStorage.getItem(challengeDayKey) || '0'); } catch { return 0; } };
@@ -65,10 +82,16 @@ export default function Challenge() {
 
     const mathNote = subject === 'math' ? ' IMPORTANT: Verify ALL math calculations are correct before including. Double-check arithmetic using a step-by-step approach. Never include a wrong answer.' : '';
     const res = await base44.integrations.Core.InvokeLLM({
-      prompt: `Create a 5-question challenge quiz for a ${grade} grade student on: "${topic}" (subject: ${subject}). ${topicDetail}
-Mix types: 2-3 short answer, 1-2 fill-in-the-blank, 1 multiple choice.
-Questions should test real understanding for the grade level. Make multiple choice have exactly 4 options.${mathNote}
-IMPORTANT: If the topic is blank, nonsensical, or clearly not a real school subject, return an empty questions array.`,
+      prompt: `You are an expert curriculum writer creating a quiz for a ${grade} grade student.
+Topic: "${topic}" (subject: ${subject}). ${topicDetail}${mathNote}
+
+RULES:
+- Only include questions whose answers are factually certain and verifiable (no opinion, no ambiguity).
+- Use standard academic consensus — no niche interpretations or regional variations.
+- For math: write out the full worked answer in correct_answer (e.g. "3x + 6 = 15 → 3x = 9 → x = 3"). This lets the grader verify your arithmetic.
+- Calibrate difficulty exactly to ${grade} grade. Do not include content beyond that level.
+- Mix types: 2-3 short answer, 1-2 fill-in-the-blank, 1 multiple choice (exactly 4 options).
+- If the topic is blank, nonsensical, or not a real school subject, return an empty questions array.`,
       response_json_schema: {
         type: "object",
         properties: {

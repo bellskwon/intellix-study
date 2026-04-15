@@ -23,12 +23,23 @@ model User {
   created_date     DateTime  @default(now())
   updated_at       DateTime  @updatedAt
 
-  submissions      Submission[]
-  study_cards      StudyCard[]
-  redemptions      Redemption[]
-  calendar_events  CalendarEvent[]
-  sent_friendships     Friendship[] @relation("Requester")
-  received_friendships Friendship[] @relation("Recipient")
+  // ── Content moderation ──────────────────────────────────────────────────
+  moderation_warnings Int     @default(0)
+  account_paused      Boolean @default(false)
+
+  // ── Payments & Classrooms ────────────────────────────────────────────────
+  stripe_customer_id String?
+  is_teacher         Boolean @default(false)
+
+  submissions          Submission[]
+  study_cards          StudyCard[]
+  redemptions          Redemption[]
+  calendar_events      CalendarEvent[]
+  sent_friendships     Friendship[]    @relation("Requester")
+  received_friendships Friendship[]    @relation("Recipient")
+  moderation_logs      ModerationLog[]
+  owned_classrooms     Classroom[]     @relation("ClassroomOwner")
+  class_memberships    ClassMembership[]
 }
 
 model Submission {
@@ -119,4 +130,44 @@ model CalendarEvent {
   created_date DateTime @default(now())
 
   user User @relation(fields: [created_by], references: [email])
+}
+
+model Classroom {
+  id            String   @id @default(cuid())
+  name          String
+  subject       String?
+  grade_level   String?
+  join_code     String   @unique
+  teacher_email String
+  created_date  DateTime @default(now())
+
+  teacher User              @relation("ClassroomOwner", fields: [teacher_email], references: [email])
+  members ClassMembership[]
+}
+
+model ClassMembership {
+  id            String   @id @default(cuid())
+  classroom_id  String
+  student_email String
+  joined_date   DateTime @default(now())
+
+  classroom Classroom @relation(fields: [classroom_id], references: [id], onDelete: Cascade)
+  student   User      @relation(fields: [student_email], references: [email])
+
+  @@unique([classroom_id, student_email])
+}
+
+model ModerationLog {
+  id             String   @id @default(cuid())
+  user_email     String
+  content_title  String?
+  content_text   String?
+  file_url       String?
+  subject        String?
+  reason         String
+  warning_number Int
+  appealed       Boolean  @default(false)
+  created_date   DateTime @default(now())
+
+  user User @relation(fields: [user_email], references: [email])
 }

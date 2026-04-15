@@ -44,9 +44,12 @@ async function invokeLLM({ prompt, fileUrls = [], responseJsonSchema = null }) {
   const message = await anthropic.messages.create({
     model: 'claude-sonnet-4-6',
     max_tokens: 4096,
+    // Lower temperature = more factual, less creative/hallucinated output.
+    // 0.2 for structured JSON (quiz generation, grading), 0.5 for free-text.
+    temperature: responseJsonSchema ? 0.2 : 0.5,
     system: responseJsonSchema
-      ? 'You are a helpful AI assistant. Always respond with valid JSON only — no markdown, no explanation.'
-      : 'You are a helpful AI assistant for Intellix, an AI-powered study platform for students.',
+      ? 'You are a precise academic assistant for Intellix. Respond with valid JSON only — no markdown, no explanation. Never invent facts; only assert what you are certain is correct.'
+      : 'You are a helpful academic assistant for Intellix, an AI-powered study platform for students. Be accurate and concise.',
     messages: [{ role: 'user', content: userContent }],
   });
 

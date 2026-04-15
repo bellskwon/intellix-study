@@ -1,10 +1,21 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Zap, BarChart3, Users, User, X, Sparkles, FlaskConical, ShoppingBag, Brain, Crown, Archive, UserPlus } from 'lucide-react';
+import { LayoutDashboard, Zap, BarChart3, Users, User, X, Sparkles, FlaskConical, ShoppingBag, Brain, Crown, Archive, UserPlus, Moon, Sun, GraduationCap } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import LevelXPBar, { calcLevelInfo } from '@/components/shared/LevelXPBar';
+
+function useDarkMode() {
+  const [dark, setDark] = useState(() => {
+    try { return localStorage.getItem('intellix_dark') === 'true'; } catch { return false; }
+  });
+  useEffect(() => {
+    document.documentElement.classList.toggle('dark', dark);
+    try { localStorage.setItem('intellix_dark', String(dark)); } catch {}
+  }, [dark]);
+  return [dark, () => setDark(d => !d)];
+}
 
 const navItems = [
   { path: '/', label: 'Dashboard', icon: LayoutDashboard, color: 'text-violet-500' },
@@ -15,6 +26,7 @@ const navItems = [
   { path: '/progress', label: 'My Progress', icon: BarChart3, color: 'text-cyan-500' },
   { path: '/leaderboard', label: 'Leaderboard', icon: Users, color: 'text-emerald-500' },
   { path: '/friends', label: 'Friends', icon: UserPlus, color: 'text-blue-500' },
+  { path: '/classroom', label: 'Classroom', icon: GraduationCap, color: 'text-violet-500' },
   { path: '/shop', label: 'Shop', icon: ShoppingBag, color: 'text-orange-500' },
   { path: '/premium', label: 'Go Premium', icon: Crown, color: 'text-amber-500' },
   { path: '/profile', label: 'Profile', icon: User, color: 'text-rose-500' },
@@ -22,6 +34,7 @@ const navItems = [
 
 export default function Sidebar({ open, onClose }) {
   const location = useLocation();
+  const [dark, toggleDark] = useDarkMode();
 
   const { data: user } = useQuery({ queryKey: ['currentUser'], queryFn: () => base44.auth.me() });
   const { data: submissions = [] } = useQuery({
@@ -31,7 +44,7 @@ export default function Sidebar({ open, onClose }) {
   });
 
   const { level } = calcLevelInfo(submissions);
-  const STORE_UNLOCK_LEVEL = 100;
+  const STORE_UNLOCK_LEVEL = 50; // first shop tier opens at level 50
   const storeUnlocked = level >= STORE_UNLOCK_LEVEL;
 
   return (
@@ -50,7 +63,7 @@ export default function Sidebar({ open, onClose }) {
               <Sparkles className="w-5 h-5 text-white" />
             </div>
             <div>
-              <span className="text-base font-black text-foreground tracking-tight">Intellix</span>
+              <span className="text-base font-black font-sora text-foreground tracking-tight">Intellix</span>
               <span className="block text-[10px] text-muted-foreground -mt-0.5 font-medium">Online Study Platform</span>
             </div>
           </Link>
@@ -100,9 +113,16 @@ export default function Sidebar({ open, onClose }) {
           })}
         </nav>
 
-        {/* XP Progress in Sidebar */}
-        <div className="p-4 border-t border-border">
+        {/* XP Progress + Dark Mode Toggle */}
+        <div className="p-4 border-t border-border space-y-3">
           <LevelXPBar submissions={submissions} />
+          <button
+            onClick={toggleDark}
+            className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-semibold text-muted-foreground hover:text-foreground hover:bg-secondary transition-all"
+          >
+            {dark ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-indigo-400" />}
+            {dark ? 'Light Mode' : 'Dark Mode'}
+          </button>
         </div>
       </aside>
     </>

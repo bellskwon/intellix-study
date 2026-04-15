@@ -1,73 +1,106 @@
 import React, { useState } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { calcLevelInfo, getLeague } from '@/components/shared/LevelXPBar';
 import { motion } from 'framer-motion';
-import { Lock, CheckCircle2, ExternalLink, Star, ShoppingBag, BookOpen, Gift, Package } from 'lucide-react';
+import { Lock, CheckCircle2, Star, ShoppingBag, BookOpen, Gift, Mail, ChevronDown, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 
-const FULL_UNLOCK_LEVEL = 400;
-
+// ─────────────────────────────────────────────────────────────────────────────
+// SHOP CATALOG
+//
+// Each section unlocks at a specific level.
+// Each item has a `tiers` array — edit the `points` values here to change
+// how many points each gift card denomination costs.
+//
+// Format: { amount: '$X', points: NUMBER }
+// ─────────────────────────────────────────────────────────────────────────────
 const SHOP_SECTIONS = [
   {
     unlockLevel: 50,
-    title: 'Level 50 — Food Gift Cards',
+    title: 'Level 50 — Food & Coffee',
     gradient: 'from-emerald-400 to-teal-500',
     items: [
       {
-        id: 'coconut_stress_ball',
+        id: 'starbucks_gc',
         name: 'Starbucks Gift Card',
-        desc: 'A gift card to buy drinks from Starbucks',
-        cost: 600,
-        image: 'https://unsplash.com/photos/white-and-green-starbucks-cup-on-brown-wooden-table-L5_C17ltcKo',
+        desc: 'Your favorite drinks and snacks at Starbucks. Delivered digitally to your email.',
+        image: 'https://m.media-amazon.com/images/I/61WkK8hCKLL._AC_UF894,1000_QL80_.jpg',
         color: 'bg-emerald-50 border-emerald-200',
+        // ── Edit point costs for each denomination ──────────────────────────
+        tiers: [
+          { amount: '$5',  points: 500  },
+          { amount: '$10', points: 950  },
+          { amount: '$15', points: 1350 },
+          { amount: '$25', points: 2100 },
+        ],
       },
     ],
   },
   {
     unlockLevel: 100,
-    title: 'Level 100 — eCommerce Gift Cards',
+    title: 'Level 100 — eCommerce',
     gradient: 'from-violet-500 to-purple-600',
     items: [
       {
-        id: 'amazon_gift_card',
+        id: 'amazon_gc',
         name: 'Amazon Gift Card',
-        desc: 'A gift card to buy whatever you want from Amazon',
-        cost: 800,
-        image: 'https://www.citypng.com/public/uploads/preview/50-dollar-amazon-gift-card-701751695133863avcywx1srq.png',
+        desc: 'Shop anything on Amazon. Works across all categories. Sent to your email instantly.',
+        image: 'https://m.media-amazon.com/images/I/71y5TQEQS4L._AC_UF894,1000_QL80_.jpg',
         color: 'bg-violet-50 border-violet-200',
+        // ── Edit point costs for each denomination ──────────────────────────
+        tiers: [
+          { amount: '$10', points: 1000 },
+          { amount: '$25', points: 2400 },
+          { amount: '$50', points: 4600 },
+        ],
       },
       {
-        id: 'shein_gift_card',
+        id: 'shein_gc',
         name: 'Shein Gift Card',
-        desc: 'Money to buy cosmetics, clothes, and toys at Shein',
-        cost: 700,
-        image: 'https://i0.wp.com/giftcard8.com/blog/wp-content/uploads/2023/11/Everything-you-wanted-to-know-about-Shein-gift-card-.jpg?resize=1024%2C394&ssl=1',
+        desc: 'Clothing, accessories, and more at Shein. Digital code emailed to you.',
+        image: 'https://i0.wp.com/giftcard8.com/blog/wp-content/uploads/2023/11/Everything-you-wanted-to-know-about-Shein-gift-card-.jpg?resize=800%2C394&ssl=1',
         color: 'bg-pink-50 border-pink-200',
+        // ── Edit point costs for each denomination ──────────────────────────
+        tiers: [
+          { amount: '$10', points: 900  },
+          { amount: '$25', points: 2100 },
+          { amount: '$50', points: 3900 },
+        ],
       },
     ],
   },
   {
     unlockLevel: 150,
-    title: 'Level 150 — Fun Gift Cards',
+    title: 'Level 150 — Beauty & Gaming',
     gradient: 'from-pink-500 to-rose-500',
     items: [
       {
-        id: 'sephora_gift_card',
+        id: 'sephora_gc',
         name: 'Sephora Gift Card',
-        desc: 'A gift card to buy makeup, skincare, and more at Sephora',
-        cost: 1000,
+        desc: 'Makeup, skincare, and fragrance at Sephora. Digital delivery to your email.',
         image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT1Wwf9PyHRVh0Yfyt9IN9vRfVoaw9mBfvF1A&s',
-        color: 'bg-amber-50 border-amber-200',
+        color: 'bg-rose-50 border-rose-200',
+        // ── Edit point costs for each denomination ──────────────────────────
+        tiers: [
+          { amount: '$10', points: 1100 },
+          { amount: '$25', points: 2600 },
+          { amount: '$50', points: 4900 },
+        ],
       },
       {
-        id: 'roblox_gift_card',
+        id: 'roblox_gc',
         name: 'Roblox Gift Card',
-        desc: 'A gift card to buy passes, skins, and other virtual items.',
-        cost: 900,
+        desc: 'Robux for passes, skins, and virtual items in Roblox. Emailed as a digital code.',
         image: 'https://m.media-amazon.com/images/I/71SCmt-VjYL.jpg',
         color: 'bg-slate-50 border-slate-200',
+        // ── Edit point costs for each denomination ──────────────────────────
+        tiers: [
+          { amount: '$10', points: 1000 },
+          { amount: '$25', points: 2300 },
+          { amount: '$50', points: 4300 },
+        ],
       },
     ],
   },
@@ -77,120 +110,174 @@ const SHOP_SECTIONS = [
     gradient: 'from-cyan-500 to-blue-600',
     items: [
       {
-        id: 'visa_gift_card',
+        id: 'visa_gc',
         name: 'Visa Gift Card',
-        desc: 'A cash gift card to buy anything, from anywhere.',
-        cost: 1400,
+        desc: 'Spend anywhere Visa is accepted. Fully digital — no physical card required.',
         image: 'https://productimages.nimbledeals.com/nimblebuy/visa-gift-card-133-62711-regular.jpg',
-        color: 'bg-orange-50 border-orange-200',
+        color: 'bg-blue-50 border-blue-200',
+        // ── Edit point costs for each denomination ──────────────────────────
+        tiers: [
+          { amount: '$25', points: 2900 },
+          { amount: '$50', points: 5500 },
+          { amount: '$100', points: 10000 },
+        ],
       },
       {
-        id: 'mastercard_gift_card',
+        id: 'mastercard_gc',
         name: 'Mastercard Gift Card',
-        desc: 'A cash gift card to buy anything, from anywhere',
-        cost: 1200,
+        desc: 'Use online or in-store anywhere Mastercard is accepted. Delivered digitally.',
         image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRx_Wo6CniSwdiq4_687AttT_G_xwRDldKR7w&s',
-        color: 'bg-yellow-50 border-yellow-200',
+        color: 'bg-orange-50 border-orange-200',
+        // ── Edit point costs for each denomination ──────────────────────────
+        tiers: [
+          { amount: '$25', points: 2700 },
+          { amount: '$50', points: 5100 },
+          { amount: '$100', points: 9400 },
+        ],
       },
     ],
   },
   {
     unlockLevel: 250,
-    title: 'Level 250 — More Gift Cards',
+    title: 'Level 250 — Food Delivery & Shopping',
     gradient: 'from-amber-400 to-orange-500',
     items: [
       {
-        id: 'target_gift_card',
+        id: 'target_gc',
         name: 'Target Gift Card',
-        desc: 'Money to buy items from Target.',
-        cost: 1600,
-        image: 'https://thumbs.dreamstime.com/b/everett-wa-usa-target-gift-card-stack-other-cards-192383422.jpg',
-        color: 'bg-green-50 border-green-200',
+        desc: 'Shop groceries, electronics, clothing, and more at Target. Digital delivery.',
+        image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRhGeMBjSgqMNpJWGm0mIagD4FkqL9i8HnU5A&s',
+        color: 'bg-red-50 border-red-200',
+        // ── Edit point costs for each denomination ──────────────────────────
+        tiers: [
+          { amount: '$25', points: 2600 },
+          { amount: '$50', points: 4900 },
+          { amount: '$100', points: 9000 },
+        ],
       },
       {
-        id: 'bread_squishy_toy',
-        name: 'Bread Squishy Toy',
-        desc: 'Soft squishable bread squeeze toy. Slow rebound, perfect for stress relief.',
-        cost: 1500,
-        link: 'https://us.shein.com/1pc-New-Soft-Squishable-Bread-Squeeze-Toy-Slow-Rebound-Stress-Relief-Fidget-Toy-Perfect-For-Office-Birthday-Christmas-Halloween-Gifts-p-408012231.html',
-        image: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=300&h=300&fit=crop',
-        color: 'bg-amber-50 border-amber-200',
+        id: 'doordash_gc',
+        name: 'DoorDash Gift Card',
+        desc: 'Order food from thousands of restaurants near you. Digital code sent to your email.',
+        image: 'https://m.media-amazon.com/images/I/71GmJ3oo4sL._AC_UF894,1000_QL80_.jpg',
+        color: 'bg-orange-50 border-orange-200',
+        // ── Edit point costs for each denomination ──────────────────────────
+        tiers: [
+          { amount: '$10', points: 1050 },
+          { amount: '$25', points: 2500 },
+          { amount: '$50', points: 4700 },
+        ],
       },
     ],
   },
   {
     unlockLevel: 300,
-    title: 'Level 300 — Clothing Gift Cards',
+    title: 'Level 300 — Clothing',
     gradient: 'from-rose-500 to-pink-600',
     items: [
       {
-        id: 'pacsun_gift_card',
-        name: 'Pacsun Gift Card',
-        desc: 'A gift card to buy all sorts of clothes at Pacsun.',
-        cost: 2000,
-        image: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=300&h=300&fit=crop',
+        id: 'pacsun_gc',
+        name: 'PacSun Gift Card',
+        desc: 'Trendy streetwear and surf-inspired clothing at PacSun. Emailed to you.',
+        image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTmI4tD5X-FVCGZ8zYYEpk8UcfFaePeFkqkzQ&s',
         color: 'bg-rose-50 border-rose-200',
+        // ── Edit point costs for each denomination ──────────────────────────
+        tiers: [
+          { amount: '$25', points: 3100 },
+          { amount: '$50', points: 5800 },
+          { amount: '$100', points: 10500 },
+        ],
       },
       {
-        id: 'uniqlo_gift_card',
+        id: 'uniqlo_gc',
         name: 'UNIQLO Gift Card',
-        desc: 'A gift card to buy clothes at UNIQLO.',
-        cost: 1900,
+        desc: 'Clean, quality everyday clothing at UNIQLO. Digital code delivered by email.',
         image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTRi3PALtfboYXfDuAFTQ40qWracf0mKRnqtA&s',
         color: 'bg-pink-50 border-pink-200',
+        // ── Edit point costs for each denomination ──────────────────────────
+        tiers: [
+          { amount: '$25', points: 2900 },
+          { amount: '$50', points: 5400 },
+          { amount: '$100', points: 9800 },
+        ],
       },
     ],
   },
   {
     unlockLevel: 350,
-    title: 'Level 350 — Shoes',
+    title: 'Level 350 — Sneakers & Athletic',
     gradient: 'from-lime-500 to-green-600',
     items: [
       {
-        id: 'adidas_gift_card',
+        id: 'adidas_gc',
         name: 'Adidas Gift Card',
-        desc: 'A gift card to buy shoes and atheletic apparel from Adidas.',
-        cost: 2500,
+        desc: 'Shoes, athletic gear, and streetwear from Adidas. Delivered as a digital code.',
         image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT5OS_Fs1K5WvPYKnKsOg0bUR2TrZRBWyh2sQ&s',
         color: 'bg-green-50 border-green-200',
+        // ── Edit point costs for each denomination ──────────────────────────
+        tiers: [
+          { amount: '$25', points: 3300 },
+          { amount: '$50', points: 6100 },
+          { amount: '$100', points: 11000 },
+        ],
       },
       {
-        id: 'nike_gift_card',
+        id: 'nike_gc',
         name: 'Nike Gift Card',
-        desc: 'A gift card to buy items from Nike.',
-        cost: 2200,
-        image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTdnBSUatFGWtnndGAB3bidVOuhPCAoB8FMaQ&sp',
+        desc: 'Sneakers, sports apparel, and gear from Nike. Digital gift card, emailed to you.',
+        image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTdnBSUatFGWtnndGAB3bidVOuhPCAoB8FMaQ&s',
         color: 'bg-cyan-50 border-cyan-200',
+        // ── Edit point costs for each denomination ──────────────────────────
+        tiers: [
+          { amount: '$25', points: 3100 },
+          { amount: '$50', points: 5800 },
+          { amount: '$100', points: 10500 },
+        ],
       },
     ],
   },
   {
     unlockLevel: 400,
-    title: 'Level 400 — Food Gift Cards',
+    title: 'Level 400 — Fan Favorites',
     gradient: 'from-amber-500 to-yellow-500',
     items: [
       {
-        id: 'raising_canes_gift_card',
-        name: 'Raising Canes Gift Card',
-        desc: 'A gift card to buy food at Raising Canes.',
-        cost: 3500,
+        id: 'raising_canes_gc',
+        name: "Raising Cane's Gift Card",
+        desc: 'The best chicken fingers around. Digital code for Raising Cane\'s, sent to your email.',
         image: 'https://raisingcanesgear.com/cdn/shop/files/Cane_s_Logo_Branded_Gift_Card_1200x1200_crop_center.jpg?v=1750295655',
         color: 'bg-yellow-50 border-yellow-200',
+        // ── Edit point costs for each denomination ──────────────────────────
+        tiers: [
+          { amount: '$10', points: 1600 },
+          { amount: '$25', points: 3700 },
+          { amount: '$50', points: 7000 },
+        ],
       },
       {
-        id: 'chikfila_gift_card',
-        name: 'Chik-fil-a Gift Card',
-        desc: 'A gift card to buy food at Chik-fil-a.',
-        cost: 3000,
+        id: 'chickfila_gc',
+        name: 'Chick-fil-A Gift Card',
+        desc: 'Nuggets, sandwiches, and waffle fries at Chick-fil-A. Digital delivery by email.',
         image: 'https://bhn.imgix.net/sites/default/files/2025-07/ChickfilA-GC-0322.webp?fm=webp&ixlib=php-4.1.0',
-        color: 'bg-pink-50 border-pink-200',
+        color: 'bg-rose-50 border-rose-200',
+        // ── Edit point costs for each denomination ──────────────────────────
+        tiers: [
+          { amount: '$10', points: 1500 },
+          { amount: '$25', points: 3400 },
+          { amount: '$50', points: 6400 },
+        ],
       },
     ],
   },
 ];
 
+const FULL_UNLOCK_LEVEL = 400;
+
+// ─────────────────────────────────────────────────────────────────────────────
+
 export default function Shop() {
   const queryClient = useQueryClient();
+  const [ordering, setOrdering] = useState(false);
 
   const { data: user } = useQuery({ queryKey: ['currentUser'], queryFn: () => base44.auth.me() });
   const { data: submissions = [] } = useQuery({
@@ -206,51 +293,46 @@ export default function Shop() {
 
   const { level } = calcLevelInfo(submissions);
   const league = getLeague(level);
-  const totalPoints = submissions.filter(s => s.status === 'approved').reduce((a, s) => a + (s.points_awarded || 0), 0);
-  const spentPoints = redemptions.reduce((a, r) => a + (r.points_spent || 0), 0);
+  const totalPoints  = submissions.filter(s => s.status === 'approved').reduce((a, s) => a + (s.points_awarded || 0), 0);
+  const spentPoints  = redemptions.reduce((a, r) => a + (r.points_spent || 0), 0);
   const availablePoints = totalPoints - spentPoints;
 
-  const ownedIds = new Set(redemptions.map(r => r.reward_id));
-
-  const redeemMutation = useMutation({
-    mutationFn: async (item) => {
-      await base44.entities.Redemption.create({
-        reward_id: item.id,
-        reward_name: item.name,
-        points_spent: item.cost,
-        status: 'pending',
+  const handleOrder = async (item, tier) => {
+    if (ordering) return;
+    setOrdering(true);
+    try {
+      await base44.orders.create({
+        reward_id:        `${item.id}_${tier.amount.replace('$', '')}`,
+        reward_name:      `${item.name} — ${tier.amount}`,
+        points_spent:     tier.points,
+        gift_card_amount: tier.amount,
       });
-    },
-    onSuccess: (_, item) => {
       queryClient.invalidateQueries({ queryKey: ['myRedemptions'] });
-      toast.success(`Redeemed "${item.name}"! Check back for delivery details.`);
-    },
-  });
-
-  const handleBuy = (item, section) => {
-    if (level < section.unlockLevel) return;
-    if (availablePoints < item.cost) { toast.error('Not enough points!'); return; }
-    if (ownedIds.has(item.id)) { toast.info('You already own this item!'); return; }
-    redeemMutation.mutate(item);
+      toast.success(`Order placed! Your ${item.name} (${tier.amount}) will be emailed to you within 24–48 hours.`);
+    } catch (err) {
+      toast.error(err.message || 'Order failed — please try again.');
+    } finally {
+      setOrdering(false);
+    }
   };
 
   return (
     <div className="max-w-4xl mx-auto space-y-8">
-      {/* Header Banner */}
+
+      {/* ── Header Banner ───────────────────────────────────────────���─────── */}
       <div className="relative rounded-3xl overflow-hidden text-white p-8"
         style={{ background: 'linear-gradient(135deg, #7c3aed 0%, #ec4899 60%, #f59e0b 100%)' }}>
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
           <div className="absolute top-2 right-8 w-48 h-48 bg-white/10 rounded-full blur-2xl" />
           <div className="absolute -bottom-10 left-4 w-64 h-64 bg-black/10 rounded-full blur-3xl" />
-          <div className="absolute top-1/2 left-1/3 w-32 h-32 bg-white/5 rounded-full blur-xl" />
         </div>
         <div className="relative z-10 flex items-center justify-between flex-wrap gap-4">
           <div>
             <div className="flex items-center gap-2 mb-2">
               <ShoppingBag className="w-6 h-6 text-white" />
-              <h1 className="text-3xl font-black tracking-tight">Intellix Shop</h1>
+              <h1 className="text-3xl font-black tracking-tight font-sora">Intellix Shop</h1>
             </div>
-            <p className="text-white/80 text-sm">Study hard. Earn points. Get real rewards shipped to you.</p>
+            <p className="text-white/80 text-sm">Study hard. Earn points. Get real rewards emailed to you.</p>
           </div>
           <div className="bg-white/20 backdrop-blur-sm rounded-2xl px-5 py-4 text-center border border-white/20">
             <p className="text-xs text-white/70 font-semibold uppercase tracking-wide">Available Points</p>
@@ -272,12 +354,12 @@ export default function Shop() {
         </div>
       </div>
 
-      {/* How it works */}
+      {/* ── How it works ──────────────────────────────────────────────────── */}
       <div className="grid grid-cols-3 gap-3">
         {[
-          { Icon: BookOpen, gradient: 'from-violet-500 to-purple-600', title: 'Study & Earn', desc: 'Complete quizzes to earn points' },
-          { Icon: Gift, gradient: 'from-pink-500 to-rose-500', title: 'Redeem', desc: 'Spend points on physical rewards' },
-          { Icon: Package, gradient: 'from-amber-400 to-orange-500', title: 'We Ship It', desc: 'We ship your reward directly to you' },
+          { Icon: BookOpen, gradient: 'from-violet-500 to-purple-600', title: 'Study & Earn',    desc: 'Complete quizzes to earn points' },
+          { Icon: Gift,     gradient: 'from-pink-500 to-rose-500',     title: 'Choose a Reward', desc: 'Pick a gift card and denomination' },
+          { Icon: Mail,     gradient: 'from-amber-400 to-orange-500',  title: 'Get it by Email', desc: 'We email your digital code within 48h' },
         ].map(h => (
           <div key={h.title} className="bg-white rounded-2xl border border-border p-4 text-center">
             <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${h.gradient} flex items-center justify-center mx-auto mb-2 shadow-md`}>
@@ -289,14 +371,15 @@ export default function Shop() {
         ))}
       </div>
 
-      {/* Shop sections */}
+      {/* ── Shop Sections ─────────────────────────────────────────────────── */}
       {SHOP_SECTIONS.map((section, si) => {
         const unlocked = level >= section.unlockLevel;
         return (
           <motion.div key={section.unlockLevel}
             initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
             transition={{ delay: si * 0.05 }}>
-            {/* Section divider */}
+
+            {/* Section header pill */}
             <div className="flex items-center gap-3 mb-5">
               <div className={`flex-1 h-px ${unlocked ? 'bg-primary/20' : 'bg-border'}`} />
               <div className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-black border-2 ${
@@ -304,30 +387,26 @@ export default function Shop() {
                   ? `bg-gradient-to-r ${section.gradient} text-white border-transparent shadow-md`
                   : 'bg-muted border-border text-muted-foreground'
               }`}>
-                {!unlocked && <Lock className="w-3.5 h-3.5" />}
-                {unlocked && <CheckCircle2 className="w-3.5 h-3.5" />}
+                {unlocked ? <CheckCircle2 className="w-3.5 h-3.5" /> : <Lock className="w-3.5 h-3.5" />}
                 {section.title}
               </div>
               <div className={`flex-1 h-px ${unlocked ? 'bg-primary/20' : 'bg-border'}`} />
             </div>
 
             <div className={`grid grid-cols-1 sm:grid-cols-2 gap-4 relative ${!unlocked ? 'select-none' : ''}`}>
-              {section.items.map(item => {
-                const owned = ownedIds.has(item.id);
-                return (
-                  <ShopItem
-                    key={item.id}
-                    item={item}
-                    section={section}
-                    unlocked={unlocked}
-                    canAfford={availablePoints >= item.cost}
-                    owned={owned}
-                    onBuy={() => handleBuy(item, section)}
-                    loading={redeemMutation.isPending}
-                  />
-                );
-              })}
+              {section.items.map(item => (
+                <ShopCard
+                  key={item.id}
+                  item={item}
+                  section={section}
+                  unlocked={unlocked}
+                  availablePoints={availablePoints}
+                  onOrder={handleOrder}
+                  ordering={ordering}
+                />
+              ))}
 
+              {/* Locked overlay */}
               {!unlocked && (
                 <div className="absolute inset-0 rounded-2xl flex flex-col items-center justify-center gap-3 backdrop-blur-[3px] bg-background/60 z-10 border-2 border-dashed border-border">
                   <div className="w-16 h-16 rounded-2xl bg-muted flex items-center justify-center">
@@ -351,72 +430,110 @@ export default function Shop() {
         );
       })}
 
-      <ContactFooter />
+      {/* ── Footer ────────────────────────────────────────────────���───────── */}
+      <div className="text-center py-6 border-t border-border space-y-1">
+        <p className="text-sm text-muted-foreground">
+          Gift cards are delivered digitally to your account email within 24–48 hours.
+        </p>
+        <p className="text-sm text-muted-foreground">
+          Questions?{' '}
+          <a href="mailto:intellixapp.team@gmail.com" className="text-primary font-semibold hover:underline">
+            intellixapp.team@gmail.com
+          </a>
+        </p>
+      </div>
     </div>
   );
 }
 
-function ShopItem({ item, section, unlocked, canAfford, owned, onBuy, loading }) {
+// ─────────────────────────────────────────────────────────────────────────────
+// ShopCard — individual gift card with tier dropdown + order button
+// ─────────────────────────────────────────────────────────────────────────────
+function ShopCard({ item, section, unlocked, availablePoints, onOrder, ordering }) {
+  const [tierIdx, setTierIdx] = useState(0);
+  const tier = item.tiers[tierIdx];
+  const canAfford = availablePoints >= tier.points;
+
   return (
-    <div className={`bg-white rounded-2xl border-2 p-5 flex gap-4 transition-all relative overflow-hidden group
-      ${owned ? 'border-emerald-300 bg-emerald-50/50' : unlocked && canAfford ? `${item.color} hover:shadow-lg` : 'border-border'}
+    <div className={`bg-white rounded-2xl border-2 overflow-hidden flex flex-col transition-all
+      ${unlocked && canAfford ? `${item.color} hover:shadow-lg hover:-translate-y-0.5` : 'border-border'}
       ${!unlocked ? 'opacity-50' : ''}`}>
-      <div className="w-24 h-24 rounded-xl overflow-hidden shrink-0 bg-muted">
-        <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+
+      {/* ── Gift card image ──────────────────────────────────────────────── */}
+      <div className="w-full h-44 bg-muted overflow-hidden shrink-0">
+        <img
+          src={item.image}
+          alt={item.name}
+          className="w-full h-full object-cover object-center"
+          loading="lazy"
+        />
       </div>
-      <div className="flex-1 min-w-0 flex flex-col gap-2">
-        <div className="flex items-start justify-between gap-2">
-          <div>
-            <div className="flex items-center gap-1.5 mb-0.5">
-              <span className="text-[10px] font-black uppercase tracking-wide text-primary bg-primary/10 px-2 py-0.5 rounded-full">{item.badge}</span>
-            </div>
-            <p className="font-black text-sm text-foreground leading-tight">{item.name}</p>
-          </div>
-          {owned && <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0" />}
+
+      {/* ── Content ─────────────────────────────────────────────────────── */}
+      <div className="flex flex-col flex-1 p-4 gap-3">
+        <div>
+          <p className="font-black text-sm text-foreground leading-tight">{item.name}</p>
+          <p className="text-xs text-muted-foreground mt-1 leading-relaxed">{item.desc}</p>
         </div>
-        <p className="text-xs text-muted-foreground leading-relaxed">{item.desc}</p>
+
+        {/* ── Tier dropdown ─────────────────────────────────────────────── */}
+        <div className="relative">
+          <label className="block text-[10px] font-black text-muted-foreground uppercase tracking-wider mb-1">
+            Select Amount
+          </label>
+          <div className="relative">
+            <select
+              value={tierIdx}
+              onChange={e => setTierIdx(Number(e.target.value))}
+              disabled={!unlocked}
+              className="w-full appearance-none bg-secondary border border-border rounded-xl px-3 py-2 pr-8 text-sm font-semibold text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 cursor-pointer disabled:cursor-not-allowed"
+            >
+              {item.tiers.map((t, i) => (
+                <option key={i} value={i}>
+                  {t.amount} — {t.points.toLocaleString()} pts
+                </option>
+              ))}
+            </select>
+            <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+          </div>
+        </div>
+
+        {/* ── Points badge + Order button ───────────────────────────────── */}
         <div className="mt-auto flex items-center justify-between gap-2">
           <div className="flex items-center gap-1">
             <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
-            <span className="text-sm font-black text-amber-600">{item.cost.toLocaleString()} pts</span>
-          </div>
-          <div className="flex items-center gap-2">
-            {item.link && (
-              <a href={item.link} target="_blank" rel="noopener noreferrer"
-                className="text-xs text-muted-foreground hover:text-primary flex items-center gap-1 font-semibold">
-                <ExternalLink className="w-3 h-3" /> View
-              </a>
+            <span className={`text-sm font-black ${canAfford ? 'text-amber-600' : 'text-rose-500'}`}>
+              {tier.points.toLocaleString()} pts
+            </span>
+            {!canAfford && unlocked && (
+              <span className="text-[10px] text-rose-400 font-semibold ml-1">
+                (need {(tier.points - availablePoints).toLocaleString()} more)
+              </span>
             )}
-            {!owned ? (
-              <Button
-                size="sm"
-                onClick={onBuy}
-                disabled={!unlocked || !canAfford || loading}
-                className={`rounded-xl text-xs font-bold h-8 ${
-                  unlocked && canAfford ? `bg-gradient-to-r ${section.gradient} text-white border-0 hover:opacity-90` : ''
-                }`}
-              >
-                {!unlocked ? 'Locked' : !canAfford ? 'Need more pts' : 'Redeem'}
-              </Button>
+          </div>
+
+          <Button
+            size="sm"
+            onClick={() => onOrder(item, tier)}
+            disabled={!unlocked || !canAfford || ordering}
+            className={`rounded-xl text-xs font-bold h-8 min-w-[80px] ${
+              unlocked && canAfford
+                ? `bg-gradient-to-r ${section.gradient} text-white border-0 hover:opacity-90 shadow-sm`
+                : ''
+            }`}
+          >
+            {ordering ? (
+              <Loader2 className="w-3.5 h-3.5 animate-spin" />
+            ) : !unlocked ? (
+              'Locked'
+            ) : !canAfford ? (
+              'Not enough'
             ) : (
-              <span className="text-xs font-black text-emerald-600 bg-emerald-100 px-2.5 py-1 rounded-full">Owned</span>
+              'Order'
             )}
-          </div>
+          </Button>
         </div>
       </div>
-    </div>
-  );
-}
-
-function ContactFooter() {
-  return (
-    <div className="text-center py-6 border-t border-border">
-      <p className="text-sm text-muted-foreground">
-        Questions about your reward?{' '}
-        <a href="mailto:intellixapp.team@gmail.com" className="text-primary font-semibold hover:underline">
-          intellixapp.team@gmail.com
-        </a>
-      </p>
     </div>
   );
 }

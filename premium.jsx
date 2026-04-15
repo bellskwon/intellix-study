@@ -1,11 +1,19 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { motion, AnimatePresence } from 'framer-motion';
-import { CheckCircle2, Zap, Star, Crown, Users, Gift, X } from 'lucide-react';
+import { CheckCircle2, Zap, Star, Crown, Users, Gift, X, Sparkles, ExternalLink, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
 import { format, addDays } from 'date-fns';
+
+const POINT_PACKS = [
+  { id: 'pack_100',  points: 100,  price: '$0.99',  label: '100 Points',   color: 'from-slate-400 to-slate-500',   badge: null },
+  { id: 'pack_350',  points: 350,  price: '$2.99',  label: '350 Points',   color: 'from-violet-500 to-purple-600', badge: 'Popular' },
+  { id: 'pack_1000', points: 1000, price: '$7.99',  label: '1,000 Points', color: 'from-blue-500 to-indigo-600',   badge: 'Best Value' },
+  { id: 'pack_2500', points: 2500, price: '$14.99', label: '2,500 Points', color: 'from-amber-500 to-orange-600',  badge: 'Max Pack' },
+];
 
 const PLANS = [
   {
@@ -51,8 +59,12 @@ const PLANS = [
 export default function Premium() {
   const queryClient = useQueryClient();
   const [billing, setBilling] = useState('monthly');
-  const [trialPopup, setTrialPopup] = useState(null); // plan object
+  const [trialPopup, setTrialPopup] = useState(null);
   const [expiredPopup, setExpiredPopup] = useState(null);
+  const [stripeLoading, setStripeLoading] = useState(null); // 'subscribe'|packId|'gift'|'portal'
+  const [giftEmail, setGiftEmail] = useState('');
+  const [giftPlan, setGiftPlan] = useState('pro');
+  const [giftBilling, setGiftBilling] = useState('monthly');
 
   const { data: user, refetch } = useQuery({ queryKey: ['currentUser'], queryFn: () => base44.auth.me() });
 
@@ -60,9 +72,48 @@ export default function Premium() {
   const trialEndDate = user?.trial_end_date ? new Date(user.trial_end_date) : null;
   const trialExpired = trialEndDate && trialEndDate < new Date();
 
+  // Show success toast after Stripe redirect
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const status = params.get('stripe_status');
+    if (status === 'success') {
+      toast.success('Payment successful! Your plan has been updated.');
+      refetch();
+      // Clean the URL
+      window.history.replaceState({}, '', '/premium');
+    } else if (status === 'cancelled') {
+      toast.info('Checkout cancelled — no charge was made.');
+      window.history.replaceState({}, '', '/premium');
+    }
+  }, []);
+
+  const startStripeCheckout = async (type, extra = {}) => {
+    const key = extra.packId || type;
+    setStripeLoading(key);
+    try {
+      // extra.billing takes precedence over the main billing toggle (used by gift section)
+      const { url } = await base44.stripe.createCheckoutSession({ type, billing, ...extra });
+      window.location.href = url;
+    } catch (e) {
+      toast.error(e.message || 'Could not start checkout');
+      setStripeLoading(null);
+    }
+  };
+
+  const openPortal = async () => {
+    setStripeLoading('portal');
+    try {
+      const { url } = await base44.stripe.createPortalSession();
+      window.location.href = url;
+    } catch (e) {
+      toast.error(e.message || 'Could not open billing portal');
+      setStripeLoading(null);
+    }
+  };
+
   const handleSubscribe = async (plan) => {
     if (plan.ctaDisabled) return;
-    if (activePlan === plan.id) { toast.info(`You're already on ${plan.name}!`); return; }
+    if (activePlan === plan.id && !trialExpired) { toast.info(`You're already on ${plan.name}!`); return; }
     setTrialPopup(plan);
   };
 
@@ -71,7 +122,6 @@ export default function Premium() {
     await base44.auth.updateMe({
       premium_plan: plan.id,
       trial_end_date: endDate.toISOString(),
-      trial_active: true,
     });
     await refetch();
     queryClient.invalidateQueries({ queryKey: ['currentUser'] });
@@ -186,6 +236,103 @@ export default function Premium() {
             </motion.div>
           );
         })}
+      </div>
+
+      {/* Manage subscription (active paid subscribers) */}
+      {activePlan !== 'free' && !trialExpired && (
+        <div className="bg-white rounded-2xl border border-border p-5 flex items-center gap-4">
+          <div className="flex-1">
+            <p className="font-black text-sm text-foreground">Manage Subscription</p>
+            <p className="text-xs text-muted-foreground mt-0.5">Update payment method, view invoices, or cancel anytime.</p>
+          </div>
+          <Button size="sm" variant="outline" className="rounded-xl font-bold shrink-0 gap-1.5"
+            disabled={stripeLoading === 'portal'} onClick={openPortal}>
+            <Settings className="w-3.5 h-3.5" />
+            {stripeLoading === 'portal' ? 'Opening…' : 'Billing Portal'}
+          </Button>
+        </div>
+      )}
+
+      {/* ── Bonus Point Packs ─────────────────────────────────────────────── */}
+      <div className="space-y-4">
+        <div>
+          <h3 className="font-black text-foreground text-lg flex items-center gap-2">
+            <Sparkles className="w-5 h-5 text-amber-500" /> Bonus Point Packs
+          </h3>
+          <p className="text-sm text-muted-foreground mt-1">One-time purchases — points are instantly added to your account.</p>
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          {POINT_PACKS.map(pack => (
+            <div key={pack.id} className="bg-white rounded-2xl border border-border overflow-hidden">
+              {pack.badge && (
+                <div className={`text-center py-1 text-[10px] font-black text-white bg-gradient-to-r ${pack.color}`}>
+                  {pack.badge}
+                </div>
+              )}
+              <div className={`bg-gradient-to-br ${pack.color} p-4 text-center`}>
+                <p className="text-2xl font-black text-white">{pack.points.toLocaleString()}</p>
+                <p className="text-xs text-white/80 font-bold">points</p>
+              </div>
+              <div className="p-3 text-center">
+                <p className="text-lg font-black text-foreground">{pack.price}</p>
+                <Button
+                  size="sm"
+                  className="w-full mt-2 rounded-xl font-bold h-8"
+                  disabled={stripeLoading === pack.id}
+                  onClick={() => startStripeCheckout('points_pack', { packId: pack.id })}>
+                  {stripeLoading === pack.id ? 'Loading…' : 'Buy'}
+                </Button>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* ── Gift Premium ──────────────────────────────────────────────────── */}
+      <div className="bg-gradient-to-br from-pink-50 to-fuchsia-50 border border-pink-200 rounded-3xl p-6 space-y-4">
+        <div className="flex items-center gap-3">
+          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-pink-400 to-fuchsia-500 flex items-center justify-center shadow-lg shrink-0">
+            <Gift className="w-6 h-6 text-white" />
+          </div>
+          <div>
+            <h3 className="font-black text-foreground text-lg">Gift Premium</h3>
+            <p className="text-sm text-muted-foreground">Send a Premium subscription to a friend.</p>
+          </div>
+        </div>
+        <div className="grid sm:grid-cols-2 gap-3">
+          <Input
+            placeholder="Friend's Gmail address..."
+            value={giftEmail}
+            onChange={e => setGiftEmail(e.target.value)}
+            type="email"
+            className="h-11 rounded-xl bg-white"
+          />
+          <div className="flex gap-2">
+            <select
+              value={giftPlan}
+              onChange={e => setGiftPlan(e.target.value)}
+              className="flex-1 h-11 rounded-xl border border-input bg-white px-3 text-sm font-semibold text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30">
+              <option value="pro">Pro</option>
+              <option value="elite">Elite</option>
+              <option value="school">School</option>
+            </select>
+            <select
+              value={giftBilling}
+              onChange={e => setGiftBilling(e.target.value)}
+              className="flex-1 h-11 rounded-xl border border-input bg-white px-3 text-sm font-semibold text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30">
+              <option value="monthly">Monthly</option>
+              <option value="yearly">Yearly</option>
+            </select>
+          </div>
+        </div>
+        <Button
+          className="w-full h-11 rounded-xl font-bold bg-gradient-to-r from-pink-500 to-fuchsia-600 text-white hover:opacity-90"
+          disabled={!giftEmail.trim() || stripeLoading === 'gift'}
+          onClick={() => startStripeCheckout('gift', { plan: giftPlan, billing: giftBilling, giftEmail: giftEmail.trim() })}>
+          <Gift className="w-4 h-4 mr-2" />
+          {stripeLoading === 'gift' ? 'Loading…' : `Gift ${giftPlan.charAt(0).toUpperCase() + giftPlan.slice(1)} to Friend`}
+        </Button>
+        <p className="text-xs text-muted-foreground">Their plan activates the moment payment completes. They'll need an Intellix account.</p>
       </div>
 
       {/* Referral Section */}
@@ -305,16 +452,17 @@ export default function Premium() {
                   ${billing === 'yearly' ? expiredPopup.yearlyPrice + '/yr' : expiredPopup.monthlyPrice + '/mo'}
                 </p>
               </div>
-              <div className="bg-secondary/50 rounded-2xl p-4 mb-5 space-y-2">
-                <p className="text-xs font-black text-muted-foreground uppercase tracking-wide mb-2">Pay with</p>
-                {['Google Pay', 'Venmo', 'CashApp', 'PayPal', 'Credit/Debit Card'].map(method => (
-                  <button key={method} onClick={() => { toast.success(`Redirecting to ${method}...`); setExpiredPopup(null); }}
-                    className="w-full text-left px-4 py-2.5 rounded-xl bg-white border border-border text-sm font-semibold hover:border-primary/30 hover:bg-primary/5 transition-all">
-                    {method}
-                  </button>
-                ))}
-              </div>
-              <p className="text-xs text-muted-foreground text-center">Payment processing coming soon. Contact us at intellixapp.team@gmail.com</p>
+              <Button
+                className="w-full h-11 rounded-xl font-bold bg-primary text-white hover:bg-primary/90 mb-2 gap-2"
+                disabled={stripeLoading === 'subscribe'}
+                onClick={() => {
+                  setExpiredPopup(null);
+                  startStripeCheckout('subscription', { plan: expiredPopup.id });
+                }}>
+                <ExternalLink className="w-4 h-4" />
+                {stripeLoading === 'subscribe' ? 'Loading…' : 'Subscribe via Stripe'}
+              </Button>
+              <p className="text-xs text-muted-foreground text-center">Secure payment via Stripe. Cancel any time.</p>
             </motion.div>
           </div>
         )}

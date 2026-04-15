@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
+import { format } from 'date-fns';
 
 const SUBJECTS = ['math','science','history','geography','english','foreign_language','computer_science','art','music','other'];
 const subjectColors = {
@@ -45,18 +46,20 @@ export default function Storage() {
 
   const { data: submissions = [] } = useQuery({
     queryKey: ['mySubmissions'],
-    queryFn: () => base44.entities.Submission.filter({ created_by: user?.email }, '-created_date', 20),
+    queryFn: () => base44.entities.Submission.filter({ created_by: user?.email }, '-created_date', 100),
     enabled: !!user?.email,
   });
 
   const updateCard = useMutation({
     mutationFn: ({ id, data }) => base44.entities.StudyCard.update(id, data),
     onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['myStudyCards'] }); setEditingCard(null); toast.success('Card updated!'); },
+    onError: () => toast.error('Failed to update card. Please try again.'),
   });
 
   const deleteCard = useMutation({
     mutationFn: (id) => base44.entities.StudyCard.delete(id),
     onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['myStudyCards'] }); toast.success('Card deleted'); },
+    onError: () => toast.error('Failed to delete card. Please try again.'),
   });
 
   // Group cards by deck
@@ -105,6 +108,10 @@ export default function Storage() {
 
   const deleteFolder = (id) => {
     saveFolders(folders.filter(f => f.id !== id));
+    // Clean up folder contents so localStorage doesn't accumulate orphaned entries
+    const updated = { ...folderContents };
+    delete updated[id];
+    saveFolderContents(updated);
   };
 
   const startEdit = (card) => {
@@ -280,48 +287,53 @@ export default function Storage() {
       </div>
 
       {/* Past Quizzes */}
-      <div>
-        <h2 className="font-black text-foreground flex items-center gap-2 mb-3">
-          Past Quizzes
-          <span className="text-xs font-normal text-muted-foreground">({submissions.length} recent)</span>
-        </h2>
-        {submissions.length === 0 ? (
-          <div className="bg-white rounded-2xl border border-dashed border-border p-8 text-center">
-            <p className="text-sm text-muted-foreground">No quizzes taken yet</p>
-          </div>
-        ) : (
-          <Droppable droppableId="quiz-list" isDropDisabled={true}>
-            {(provided) => (
-              <div ref={provided.innerRef} {...provided.droppableProps} className="space-y-2">
-                {submissions.map((sub, idx) => (
-                  <Draggable key={sub.id} draggableId={`quiz-${sub.id}`} index={idx}>
-                    {(dragProvided, dragSnapshot) => (
-                      <div ref={dragProvided.innerRef} {...dragProvided.draggableProps}
-                        className={`bg-white rounded-xl border px-4 py-3 flex items-center gap-3 transition-shadow ${dragSnapshot.isDragging ? 'shadow-xl border-primary/30' : 'border-border'}`}>
-                        <div {...dragProvided.dragHandleProps} className="cursor-grab active:cursor-grabbing text-muted-foreground shrink-0">
-                          <GripVertical className="w-4 h-4" />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-semibold text-foreground truncate">{sub.title}</p>
-                          <p className="text-xs text-muted-foreground capitalize">{sub.subject?.replace(/_/g,' ')} · {sub.grade_level}</p>
-                        </div>
-                        {sub.quiz_score != null ? (
-                          <span className={`text-xs font-black px-2.5 py-1 rounded-full shrink-0 ${
-                            sub.quiz_score >= 80 ? 'bg-emerald-50 text-emerald-600' :
-                            sub.quiz_score >= 60 ? 'bg-amber-50 text-amber-600' : 'bg-rose-50 text-rose-600'}`}>
-                            {sub.quiz_score}%
-                          </span>
-                        ) : <span className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded-full shrink-0">Pending</span>}
-                      </div>
-                    )}
-                  </Draggable>
-                ))}
-                {provided.placeholder}
+      {(() => {
+        const quizzed = submissions.filter(s => s.quiz_score != null);
+        return (
+          <div>
+            <h2 className="font-black text-foreground flex items-center gap-2 mb-3">
+              Past Quizzes
+              <span className="text-xs font-normal text-muted-foreground">({quizzed.length})</span>
+            </h2>
+            {quizzed.length === 0 ? (
+              <div className="bg-white rounded-2xl border border-dashed border-border p-8 text-center">
+                <p className="text-sm text-muted-foreground">No quizzes taken yet</p>
               </div>
+            ) : (
+              <Droppable droppableId="quiz-list" isDropDisabled={true}>
+                {(provided) => (
+                  <div ref={provided.innerRef} {...provided.droppableProps} className="space-y-2">
+                    {quizzed.map((sub, idx) => (
+                      <Draggable key={sub.id} draggableId={`quiz-${sub.id}`} index={idx}>
+                        {(dragProvided, dragSnapshot) => (
+                          <div ref={dragProvided.innerRef} {...dragProvided.draggableProps}
+                            className={`bg-white rounded-xl border px-4 py-3 flex items-center gap-3 transition-shadow ${dragSnapshot.isDragging ? 'shadow-xl border-primary/30' : 'border-border'}`}>
+                            <div {...dragProvided.dragHandleProps} className="cursor-grab active:cursor-grabbing text-muted-foreground shrink-0">
+                              <GripVertical className="w-4 h-4" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-semibold text-foreground truncate">{sub.title}</p>
+                              <p className="text-xs text-muted-foreground capitalize">
+                                {sub.subject?.replace(/_/g,' ')} · {format(new Date(sub.created_date), 'MMM d, yyyy')}
+                              </p>
+                            </div>
+                            <span className={`text-xs font-black px-2.5 py-1 rounded-full shrink-0 ${
+                              sub.quiz_score >= 80 ? 'bg-emerald-50 text-emerald-600' :
+                              sub.quiz_score >= 60 ? 'bg-amber-50 text-amber-600' : 'bg-rose-50 text-rose-600'}`}>
+                              {sub.quiz_score}%
+                            </span>
+                          </div>
+                        )}
+                      </Draggable>
+                    ))}
+                    {provided.placeholder}
+                  </div>
+                )}
+              </Droppable>
             )}
-          </Droppable>
-        )}
-      </div>
+          </div>
+        );
+      })()}
 
       </DragDropContext>
 

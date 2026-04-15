@@ -35,7 +35,8 @@ export default function Questions() {
   const [expandedHints, setExpandedHints] = useState({});
 
   const { data: user } = useQuery({ queryKey: ['currentUser'], queryFn: () => base44.auth.me() });
-  const isPremium = user?.premium_plan && user.premium_plan !== 'free' && user?.trial_end_date && new Date(user.trial_end_date) > new Date();
+  const isPremium = user?.premium_plan && user.premium_plan !== 'free' &&
+    (!user?.trial_end_date || new Date(user.trial_end_date) > new Date());
 
   // Count today's tool uses from localStorage
   const todayKey = `intellix_tool_uses_${new Date().toISOString().slice(0,10)}`;
@@ -63,7 +64,7 @@ export default function Questions() {
     incrementUses();
     const remaining = FREE_DAILY_LIMIT - usedSoFar - 1;
     if (!isPremium && remaining >= 0) {
-      if (remaining === 0) toast.warning(`Last free use today! Upgrade to Pro for $5.99/month.`, { action: { label: 'Upgrade', onClick: () => window.location.href = '/premium' } });
+      if (remaining === 0) toast.warning(`Last free use today! Upgrade to Pro for $4.99/month.`, { action: { label: 'Upgrade', onClick: () => window.location.href = '/premium' } });
       else toast.info(`${remaining} free use${remaining !== 1 ? 's' : ''} remaining today.`);
     }
     return true;
@@ -226,7 +227,7 @@ IMPORTANT: If the notes contain no real study content, return an empty flashcard
             {usesLeft === 0 ? (
               <p className="text-sm font-bold text-rose-800">You've used all {FREE_DAILY_LIMIT} free uses today. Come back tomorrow or <a href="/premium" className="underline">upgrade to Pro</a>.</p>
             ) : (
-              <p className="text-sm font-semibold text-foreground">{usesLeft} of {FREE_DAILY_LIMIT} free uses left today · <a href="/premium" className="text-primary font-bold hover:underline">Upgrade for $5.99/month</a></p>
+              <p className="text-sm font-semibold text-foreground">{usesLeft} of {FREE_DAILY_LIMIT} free uses left today · <a href="/premium" className="text-primary font-bold hover:underline">Upgrade for $4.99/month</a></p>
             )}
           </div>
         </div>

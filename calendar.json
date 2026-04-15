@@ -1,27 +1,34 @@
 {
-  "name": "Friendship",
+  "name": "CalendarEvent",
   "type": "object",
   "properties": {
-    "requester_email": {
+    "title": {
       "type": "string",
-      "description": "Email of the person who sent the request"
+      "description": "Event title"
     },
-    "recipient_email": {
+    "date": {
       "type": "string",
-      "description": "Email of the person receiving the request"
+      "description": "Date of event (YYYY-MM-DD)"
     },
-    "status": {
+    "type": {
       "type": "string",
       "enum": [
-        "pending",
-        "accepted",
-        "declined"
+        "quiz",
+        "test",
+        "assignment",
+        "other"
       ],
-      "default": "pending"
+      "default": "other"
+    },
+    "subject": {
+      "type": "string"
+    },
+    "notes": {
+      "type": "string"
     }
   },
   "required": [
-    "requester_email",
-    "recipient_email"
+    "title",
+    "date"
   ]
 }

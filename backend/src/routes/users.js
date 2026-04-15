@@ -19,7 +19,6 @@ router.get('/', requireAuth, async (req, res) => {
       avatar_color: true,
       avatar_image_url: true,
       premium_plan: true,
-      referral_code: true,
       created_date: true,
     },
   });

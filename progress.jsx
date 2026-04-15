@@ -5,6 +5,7 @@ import { RadarChart, Radar, PolarGrid, PolarAngleAxis, ResponsiveContainer, Area
 import { TrendingUp, TrendingDown, Target, Award, Brain, AlertTriangle } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { format } from 'date-fns';
+import { PASS_THRESHOLD } from '@/components/shared/LevelXPBar';
 
 export default function Progress() {
   const { data: user } = useQuery({ queryKey: ['currentUser'], queryFn: () => base44.auth.me() });
@@ -19,7 +20,7 @@ export default function Progress() {
   const avgScore = graded.length ? Math.round(graded.reduce((s, q) => s + q.quiz_score, 0) / graded.length) : 0;
   const best = graded.length ? Math.max(...graded.map(s => s.quiz_score)) : 0;
   const trend = graded.length >= 2 ? graded[graded.length - 1].quiz_score - graded[graded.length - 2].quiz_score : 0;
-  const passedCount = graded.filter(s => s.quiz_score >= 80).length;
+  const passedCount = submissions.filter(s => s.quiz_passed).length;
 
   // Subject averages
   const subjectScores = {};
@@ -57,7 +58,7 @@ export default function Progress() {
         {[
           { label: 'Avg Score', value: `${avgScore}%`, icon: Target, gradient: 'gradient-violet', bg: 'shadow-purple-200' },
           { label: 'Best Score', value: `${best}%`, icon: Award, gradient: 'gradient-amber', bg: 'shadow-amber-200' },
-          { label: 'Passed (≥80%)', value: passedCount, icon: Brain, gradient: 'gradient-cyan', bg: 'shadow-cyan-200' },
+          { label: `Passed (≥${PASS_THRESHOLD}%)`, value: passedCount, icon: Brain, gradient: 'gradient-cyan', bg: 'shadow-cyan-200' },
           { label: 'Recent Trend', value: trend >= 0 ? `+${trend}%` : `${trend}%`, icon: trend >= 0 ? TrendingUp : TrendingDown, gradient: trend >= 0 ? 'gradient-emerald' : 'gradient-pink', bg: trend >= 0 ? 'shadow-emerald-200' : 'shadow-pink-200' },
         ].map((s, i) => (
           <motion.div key={s.label} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.07 }}
@@ -72,10 +73,24 @@ export default function Progress() {
       </div>
 
       {graded.length === 0 ? (
-        <div className="text-center py-20 bg-white rounded-2xl border border-border">
-          <Brain className="w-12 h-12 text-muted-foreground/30 mx-auto mb-3" />
-          <p className="font-bold text-foreground">No quiz data yet</p>
-          <p className="text-sm text-muted-foreground mt-1">Complete some quizzes to see your progress!</p>
+        <div className="bg-white rounded-2xl border border-border py-16 px-8 text-center">
+          {/* Inline SVG illustration */}
+          <svg width="120" height="100" viewBox="0 0 120 100" fill="none" className="mx-auto mb-6 opacity-80">
+            <rect x="20" y="30" width="80" height="55" rx="8" fill="#f3f0ff" stroke="#c4b5fd" strokeWidth="2"/>
+            <rect x="32" y="44" width="56" height="6" rx="3" fill="#c4b5fd"/>
+            <rect x="32" y="56" width="40" height="6" rx="3" fill="#ddd6fe"/>
+            <rect x="32" y="68" width="50" height="6" rx="3" fill="#ddd6fe"/>
+            <circle cx="90" cy="28" r="14" fill="#7c3aed"/>
+            <path d="M84 28 L88 32 L96 24" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+          <h3 className="font-black text-foreground text-lg mb-1">No quiz data yet</h3>
+          <p className="text-sm text-muted-foreground max-w-xs mx-auto mb-5">
+            Upload your notes and take your first quiz to start tracking your scores over time.
+          </p>
+          <a href="/quiz"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-violet-500 to-purple-600 text-white text-sm font-bold shadow-md shadow-violet-200 hover:opacity-90 transition-opacity">
+            Upload Notes →
+          </a>
         </div>
       ) : (
         <>

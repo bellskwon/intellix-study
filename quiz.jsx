@@ -4,15 +4,14 @@ import { base44 } from '@/api/base44Client';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   FlaskConical, Upload, CheckCircle2, XCircle, Trophy,
-  RotateCcw, Loader2, ArrowRight, BookOpen, Zap, Star,
+  RotateCcw, Loader2, ArrowRight, BookOpen, Zap, Star, Flag, ChevronDown, ChevronUp,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
 import SubmitStudy from '@/pages/SubmitStudy';
-
-const PASS_THRESHOLD = 80;
+import { PASS_THRESHOLD } from '@/components/shared/LevelXPBar';
 
 const subjectEmoji = {
   math: '🔢', science: '🔬', history: '📜', geography: '🌍',
@@ -30,6 +29,29 @@ export default function Quiz() {
   const [results, setResults] = useState(null);
   const [generating, setGenerating] = useState(false);
   const [grading, setGrading] = useState(false);
+  const [reportedQuestions, setReportedQuestions] = useState(new Set());
+  const [expandedExplanations, setExpandedExplanations] = useState(new Set());
+
+  const reportQuestion = async (q, i) => {
+    try {
+      await base44.moderation.reportQuestion({
+        questionText: q.question_text,
+        correctAnswer: q.correct_answer,
+        submissionTitle: activeSubmission?.title || '',
+      });
+      setReportedQuestions(prev => new Set([...prev, i]));
+    } catch {
+      toast.error('Could not send report. Please try again.');
+    }
+  };
+
+  const toggleExplanation = (i) => {
+    setExpandedExplanations(prev => {
+      const next = new Set(prev);
+      next.has(i) ? next.delete(i) : next.add(i);
+      return next;
+    });
+  };
 
   const { data: user } = useQuery({ queryKey: ['currentUser'], queryFn: () => base44.auth.me() });
 
@@ -57,11 +79,19 @@ export default function Quiz() {
         : '';
 
       const res = await base44.integrations.Core.InvokeLLM({
-        prompt: `Create a 5-question quiz based on the student's study notes below.
+        prompt: `You are a strict quiz generator. Create a 5-question quiz ONLY from the student's notes below.
 Subject: ${submission.subject}. ${gradeNote}${mathNote}
-Mix question types: 2-3 short answer, 1-2 fill-in-the-blank, 1 multiple choice (exactly 4 options).
-Test real understanding. If no valid content is found, return an empty questions array.
-Notes: ${submission.notes_text || '(see attached file)'}`,
+
+RULES:
+- Every question and answer MUST be directly supported by the notes. Do NOT add facts, dates, or details not present in the notes.
+- If the notes are too thin to support 5 questions, generate fewer rather than inventing content.
+- For each question, include a brief source_quote (the exact phrase from the notes that supports the answer).
+- For each question, include a 1-2 sentence explanation of WHY the correct answer is right (used to teach the student after the quiz).
+- Mix types: 2-3 short answer, 1-2 fill-in-the-blank, 1 multiple choice (exactly 4 options).
+- If no valid content is found, return an empty questions array.
+
+Notes:
+${submission.notes_text || '(see attached file)'}`,
         file_urls: submission.file_url ? [submission.file_url] : undefined,
         response_json_schema: {
           type: 'object',
@@ -76,6 +106,8 @@ Notes: ${submission.notes_text || '(see attached file)'}`,
                   options: { type: 'array', items: { type: 'string' } },
                   correct_answer: { type: 'string' },
                   hint: { type: 'string' },
+                  source_quote: { type: 'string' },
+                  explanation: { type: 'string' },
                 },
               },
             },
@@ -105,46 +137,57 @@ Notes: ${submission.notes_text || '(see attached file)'}`,
     setGrading(true);
     let correct = 0;
 
-    const graded = await Promise.all(
-      questions.map(async (q, i) => {
-        const ans = answers[i] || '';
-        if (q.question_type === 'multiple_choice') {
-          const isCorrect = ans.trim().toLowerCase() === q.correct_answer.trim().toLowerCase();
-          if (isCorrect) correct++;
-          return { ...q, studentAnswer: ans, isCorrect };
-        }
-        // Use AI to grade open answers leniently
-        const check = await base44.integrations.Core.InvokeLLM({
-          prompt: `Grade this student answer leniently. Allow abbreviations, minor spelling errors, synonyms.
-If the student clearly understands the concept, mark correct.
+    try {
+      const graded = await Promise.all(
+        questions.map(async (q, i) => {
+          const ans = answers[i] || '';
+          if (q.question_type === 'multiple_choice') {
+            const isCorrect = ans.trim().toLowerCase() === q.correct_answer.trim().toLowerCase();
+            if (isCorrect) correct++;
+            return { ...q, studentAnswer: ans, isCorrect };
+          }
+          // Use AI to grade open answers leniently
+          try {
+            const check = await base44.integrations.Core.InvokeLLM({
+              prompt: `Grade this student answer. Be lenient: allow minor spelling errors, abbreviations, and synonyms. If the student clearly demonstrates understanding of the core concept, mark it correct.
 Question: "${q.question_text}"
-Correct answer: "${q.correct_answer}"
+Expected answer: "${q.correct_answer}"
 Student answer: "${ans}"
-Reply with only "correct" or "incorrect".`,
-        });
-        const isCorrect = check.toLowerCase().includes('correct') && !check.toLowerCase().includes('incorrect');
-        if (isCorrect) correct++;
-        return { ...q, studentAnswer: ans, isCorrect };
-      })
-    );
 
-    const score = Math.round((correct / questions.length) * 100);
-    const passed = score >= PASS_THRESHOLD;
-    const difficulty = activeSubmission?.ai_difficulty_score ?? 5;
-    const pointsAwarded = passed ? Math.max(1, Math.round(difficulty)) : 0;
+Reply with ONLY one word: "correct" or "incorrect". Do not add any explanation.`,
+            });
+            const normalized = (typeof check === 'string' ? check : JSON.stringify(check)).toLowerCase().trim();
+            const isCorrect = normalized.startsWith('correct');
+            if (isCorrect) correct++;
+            return { ...q, studentAnswer: ans, isCorrect };
+          } catch {
+            // If grading this question fails, count it incorrect but don't fail the whole quiz
+            return { ...q, studentAnswer: ans, isCorrect: false };
+          }
+        })
+      );
 
-    // Update the submission with quiz results
-    await base44.entities.Submission.update(activeSubmission.id, {
-      quiz_score: score,
-      quiz_passed: passed,
-      points_awarded: pointsAwarded,
-      status: passed ? 'approved' : 'rejected',
-    });
+      const score = Math.round((correct / questions.length) * 100);
+      const passed = score >= PASS_THRESHOLD;
+      const difficulty = activeSubmission?.ai_difficulty_score ?? 5;
+      const pointsAwarded = passed ? Math.max(1, Math.round(difficulty)) : 0;
 
-    queryClient.invalidateQueries({ queryKey: ['mySubmissions'] });
-    setResults({ score, correct, total: questions.length, graded, pointsAwarded, passed });
-    setGrading(false);
-    setView('results');
+      // Update the submission with quiz results
+      await base44.entities.Submission.update(activeSubmission.id, {
+        quiz_score: score,
+        quiz_passed: passed,
+        points_awarded: pointsAwarded,
+        status: passed ? 'approved' : 'rejected',
+      });
+
+      queryClient.invalidateQueries({ queryKey: ['mySubmissions'] });
+      setResults({ score, correct, total: questions.length, graded, pointsAwarded, passed });
+      setView('results');
+    } catch {
+      toast.error('Failed to grade quiz. Please try again.');
+    } finally {
+      setGrading(false);
+    }
   };
 
   const reset = () => {
@@ -291,34 +334,66 @@ Reply with only "correct" or "incorrect".`,
         </motion.div>
 
         <div className="space-y-3">
-          {graded.map((q, i) => (
-            <motion.div key={i} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.05 }}
-              className="bg-white rounded-xl border border-border p-4">
-              <div className="flex items-start gap-3">
-                <div className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 mt-0.5 ${q.isCorrect ? 'bg-emerald-100' : 'bg-rose-100'}`}>
-                  {q.isCorrect
-                    ? <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                    : <XCircle className="w-4 h-4 text-rose-600" />}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold text-foreground">{q.question_text}</p>
-                  <div className="mt-2 space-y-1">
-                    <p className="text-xs text-muted-foreground">
-                      Your answer: <span className={`font-semibold ${q.isCorrect ? 'text-emerald-600' : 'text-rose-600'}`}>
-                        {q.studentAnswer || '(no answer)'}
-                      </span>
-                    </p>
-                    {!q.isCorrect && (
+          {graded.map((q, i) => {
+            const showExp = expandedExplanations.has(i);
+            const reported = reportedQuestions.has(i);
+            return (
+              <motion.div key={i} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.05 }}
+                className="bg-white rounded-xl border border-border p-4">
+                <div className="flex items-start gap-3">
+                  <div className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 mt-0.5 ${q.isCorrect ? 'bg-emerald-100' : 'bg-rose-100'}`}>
+                    {q.isCorrect
+                      ? <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                      : <XCircle className="w-4 h-4 text-rose-600" />}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold text-foreground">{q.question_text}</p>
+                    <div className="mt-2 space-y-1">
                       <p className="text-xs text-muted-foreground">
-                        Correct: <span className="font-semibold text-emerald-600">{q.correct_answer}</span>
+                        Your answer: <span className={`font-semibold ${q.isCorrect ? 'text-emerald-600' : 'text-rose-600'}`}>
+                          {q.studentAnswer || '(no answer)'}
+                        </span>
                       </p>
+                      {!q.isCorrect && (
+                        <p className="text-xs text-muted-foreground">
+                          Correct: <span className="font-semibold text-emerald-600">{q.correct_answer}</span>
+                        </p>
+                      )}
+                    </div>
+
+                    {/* Explanation toggle */}
+                    {q.explanation && (
+                      <div className="mt-2">
+                        <button
+                          onClick={() => toggleExplanation(i)}
+                          className="flex items-center gap-1 text-xs font-semibold text-violet-600 hover:text-violet-800 transition-colors"
+                        >
+                          {showExp ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+                          {showExp ? 'Hide explanation' : 'Why is this the answer?'}
+                        </button>
+                        {showExp && (
+                          <p className="mt-1.5 text-xs text-slate-600 bg-violet-50 border border-violet-100 rounded-lg px-3 py-2 leading-relaxed">
+                            {q.explanation}
+                          </p>
+                        )}
+                      </div>
                     )}
                   </div>
+
+                  {/* Report button */}
+                  <button
+                    onClick={() => reportQuestion(q, i)}
+                    disabled={reported}
+                    title={reported ? 'Reported' : 'Report this question as inaccurate'}
+                    className={`shrink-0 p-1.5 rounded-lg transition-colors ${reported ? 'text-rose-400 bg-rose-50 cursor-default' : 'text-muted-foreground hover:text-rose-500 hover:bg-rose-50'}`}
+                  >
+                    <Flag className="w-3.5 h-3.5" />
+                  </button>
                 </div>
-              </div>
-            </motion.div>
-          ))}
+              </motion.div>
+            );
+          })}
         </div>
 
         <div className="flex gap-3">
@@ -398,7 +473,7 @@ Reply with only "correct" or "incorrect".`,
                   </p>
                 </div>
                 <span className={`text-xs font-black px-2.5 py-1 rounded-full shrink-0 ${
-                  sub.quiz_score >= 80 ? 'bg-emerald-50 text-emerald-600' :
+                  sub.quiz_score >= PASS_THRESHOLD ? 'bg-emerald-50 text-emerald-600' :
                   sub.quiz_score >= 60 ? 'bg-amber-50 text-amber-600' :
                   'bg-rose-50 text-rose-600'}`}>
                   {sub.quiz_score}%
@@ -416,10 +491,23 @@ Reply with only "correct" or "incorrect".`,
       )}
 
       {!isLoading && submissions.length === 0 && (
-        <div className="text-center py-12">
-          <FlaskConical className="w-12 h-12 text-muted-foreground/20 mx-auto mb-3" />
-          <p className="font-bold text-foreground">No submissions yet</p>
-          <p className="text-sm text-muted-foreground mt-1">Upload your notes above to generate your first quiz!</p>
+        <div className="bg-white rounded-2xl border border-border py-14 px-8 text-center">
+          <svg width="110" height="90" viewBox="0 0 110 90" fill="none" className="mx-auto mb-5 opacity-80">
+            <rect x="15" y="20" width="80" height="58" rx="8" fill="#fdf4ff" stroke="#e879f9" strokeWidth="2"/>
+            <rect x="27" y="34" width="56" height="5" rx="2.5" fill="#f0abfc"/>
+            <rect x="27" y="45" width="38" height="5" rx="2.5" fill="#f5d0fe"/>
+            <rect x="27" y="56" width="48" height="5" rx="2.5" fill="#f5d0fe"/>
+            <circle cx="85" cy="20" r="13" fill="#a855f7"/>
+            <path d="M79.5 20 L83.5 24 L90.5 16" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+          <h3 className="font-black text-foreground text-lg mb-1">No notes uploaded yet</h3>
+          <p className="text-sm text-muted-foreground max-w-xs mx-auto mb-5">
+            Upload your class notes above and get an AI-generated quiz in seconds. Score 80%+ to earn points.
+          </p>
+          <button onClick={() => setView('submit')}
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-pink-500 to-violet-600 text-white text-sm font-bold shadow-md shadow-pink-200 hover:opacity-90 transition-opacity">
+            Upload Your First Notes →
+          </button>
         </div>
       )}
     </div>

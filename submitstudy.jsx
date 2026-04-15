@@ -38,6 +38,13 @@ export default function SubmitStudy() {
   const [filePreview, setFilePreview] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  // Moderation state
+  const [modResult, setModResult] = useState(null); // { flagged, reason, warnings, isFinal, accountPaused, logId }
+  const [showAppeal, setShowAppeal] = useState(false);
+  const [appealMessage, setAppealMessage] = useState('');
+  const [appealSent, setAppealSent] = useState(false);
+  const [appealSending, setAppealSending] = useState(false);
+
   const fileInputRef = useRef();
   const cameraInputRef = useRef();
   const queryClient = useQueryClient();
@@ -56,22 +63,43 @@ export default function SubmitStudy() {
   const createMutation = useMutation({
     mutationFn: async (data) => {
       setUploading(true);
+
+      // 1. Upload file first (needed so Claude can inspect images)
       let file_url = '';
       if (file) {
         const result = await base44.integrations.Core.UploadFile({ file });
         file_url = result.file_url;
       }
+
+      // 2. Moderation check — runs before anything is saved
+      const mod = await base44.moderation.check({
+        title: data.title,
+        text: data.notes_text || '',
+        file_url: file_url || undefined,
+        subject: data.subject,
+      });
+
+      if (mod.flagged) {
+        // Don't save — surface the warning to the user
+        return { _blocked: true, mod };
+      }
+
+      // 3. Clean — save the submission
       return base44.entities.Submission.create({ ...data, file_url, status: 'pending_review' });
     },
-    onSuccess: () => {
+    onSuccess: (result) => {
+      setUploading(false);
+      if (result?._blocked) {
+        setModResult(result.mod);
+        return;
+      }
       queryClient.invalidateQueries({ queryKey: ['mySubmissions'] });
       setSubmitted(true);
-      setUploading(false);
     },
     onError: () => {
       setUploading(false);
       toast.error('Upload failed. Please try again.');
-    }
+    },
   });
 
   const handleSubmit = (e) => {
@@ -89,6 +117,25 @@ export default function SubmitStudy() {
       return;
     }
     createMutation.mutate(form);
+  };
+
+  const handleAppeal = async () => {
+    if (!modResult?.logId) return;
+    setAppealSending(true);
+    try {
+      await base44.moderation.appeal({ logId: modResult.logId, message: appealMessage });
+      setAppealSent(true);
+    } catch {
+      toast.error('Could not send appeal. Please try again.');
+    }
+    setAppealSending(false);
+  };
+
+  const dismissModeration = () => {
+    setModResult(null);
+    setShowAppeal(false);
+    setAppealMessage('');
+    setAppealSent(false);
   };
 
   const reset = () => {
@@ -273,6 +320,123 @@ export default function SubmitStudy() {
             : '⚡ Submit & Generate Quiz'}
         </Button>
       </form>
+
+      {/* ── Moderation overlay ─────────────────────────────────────────── */}
+      <AnimatePresence>
+        {modResult && (
+          <motion.div
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4"
+            style={{ background: 'rgba(15,10,40,0.7)', backdropFilter: 'blur(4px)' }}
+          >
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
+              className="bg-white rounded-3xl w-full max-w-sm shadow-2xl overflow-hidden"
+            >
+              {/* Header band */}
+              <div className={`px-6 pt-6 pb-4 ${modResult.accountPaused ? 'bg-red-50' : modResult.isFinal ? 'bg-orange-50' : 'bg-amber-50'}`}>
+                <div className="flex items-center gap-3">
+                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-xl ${modResult.accountPaused ? 'bg-red-100' : modResult.isFinal ? 'bg-orange-100' : 'bg-amber-100'}`}>
+                    {modResult.accountPaused ? '🚫' : modResult.isFinal ? '⚠️' : '⚠️'}
+                  </div>
+                  <div>
+                    <p className={`font-bold text-sm ${modResult.accountPaused ? 'text-red-700' : modResult.isFinal ? 'text-orange-700' : 'text-amber-700'}`}>
+                      {modResult.accountPaused
+                        ? 'Account Paused'
+                        : modResult.isFinal
+                        ? 'Final Warning'
+                        : `Warning ${modResult.warnings} of 3`}
+                    </p>
+                    <p className={`text-xs mt-0.5 ${modResult.accountPaused ? 'text-red-500' : modResult.isFinal ? 'text-orange-500' : 'text-amber-500'}`}>
+                      {modResult.accountPaused
+                        ? 'Content submission has been disabled'
+                        : modResult.isFinal
+                        ? 'One more violation will pause your account'
+                        : 'Your content was not saved'}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="px-6 py-5 space-y-4">
+                {/* Reason */}
+                <div className="bg-slate-50 rounded-2xl p-4">
+                  <p className="text-xs font-bold text-slate-500 uppercase tracking-wide mb-1">Why this was flagged</p>
+                  <p className="text-sm text-slate-700 leading-relaxed">{modResult.reason}</p>
+                </div>
+
+                {/* Account paused extra message */}
+                {modResult.accountPaused && (
+                  <p className="text-xs text-slate-500 leading-relaxed">
+                    Your account has been paused due to repeated guideline violations. You can still view the app, but you cannot submit new content. If you believe this was a mistake, use the appeal button below.
+                  </p>
+                )}
+
+                {/* Appeal form */}
+                {!appealSent ? (
+                  showAppeal ? (
+                    <div className="space-y-3">
+                      <p className="text-xs font-bold text-slate-600">Your message to us (optional)</p>
+                      <textarea
+                        value={appealMessage}
+                        onChange={e => setAppealMessage(e.target.value)}
+                        rows={3}
+                        placeholder="Explain why you think this content is appropriate..."
+                        className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-violet-300"
+                      />
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => setShowAppeal(false)}
+                          className="flex-1 py-2.5 rounded-xl border border-slate-200 text-sm text-slate-600 hover:bg-slate-50 transition-colors"
+                        >
+                          Cancel
+                        </button>
+                        <button
+                          onClick={handleAppeal}
+                          disabled={appealSending}
+                          className="flex-1 py-2.5 rounded-xl bg-violet-600 text-white text-sm font-semibold hover:bg-violet-700 transition-colors disabled:opacity-60 flex items-center justify-center gap-1"
+                        >
+                          {appealSending ? <><Loader2 className="w-3 h-3 animate-spin" /> Sending...</> : 'Send Appeal'}
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => setShowAppeal(true)}
+                      className="w-full py-2 text-xs text-violet-600 hover:text-violet-800 underline underline-offset-2 transition-colors"
+                    >
+                      I don't think this content is inappropriate — appeal this decision
+                    </button>
+                  )
+                ) : (
+                  <div className="bg-emerald-50 border border-emerald-100 rounded-2xl p-3 text-center">
+                    <p className="text-sm font-semibold text-emerald-700">Appeal sent!</p>
+                    <p className="text-xs text-emerald-600 mt-0.5">We'll review it and get back to you.</p>
+                  </div>
+                )}
+
+                {/* Dismiss / close */}
+                {!modResult.accountPaused && (
+                  <button
+                    onClick={dismissModeration}
+                    className="w-full py-3 rounded-2xl bg-slate-900 text-white text-sm font-semibold hover:bg-slate-700 transition-colors"
+                  >
+                    I Understand
+                  </button>
+                )}
+                {modResult.accountPaused && appealSent && (
+                  <button
+                    onClick={dismissModeration}
+                    className="w-full py-3 rounded-2xl border border-slate-200 text-slate-600 text-sm hover:bg-slate-50 transition-colors"
+                  >
+                    Close
+                  </button>
+                )}
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

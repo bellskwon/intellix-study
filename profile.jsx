@@ -1,13 +1,13 @@
 import React, { useState, useRef } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { Trophy, Flame, BookOpen, Target, LogOut, Star, Zap, BarChart3, Camera, Pencil, Upload, Smile, Check, X, Edit2, Copy, Users } from 'lucide-react';
+import { Trophy, Flame, BookOpen, Target, LogOut, Star, Zap, BarChart3, Pencil, Upload, Smile, Check, X, Edit2, Copy, Users } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { motion, AnimatePresence } from 'framer-motion';
 import { format } from 'date-fns';
-import LevelXPBar, { calcLevelInfo, getLeague } from '@/components/shared/LevelXPBar';
+import LevelXPBar, { calcLevelInfo, getLeague, PASS_THRESHOLD } from '@/components/shared/LevelXPBar';
 import { toast } from 'sonner';
 
 const AVATARS = ['🐯','🦊','🐼','🦁','🐺','🦋','🐉','🦄','🐸','🤖','👾','🎭','🐨','🐧','🦅','🐬'];
@@ -54,25 +54,67 @@ export default function Profile() {
   const best = graded.length ? Math.max(...graded.map(s => s.quiz_score)) : 0;
   const passed = submissions.filter(s => s.quiz_passed).length;
 
-  const { level, xpInLevel } = calcLevelInfo(submissions);
+  const { level } = calcLevelInfo(submissions);
   const league = getLeague(level);
 
   const subjectMap = {};
   submissions.forEach(s => { subjectMap[s.subject] = (subjectMap[s.subject] || 0) + 1; });
   const sortedSubjects = Object.entries(subjectMap).sort((a, b) => b[1] - a[1]);
 
-  const badges = [
-    { label: 'First Quiz', icon: '🎯', earned: submissions.length >= 1, desc: 'Complete 1 quiz' },
-    { label: '5 Quizzes', icon: '📚', earned: submissions.length >= 5, desc: 'Complete 5 quizzes' },
-    { label: '10 Quizzes', icon: '🔟', earned: submissions.length >= 10, desc: 'Complete 10 quizzes' },
-    { label: 'Score 80%+', icon: '⭐', earned: graded.some(s => s.quiz_score >= 80), desc: 'Ace a quiz with 80%+' },
-    { label: 'Score 100%', icon: '🏆', earned: graded.some(s => s.quiz_score === 100), desc: 'Get a perfect score' },
-    { label: 'Level 10', icon: '🔥', earned: level >= 10, desc: 'Reach Level 10' },
+  const streak = user?.streak_count ?? 0;
+  const subjectCount = Object.keys(subjectMap).length;
+  const perfectScores = graded.filter(s => s.quiz_score === 100).length;
+  const sharedProfile = (() => { try { return !!localStorage.getItem('intellix_shared_referral'); } catch { return false; } })();
+
+  const badgeGroups = [
+    {
+      label: 'Study Milestones',
+      badges: [
+        { label: 'First Quiz',   icon: '🎯', earned: submissions.length >= 1,   desc: 'Complete your first quiz' },
+        { label: '5 Quizzes',    icon: '📚', earned: submissions.length >= 5,   desc: 'Complete 5 quizzes' },
+        { label: '25 Quizzes',   icon: '🔟', earned: submissions.length >= 25,  desc: 'Complete 25 quizzes' },
+        { label: '50 Quizzes',   icon: '💯', earned: submissions.length >= 50,  desc: 'Complete 50 quizzes' },
+      ],
+    },
+    {
+      label: 'Performance',
+      badges: [
+        { label: 'Score 80%+',    icon: '⭐', earned: graded.some(s => s.quiz_score >= 80), desc: 'Ace a quiz with 80%+' },
+        { label: 'Perfect Score', icon: '🏆', earned: perfectScores >= 1,  desc: 'Score 100% on a quiz' },
+        { label: 'Hat Trick',     icon: '🎩', earned: perfectScores >= 3,  desc: 'Score 100% three times' },
+        { label: 'High Avg',      icon: '📈', earned: graded.length >= 5 && avgScore >= 85, desc: 'Maintain 85%+ average (5+ quizzes)' },
+      ],
+    },
+    {
+      label: 'Streaks',
+      badges: [
+        { label: '7-Day Streak',   icon: '🔥', earned: streak >= 7,   desc: 'Study 7 days in a row' },
+        { label: '30-Day Streak',  icon: '⚡', earned: streak >= 30,  desc: 'Study 30 days in a row' },
+        { label: '100-Day Streak', icon: '💎', earned: streak >= 100, desc: 'Study 100 days in a row' },
+      ],
+    },
+    {
+      label: 'Explorer',
+      badges: [
+        { label: '3 Subjects',   icon: '🌍', earned: subjectCount >= 3, desc: 'Study 3 different subjects' },
+        { label: '5 Subjects',   icon: '🗺️', earned: subjectCount >= 5, desc: 'Study 5 different subjects' },
+        { label: 'Level 10',     icon: '🚀', earned: level >= 10,       desc: 'Reach Level 10' },
+        { label: 'Level 50',     icon: '🌟', earned: level >= 50,       desc: 'Reach Level 50' },
+      ],
+    },
+    {
+      label: 'Social',
+      badges: [
+        { label: 'Shared Profile', icon: '👨‍👩‍👧', earned: sharedProfile, desc: 'Share your progress with a parent' },
+        { label: '500 Points',     icon: '💰', earned: totalPoints >= 500,  desc: 'Earn 500 total points' },
+        { label: '1,000 Points',   icon: '💎', earned: totalPoints >= 1000, desc: 'Earn 1,000 total points' },
+      ],
+    },
   ];
 
   // Referral link
-  const referralCode = user?.email?.split('@')[0]?.replace(/[^a-z0-9]/gi, '') || 'user';
-  const referralLink = `${window.location.origin}?ref=${referralCode}`;
+  const referralCode = user?.referral_code || '';
+  const referralLink = referralCode ? `${window.location.origin}?ref=${referralCode}` : '';
 
   // Avatar display logic
   const getAvatarDisplay = () => {
@@ -197,13 +239,10 @@ export default function Profile() {
               <p className="text-purple-200 text-xs mb-3">{user?.email}</p>
               <div className="flex items-center gap-3 mb-4 flex-wrap">
                 <span className="flex items-center gap-1 bg-white/15 px-2.5 py-1 rounded-full text-xs font-bold">
-                  <Flame className="w-3 h-3 text-amber-300" /> {submissions.length > 0 ? 'Active' : '0'} streak
+                  <Flame className="w-3 h-3 text-amber-300" /> {user?.streak_count ?? 0} day streak
                 </span>
                 <span className="flex items-center gap-1 bg-white/15 px-2.5 py-1 rounded-full text-xs font-bold">
                   <Star className="w-3 h-3 text-yellow-300" /> {totalPoints} pts
-                </span>
-                <span className="flex items-center gap-1 bg-white/15 px-2.5 py-1 rounded-full text-xs font-bold">
-                  <Zap className="w-3 h-3 text-cyan-300" /> Level {level}
                 </span>
               </div>
               <LevelXPBar submissions={submissions} dark />
@@ -349,21 +388,32 @@ export default function Profile() {
         </div>
       )}
 
-      {/* Badges */}
-      <div className="bg-white rounded-2xl border border-border p-5">
-        <h2 className="font-black text-sm text-muted-foreground uppercase tracking-wide mb-3 flex items-center gap-2">
+      {/* Achievements */}
+      <div className="bg-white rounded-2xl border border-border p-5 space-y-5">
+        <h2 className="font-black text-sm text-muted-foreground uppercase tracking-wide flex items-center gap-2">
           <Trophy className="w-4 h-4 text-amber-500" /> Achievements
         </h2>
-        <div className="grid grid-cols-3 gap-3">
-          {badges.map(b => (
-            <div key={b.label} className={`rounded-2xl p-3 text-center transition-all border-2 ${
-              b.earned ? 'bg-violet-50 border-violet-200' : 'bg-muted/30 border-dashed border-muted opacity-50 grayscale'}`}>
-              <div className="text-2xl mb-1">{b.icon}</div>
-              <p className="text-xs font-black text-foreground">{b.label}</p>
-              <p className="text-[10px] text-muted-foreground mt-0.5">{b.earned ? '✓ Earned' : b.desc}</p>
+        {badgeGroups.map(group => {
+          const earnedCount = group.badges.filter(b => b.earned).length;
+          return (
+            <div key={group.label}>
+              <div className="flex items-center justify-between mb-2">
+                <p className="text-xs font-black text-muted-foreground uppercase tracking-wider">{group.label}</p>
+                <p className="text-[10px] font-bold text-muted-foreground">{earnedCount}/{group.badges.length}</p>
+              </div>
+              <div className="grid grid-cols-4 gap-2">
+                {group.badges.map(b => (
+                  <div key={b.label} className={`rounded-xl p-2.5 text-center transition-all border ${
+                    b.earned ? 'bg-violet-50 border-violet-200' : 'bg-muted/20 border-dashed border-muted/50 opacity-40 grayscale'}`}>
+                    <div className="text-xl mb-1">{b.icon}</div>
+                    <p className="text-[10px] font-black text-foreground leading-tight">{b.label}</p>
+                    <p className="text-[9px] text-muted-foreground mt-0.5 leading-tight">{b.earned ? '✓ Earned' : b.desc}</p>
+                  </div>
+                ))}
+              </div>
             </div>
-          ))}
-        </div>
+          );
+        })}
       </div>
 
       {/* Referral Section */}
@@ -372,19 +422,54 @@ export default function Profile() {
           <Users className="w-4 h-4 text-violet-500" /> Refer a Friend — Earn Bonus XP
         </h2>
         <p className="text-xs text-muted-foreground mb-3">Share your Intellix referral link. When a new friend signs up using your link and completes their first quiz, you both earn bonus XP!</p>
-        <div className="flex items-center gap-2 bg-white rounded-xl border border-violet-200 px-3 py-2 mb-2">
-          <span className="flex-1 text-xs font-mono text-foreground truncate select-all">{referralLink}</span>
-          <button onClick={() => { navigator.clipboard.writeText(referralLink); toast.success('Referral link copied!'); }}
-            className="shrink-0 flex items-center gap-1 text-xs font-bold text-violet-600 hover:text-violet-800 transition-colors">
-            <Copy className="w-3.5 h-3.5" /> Copy
-          </button>
-        </div>
+        {referralLink ? (
+          <div className="flex items-center gap-2 bg-white rounded-xl border border-violet-200 px-3 py-2 mb-2">
+            <span className="flex-1 text-xs font-mono text-foreground truncate select-all">{referralLink}</span>
+            <button onClick={() => { navigator.clipboard.writeText(referralLink); toast.success('Referral link copied!'); }}
+              className="shrink-0 flex items-center gap-1 text-xs font-bold text-violet-600 hover:text-violet-800 transition-colors">
+              <Copy className="w-3.5 h-3.5" /> Copy
+            </button>
+          </div>
+        ) : (
+          <div className="bg-white rounded-xl border border-violet-200 px-3 py-2 mb-2">
+            <p className="text-xs text-muted-foreground">Loading your referral link...</p>
+          </div>
+        )}
         <div className="bg-amber-50 border border-amber-200 rounded-xl px-3 py-2 space-y-1">
           <p className="text-[11px] font-bold text-amber-800">Important rules:</p>
           <p className="text-[11px] text-amber-700">• You cannot click your own referral link to earn rewards — it only works for new users</p>
-          <p className="text-[11px] text-amber-700">• Each new user can only register once through any referral link — no repeated clicks</p>
-          <p className="text-[11px] text-amber-700">• The link opens <strong>intellix.app</strong> — this is our real website</p>
+          <p className="text-[11px] text-amber-700">• Each new user can only register once — the bonus is only awarded on first sign-up</p>
+          <p className="text-[11px] text-amber-700">• The link opens <strong>Intellix</strong> — make sure you share the correct link above</p>
         </div>
+      </div>
+
+      {/* Share with Parent */}
+      <div className="bg-white rounded-2xl border border-border p-5">
+        <h2 className="font-black text-sm text-foreground mb-1 flex items-center gap-2">
+          👨‍👩‍👧 Share Progress with a Parent
+        </h2>
+        <p className="text-xs text-muted-foreground mb-3">
+          Generate a read-only link your parent or guardian can bookmark to see your scores, subjects, and activity — without needing an account.
+        </p>
+        {user?.referral_code ? (
+          <div className="flex items-center gap-2 bg-slate-50 rounded-xl border border-border px-3 py-2">
+            <span className="flex-1 text-xs font-mono text-foreground truncate select-all">
+              {`${window.location.origin}/shared/${user.referral_code}`}
+            </span>
+            <button
+              onClick={() => {
+                navigator.clipboard.writeText(`${window.location.origin}/shared/${user.referral_code}`);
+                try { localStorage.setItem('intellix_shared_referral', 'true'); } catch {}
+                toast.success('Parent link copied!');
+              }}
+              className="shrink-0 flex items-center gap-1 text-xs font-bold text-violet-600 hover:text-violet-800 transition-colors">
+              <Copy className="w-3.5 h-3.5" /> Copy
+            </button>
+          </div>
+        ) : (
+          <p className="text-xs text-muted-foreground">Loading...</p>
+        )}
+        <p className="text-[11px] text-muted-foreground mt-2">This link only shows your public stats — no personal details or account access.</p>
       </div>
 
       {/* Quiz History */}
@@ -406,7 +491,7 @@ export default function Profile() {
                 </div>
                 {s.quiz_score != null ? (
                   <span className={`text-xs font-black px-2.5 py-1 rounded-full shrink-0 ${
-                    s.quiz_score >= 80 ? 'bg-emerald-50 text-emerald-600' :
+                    s.quiz_score >= PASS_THRESHOLD ? 'bg-emerald-50 text-emerald-600' :
                     s.quiz_score >= 60 ? 'bg-amber-50 text-amber-600' :
                     'bg-rose-50 text-rose-600'}`}>{s.quiz_score}%</span>
                 ) : <span className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded-full shrink-0">—</span>}

@@ -5,6 +5,10 @@ import { motion } from 'framer-motion';
  * Reusable Level + XP bar component
  * Usage: <LevelXPBar submissions={submissions} />
  */
+
+// Single source of truth for the quiz pass threshold — import this everywhere
+export const PASS_THRESHOLD = 80;
+
 export function calcLevelInfo(submissions = []) {
   const passed = submissions.filter(s => s.quiz_passed).length;
   const xpTotal = submissions.length * 40 + passed * 20;

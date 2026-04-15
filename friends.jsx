@@ -1,12 +1,64 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { Users, UserPlus, Check, X, Search, Mail } from 'lucide-react';
+import { Users, UserPlus, Check, X, Mail, Swords } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
 import { calcLevelInfo, getLeague } from '@/components/shared/LevelXPBar';
+
+const CHALLENGE_SUBJECTS = [
+  { value: 'math', label: 'Math', emoji: '🔢' },
+  { value: 'science', label: 'Science', emoji: '🔬' },
+  { value: 'history', label: 'History', emoji: '📜' },
+  { value: 'english', label: 'English', emoji: '📖' },
+  { value: 'computer_science', label: 'CS', emoji: '💻' },
+  { value: 'geography', label: 'Geography', emoji: '🌍' },
+];
+
+function ChallengeButton({ friendEmail }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const handler = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [open]);
+
+  const sendChallenge = (subject) => {
+    const url = `${window.location.origin}/challenge?subject=${subject}&challenger=${encodeURIComponent(friendEmail)}`;
+    navigator.clipboard.writeText(url);
+    toast.success(`Challenge link copied! Send it to ${friendEmail.split('@')[0]}.`);
+    setOpen(false);
+  };
+
+  return (
+    <div className="relative" ref={ref}>
+      <button
+        onClick={() => setOpen(o => !o)}
+        title="Challenge friend"
+        className="p-1.5 rounded-lg text-muted-foreground hover:text-violet-600 hover:bg-violet-50 transition-colors">
+        <Swords className="w-4 h-4" />
+      </button>
+      {open && (
+        <div className="absolute right-0 top-8 z-20 bg-white rounded-xl border border-border shadow-xl p-3 w-44">
+          <p className="text-[10px] font-black text-muted-foreground uppercase tracking-wider mb-2">Challenge subject</p>
+          <div className="space-y-1">
+            {CHALLENGE_SUBJECTS.map(s => (
+              <button key={s.value} onClick={() => sendChallenge(s.value)}
+                className="w-full text-left px-2 py-1.5 rounded-lg text-xs font-semibold text-foreground hover:bg-secondary transition-colors flex items-center gap-2">
+                <span>{s.emoji}</span> {s.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function Friends() {
   const queryClient = useQueryClient();
@@ -128,9 +180,16 @@ export default function Friends() {
           <Users className="w-4 h-4 text-primary" /> My Friends ({myFriends.length})
         </h2>
         {myFriends.length === 0 ? (
-          <div className="text-center py-8">
-            <Users className="w-10 h-10 text-muted-foreground/20 mx-auto mb-2" />
-            <p className="text-sm text-muted-foreground">No friends yet — add someone by their Gmail above!</p>
+          <div className="text-center py-10">
+            <svg width="100" height="80" viewBox="0 0 100 80" fill="none" className="mx-auto mb-4 opacity-80">
+              <circle cx="36" cy="28" r="14" fill="#ede9fe" stroke="#c4b5fd" strokeWidth="2"/>
+              <path d="M36 20 L36 36 M28 28 L44 28" stroke="#7c3aed" strokeWidth="2.5" strokeLinecap="round"/>
+              <circle cx="64" cy="28" r="14" fill="#fce7f3" stroke="#f9a8d4" strokeWidth="2"/>
+              <path d="M64 20 L64 36 M56 28 L72 28" stroke="#ec4899" strokeWidth="2.5" strokeLinecap="round"/>
+              <path d="M22 68 C22 56 30 50 36 50 C42 50 48 54 50 58 C52 54 58 50 64 50 C70 50 78 56 78 68" stroke="#c4b5fd" strokeWidth="2" fill="#ede9fe" strokeLinejoin="round"/>
+            </svg>
+            <p className="font-bold text-foreground text-sm mb-1">No friends yet</p>
+            <p className="text-xs text-muted-foreground">Add someone using their Gmail address above to see how you compare!</p>
           </div>
         ) : (
           <div className="space-y-3">
@@ -150,6 +209,7 @@ export default function Friends() {
                     <p className="text-sm font-black text-amber-600">{stats.points.toLocaleString()} pts</p>
                     <p className="text-xs text-muted-foreground">{stats.league.name}</p>
                   </div>
+                  <ChallengeButton friendEmail={email} />
                 </motion.div>
               );
             })}

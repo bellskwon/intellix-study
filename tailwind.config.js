@@ -1,7 +1,7 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
     darkMode: ["class"],
-    content: ["./index.html", "./src/**/*.{ts,tsx,js,jsx}"],
+    content: ["./index.html", "./*.{js,jsx,ts,tsx}"],
     safelist: [
       'gradient-violet','gradient-pink','gradient-cyan','gradient-emerald','gradient-amber','gradient-multi',
       'shadow-purple-200','shadow-pink-200','shadow-cyan-200','shadow-emerald-200','shadow-amber-200',
@@ -12,8 +12,8 @@ module.exports = {
   	extend: {
   		fontFamily: {
   			jakarta: ['var(--font-jakarta)'],
-  			inter: ['var(--font-inter)'],
   			sora: ['var(--font-sora)'],
+  			mono: ['var(--font-mono)'],
   		},
   		borderRadius: {
   			lg: 'var(--radius)',
