@@ -38,13 +38,7 @@ export default function Questions() {
   const isPremium = user?.premium_plan && user.premium_plan !== 'free' &&
     (!user?.trial_end_date || new Date(user.trial_end_date) > new Date());
 
-  // Count today's tool uses from localStorage
-  const todayKey = `intellix_tool_uses_${new Date().toISOString().slice(0,10)}`;
-  const getTodayUses = () => { try { return parseInt(localStorage.getItem(todayKey) || '0'); } catch { return 0; } };
-  const incrementUses = () => { try { localStorage.setItem(todayKey, String(getTodayUses() + 1)); } catch {} };
-
-  const FREE_DAILY_LIMIT = 3; // 3 tool uses per day on free
-  const maxQuestions = isPremium ? PREMIUM_QUESTIONS_LIMIT : FREE_QUESTIONS_LIMIT;
+  const maxQuestions = PREMIUM_QUESTIONS_LIMIT;
 
   const uploadAndGetContext = async () => {
     let context = notes;
@@ -55,24 +49,8 @@ export default function Questions() {
     return { file_url: null, context };
   };
 
-  const checkAndIncrementUses = () => {
-    if (!isPremium && getTodayUses() >= FREE_DAILY_LIMIT) {
-      toast.error(`You've used all ${FREE_DAILY_LIMIT} free uses for today!`, { action: { label: 'Upgrade', onClick: () => window.location.href = '/premium' } });
-      return false;
-    }
-    const usedSoFar = getTodayUses();
-    incrementUses();
-    const remaining = FREE_DAILY_LIMIT - usedSoFar - 1;
-    if (!isPremium && remaining >= 0) {
-      if (remaining === 0) toast.warning(`Last free use today! Upgrade to Pro for $4.99/month.`, { action: { label: 'Upgrade', onClick: () => window.location.href = '/premium' } });
-      else toast.info(`${remaining} free use${remaining !== 1 ? 's' : ''} remaining today.`);
-    }
-    return true;
-  };
-
   const handleAnalyze = async () => {
     if (!notes.trim() && !file) { toast.error('Paste your notes or upload a file first!'); return; }
-    if (!checkAndIncrementUses()) return;
     setLoading(true); setResult(null);
     const { file_url, context } = await uploadAndGetContext();
     const res = await base44.integrations.Core.InvokeLLM({
@@ -112,7 +90,6 @@ IMPORTANT: If the notes are blank, nonsensical, unrelated to any academic subjec
 
   const handleGenerateQuestions = async () => {
     if (!notes.trim() && !file) { toast.error('Paste your notes or upload a file first!'); return; }
-    if (!checkAndIncrementUses()) return;
     const count = Math.min(numQuestions, maxQuestions);
     setLoading(true); setResult(null);
     const { file_url, context } = await uploadAndGetContext();
@@ -152,7 +129,6 @@ IMPORTANT: If the notes contain no real study content, return an empty questions
 
   const handleGenerateFlashcards = async () => {
     if (!notes.trim() && !file) { toast.error('Paste your notes or upload a file first!'); return; }
-    if (!checkAndIncrementUses()) return;
     setLoading(true); setResult(null);
     const { file_url, context } = await uploadAndGetContext();
     const res = await base44.integrations.Core.InvokeLLM({
@@ -209,29 +185,12 @@ IMPORTANT: If the notes contain no real study content, return an empty flashcard
 
   const diffColors = { easy: 'bg-emerald-50 text-emerald-700 border-emerald-200', medium: 'bg-amber-50 text-amber-700 border-amber-200', hard: 'bg-rose-50 text-rose-700 border-rose-200' };
 
-  const todayUses = getTodayUses();
-  const usesLeft = Math.max(0, FREE_DAILY_LIMIT - todayUses);
-
   return (
     <div className="max-w-3xl mx-auto space-y-6">
       <div>
         <h1 className="text-3xl font-black text-foreground tracking-tight">Study Tools</h1>
         <p className="text-muted-foreground text-sm mt-1.5">Paste your notes — get key points, practice questions, or instant flashcards.</p>
       </div>
-
-      {/* Free plan usage warning */}
-      {!isPremium && activeTab !== 'calendar' && (
-        <div className={`flex items-center gap-3 rounded-2xl px-4 py-3 border ${usesLeft === 0 ? 'bg-rose-50 border-rose-200' : usesLeft <= 1 ? 'bg-amber-50 border-amber-200' : 'bg-blue-50 border-blue-200'}`}>
-          <AlertTriangle className={`w-4 h-4 shrink-0 ${usesLeft === 0 ? 'text-rose-500' : 'text-amber-500'}`} />
-          <div className="flex-1">
-            {usesLeft === 0 ? (
-              <p className="text-sm font-bold text-rose-800">You've used all {FREE_DAILY_LIMIT} free uses today. Come back tomorrow or <a href="/premium" className="underline">upgrade to Pro</a>.</p>
-            ) : (
-              <p className="text-sm font-semibold text-foreground">{usesLeft} of {FREE_DAILY_LIMIT} free uses left today · <a href="/premium" className="text-primary font-bold hover:underline">Upgrade for $4.99/month</a></p>
-            )}
-          </div>
-        </div>
-      )}
 
       {/* Premium upsell banner */}
       {false && (

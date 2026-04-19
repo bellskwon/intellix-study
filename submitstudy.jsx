@@ -11,16 +11,16 @@ import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const subjects = [
-  { value: 'math', label: '🔢 Mathematics' },
-  { value: 'science', label: '🔬 Science' },
-  { value: 'history', label: '📜 History' },
-  { value: 'geography', label: '🌍 Geography' },
-  { value: 'english', label: '📖 English' },
-  { value: 'foreign_language', label: '🗣️ Foreign Language' },
-  { value: 'computer_science', label: '💻 Computer Science' },
-  { value: 'art', label: '🎨 Art' },
-  { value: 'music', label: '🎵 Music' },
-  { value: 'other', label: '📌 Other' },
+  { value: 'math', label: 'Mathematics' },
+  { value: 'science', label: 'Science' },
+  { value: 'history', label: 'History' },
+  { value: 'geography', label: 'Geography' },
+  { value: 'english', label: 'English' },
+  { value: 'foreign_language', label: 'Foreign Language' },
+  { value: 'computer_science', label: 'Computer Science' },
+  { value: 'art', label: 'Art' },
+  { value: 'music', label: 'Music' },
+  { value: 'other', label: 'Other' },
 ];
 
 const grades = ['6th','7th','8th','9th','10th','11th','12th','college'];

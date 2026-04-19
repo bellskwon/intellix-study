@@ -27,7 +27,7 @@ function StepWelcome() {
         </p>
       </div>
       <div className="flex gap-3 mt-2 text-sm text-slate-400 flex-wrap justify-center">
-        <span className="bg-slate-100 rounded-full px-3 py-1">AI-powered</span>
+        <span className="bg-slate-100 rounded-full px-3 py-1">Online study platform</span>
         <span className="bg-slate-100 rounded-full px-3 py-1">Real rewards</span>
         <span className="bg-slate-100 rounded-full px-3 py-1">Your material</span>
       </div>
@@ -84,8 +84,8 @@ function StepHowItWorks() {
     },
     {
       icon: <IconAI />,
-      title: 'AI Builds Your Quiz',
-      desc: "Our AI reads your exact material and generates questions tailored to what you're learning — not generic practice problems.",
+      title: 'Intellix Builds Your Quiz',
+      desc: "We read your exact material and generate questions tailored to what you're learning — not generic practice problems.",
       color: 'bg-violet-50 border-violet-100',
     },
     {

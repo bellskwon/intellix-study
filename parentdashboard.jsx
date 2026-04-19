@@ -109,7 +109,7 @@ export default function ParentDashboard() {
         )}
 
         <p className="text-center text-xs text-muted-foreground pt-2">
-          Powered by <span className="font-semibold text-violet-600">Intellix</span> — AI-powered study platform
+          Powered by <span className="font-semibold text-violet-600">Intellix</span> — Online Study Platform
         </p>
       </div>
     </div>

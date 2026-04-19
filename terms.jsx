@@ -38,7 +38,7 @@ const SECTIONS = [
   },
   {
     title: '9. Disclaimers',
-    body: 'Intellix uses AI to generate quiz questions and study materials. While we strive for accuracy (especially in math), AI-generated content may occasionally contain errors. Always verify important information with a trusted educational source.',
+    body: 'Intellix generates quiz questions and study materials automatically. While we strive for accuracy (especially in math), generated content may occasionally contain errors. Always verify important information with a trusted educational source.',
   },
   {
     title: '10. Changes to Terms',

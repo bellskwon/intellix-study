@@ -220,7 +220,7 @@ Reply with ONLY one word: "correct" or "incorrect". Do not add any explanation.`
             <Zap className="w-7 h-7 text-white" />
           </motion.div>
           <h2 className="text-lg font-black text-foreground">Generating your quiz...</h2>
-          <p className="text-sm text-muted-foreground">Analysing your notes with AI</p>
+          <p className="text-sm text-muted-foreground">Analysing your notes...</p>
         </div>
       );
     }
@@ -440,7 +440,7 @@ Reply with ONLY one word: "correct" or "incorrect". Do not add any explanation.`
         <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-10 translate-x-10" />
         <div className="relative z-10">
           <h1 className="text-2xl font-black mb-1">Study Quiz</h1>
-          <p className="text-pink-200 text-sm">Upload notes → AI generates a quiz → earn points</p>
+          <p className="text-pink-200 text-sm">Upload notes → get a quiz → earn points</p>
         </div>
       </div>
 
@@ -528,7 +528,7 @@ Reply with ONLY one word: "correct" or "incorrect". Do not add any explanation.`
           </svg>
           <h3 className="font-black text-foreground text-lg mb-1">No notes uploaded yet</h3>
           <p className="text-sm text-muted-foreground max-w-xs mx-auto mb-5">
-            Upload your class notes above and get an AI-generated quiz in seconds. Score 80%+ to earn points.
+            Upload your class notes above and get a quiz in seconds. Score 80%+ to earn points.
           </p>
           <button onClick={() => setView('submit')}
             className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-pink-500 to-violet-600 text-white text-sm font-bold shadow-md shadow-pink-200 hover:opacity-90 transition-opacity">

@@ -59,24 +59,8 @@ export default function Challenge() {
   const isPremium = user?.premium_plan && user.premium_plan !== 'free' &&
     (!user?.trial_end_date || new Date(user.trial_end_date) > new Date());
 
-  const challengeDayKey = `intellix_challenge_uses_${new Date().toISOString().slice(0,10)}`;
-  const getChallengeUses = () => { try { return parseInt(localStorage.getItem(challengeDayKey) || '0'); } catch { return 0; } };
-  const incrementChallengeUses = () => { try { localStorage.setItem(challengeDayKey, String(getChallengeUses() + 1)); } catch {} };
-  const FREE_CHALLENGE_DAILY = 3;
-
   const generate = async () => {
     if (!topic.trim() || !subject || !grade) { toast.error('Fill in all fields first!'); return; }
-    if (!isPremium && getChallengeUses() >= FREE_CHALLENGE_DAILY) {
-      toast.error(`You've used all ${FREE_CHALLENGE_DAILY} free challenges for today!`, { action: { label: 'Upgrade', onClick: () => window.location.href = '/premium' } });
-      return;
-    }
-    const usedSoFar = getChallengeUses();
-    incrementChallengeUses();
-    const remaining = FREE_CHALLENGE_DAILY - usedSoFar - 1;
-    if (!isPremium && remaining >= 0) {
-      if (remaining === 0) toast.warning(`Last free challenge today! Upgrade to Pro for unlimited.`, { action: { label: 'Upgrade', onClick: () => window.location.href = '/premium' } });
-      else toast.info(`${remaining} free challenge${remaining !== 1 ? 's' : ''} remaining today.`);
-    }
     setStep('generating');
     const topicDetail = specificTopic ? `Specifically about: ${specificTopic}.` : '';
 
@@ -395,19 +379,19 @@ Keep it concise (3-5 short paragraphs), use simple language appropriate for the 
         <p className="opacity-75 mt-1 text-sm">{correct} of {total} correct on "{topic}"</p>
       </motion.div>
 
-      {/* AI Explanation Panel */}
+      {/* Explanation Panel */}
       {!showAI ? (
         <motion.button
           initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
           onClick={fetchExplanation}
           className="w-full rounded-2xl border-2 border-dashed border-primary/30 bg-primary/5 hover:bg-primary/10 transition-colors p-5 text-center cursor-pointer">
-          <p className="text-sm font-black text-primary">Ask AI to explain this topic</p>
+          <p className="text-sm font-black text-primary">Get an explanation of this topic</p>
           <p className="text-xs text-muted-foreground mt-1">Get a personalized explanation based on your results</p>
         </motion.button>
       ) : (
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
           className="bg-white rounded-2xl border border-primary/20 p-5 shadow-sm">
-          <p className="text-xs font-black text-primary mb-3 uppercase tracking-wide">AI Explanation</p>
+          <p className="text-xs font-black text-primary mb-3 uppercase tracking-wide">Topic Explanation</p>
           {loadingAI ? (
             <div className="flex items-center gap-3 text-muted-foreground">
               <Loader2 className="w-4 h-4 animate-spin text-primary" />

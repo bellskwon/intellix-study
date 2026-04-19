@@ -17,17 +17,30 @@ async function invokeLLM({ prompt, fileUrls = [], responseJsonSchema = null }) {
   // Attach images if provided
   for (const url of fileUrls) {
     try {
-      const res = await fetch(url);
-      const buffer = await res.buffer();
-      const base64 = buffer.toString('base64');
-      const contentType = res.headers.get('content-type') || 'image/jpeg';
+      let base64, contentType;
 
-      userContent.push({
-        type: 'image',
-        source: { type: 'base64', media_type: contentType, data: base64 },
-      });
+      if (url.startsWith('data:')) {
+        // Data URL — extract base64 directly without a network fetch
+        const commaIdx = url.indexOf(',');
+        const header = url.slice(0, commaIdx); // e.g. "data:image/jpeg;base64"
+        base64 = url.slice(commaIdx + 1);
+        contentType = header.match(/data:([^;,]+)/)?.[1] || 'image/jpeg';
+      } else {
+        const fetchRes = await fetch(url);
+        const buffer = await fetchRes.buffer();
+        base64 = buffer.toString('base64');
+        contentType = fetchRes.headers.get('content-type') || 'image/jpeg';
+      }
+
+      // Claude vision only supports image types — skip PDFs/video as base64
+      if (contentType.startsWith('image/')) {
+        userContent.push({
+          type: 'image',
+          source: { type: 'base64', media_type: contentType, data: base64 },
+        });
+      }
     } catch (err) {
-      console.warn('Could not fetch image for LLM:', url, err.message);
+      console.warn('Could not process file for LLM:', err.message);
     }
   }
 
@@ -42,14 +55,14 @@ async function invokeLLM({ prompt, fileUrls = [], responseJsonSchema = null }) {
   userContent.push({ type: 'text', text: fullPrompt });
 
   const message = await anthropic.messages.create({
-    model: 'claude-sonnet-4-6',
+    model: 'claude-3-5-sonnet-20241022',
     max_tokens: 4096,
     // Lower temperature = more factual, less creative/hallucinated output.
     // 0.2 for structured JSON (quiz generation, grading), 0.5 for free-text.
     temperature: responseJsonSchema ? 0.2 : 0.5,
     system: responseJsonSchema
       ? 'You are a precise academic assistant for Intellix. Respond with valid JSON only — no markdown, no explanation. Never invent facts; only assert what you are certain is correct.'
-      : 'You are a helpful academic assistant for Intellix, an AI-powered study platform for students. Be accurate and concise.',
+      : 'You are a helpful academic assistant for Intellix, an online study platform for students. Be accurate and concise.',
     messages: [{ role: 'user', content: userContent }],
   });
 
