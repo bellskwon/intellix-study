@@ -12,12 +12,7 @@ import { toast } from 'sonner';
 import { format } from 'date-fns';
 import SubmitStudy from '@/pages/SubmitStudy';
 import { PASS_THRESHOLD } from '@/components/shared/LevelXPBar';
-
-const subjectEmoji = {
-  math: '🔢', science: '🔬', history: '📜', geography: '🌍',
-  english: '📖', foreign_language: '🗣️', computer_science: '💻',
-  art: '🎨', music: '🎵', other: '📌',
-};
+import SubjectIcon from '@/pages/SubjectIcon';
 
 export default function Quiz() {
   const queryClient = useQueryClient();
@@ -465,7 +460,7 @@ Reply with ONLY one word: "correct" or "incorrect". Do not add any explanation.`
               <motion.div key={sub.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.05 }}
                 className="bg-white rounded-2xl border border-border p-4 flex items-center gap-4">
-                <span className="text-2xl shrink-0">{subjectEmoji[sub.subject] || '📌'}</span>
+                <SubjectIcon subject={sub.subject} size="md" />
                 <div className="flex-1 min-w-0">
                   <p className="font-bold text-sm text-foreground truncate">{sub.title}</p>
                   <p className="text-xs text-muted-foreground capitalize">
@@ -491,7 +486,7 @@ Reply with ONLY one word: "correct" or "incorrect". Do not add any explanation.`
           <div className="space-y-2">
             {completed.slice(0, 10).map(sub => (
               <div key={sub.id} className="bg-white rounded-xl border border-border px-4 py-3 flex items-center gap-3">
-                <span className="text-lg shrink-0">{subjectEmoji[sub.subject] || '📌'}</span>
+                <SubjectIcon subject={sub.subject} size="sm" />
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-semibold text-foreground truncate">{sub.title}</p>
                   <p className="text-xs text-muted-foreground capitalize">

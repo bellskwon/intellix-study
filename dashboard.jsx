@@ -12,6 +12,7 @@ import LevelXPBar, { calcLevelInfo, getLeague } from '@/components/shared/LevelX
 import LevelUpModal from '@/components/shared/LevelUpModal';
 import { toast } from 'sonner';
 import { formatDistanceToNow } from 'date-fns';
+import SubjectIcon from '@/pages/SubjectIcon';
 
 const quickActions = [
   {
@@ -105,11 +106,6 @@ function GettingStarted({ user, submissions, onDismiss }) {
   );
 }
 
-const subjectEmoji = {
-  math: '🔢', science: '🔬', history: '📜', geography: '🌍',
-  english: '📖', foreign_language: '🗣️', computer_science: '💻',
-  art: '🎨', music: '🎵', other: '📌',
-};
 
 export default function Dashboard() {
   const [showChecklist, setShowChecklist] = useState(() => {
@@ -306,7 +302,7 @@ export default function Dashboard() {
                 <div className="flex-1 min-w-0">
                   <p className="text-xs font-bold text-foreground truncate">{s.created_by.split('@')[0]}</p>
                   <p className="text-[11px] text-muted-foreground flex items-center gap-1">
-                    <span>{subjectEmoji[s.subject] || '📌'}</span>
+                    <SubjectIcon subject={s.subject} size="xs" />
                     <span className="capitalize">{s.subject?.replace(/_/g, ' ')}</span>
                     <span>·</span>
                     <span>{formatDistanceToNow(new Date(s.created_date), { addSuffix: true })}</span>

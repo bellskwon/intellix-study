@@ -373,7 +373,29 @@ Keep it concise (3-5 short paragraphs), use simple language appropriate for the 
       <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}
         className={`rounded-3xl p-8 text-white text-center ${passed ? 'gradient-emerald' : 'gradient-pink'}`}>
         <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 0.2, type: 'spring' }}
-          className="text-6xl mb-3">{passed ? '🏆' : '💪'}</motion.div>
+          className="flex items-center justify-center mb-3">
+          {passed ? (
+            <svg viewBox="0 0 80 80" className="w-20 h-20 drop-shadow-lg" fill="none">
+              <circle cx="40" cy="40" r="38" fill="rgba(255,255,255,0.2)" />
+              <path d="M26 22h28v6c0 8-6 14-14 14s-14-6-14-14v-6z" fill="#fbbf24" stroke="#f59e0b" strokeWidth="2"/>
+              <path d="M26 24c-4 2-8 6-8 10 0 5 4 9 8 9" stroke="#f59e0b" strokeWidth="2.5" strokeLinecap="round"/>
+              <path d="M54 24c4 2 8 6 8 10 0 5-4 9-8 9" stroke="#f59e0b" strokeWidth="2.5" strokeLinecap="round"/>
+              <rect x="34" y="42" width="12" height="8" rx="2" fill="#fcd34d"/>
+              <rect x="28" y="50" width="24" height="5" rx="2.5" fill="#f59e0b"/>
+              <circle cx="40" cy="32" r="5" fill="#fef3c7"/>
+              <path d="M37 32l2 2 4-4" stroke="#f59e0b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          ) : (
+            <svg viewBox="0 0 80 80" className="w-20 h-20 drop-shadow-lg" fill="none">
+              <circle cx="40" cy="40" r="38" fill="rgba(255,255,255,0.2)" />
+              <path d="M28 52c0-8 4-14 12-18 8 4 12 10 12 18" fill="#a78bfa" stroke="#8b5cf6" strokeWidth="2"/>
+              <path d="M34 34c0-4 3-6 6-6s6 2 6 6-3 8-6 10c-3-2-6-6-6-10z" fill="#c4b5fd" stroke="#8b5cf6" strokeWidth="1.5"/>
+              <path d="M32 46c-3 1-6 4-6 8" stroke="#8b5cf6" strokeWidth="2" strokeLinecap="round"/>
+              <path d="M48 46c3 1 6 4 6 8" stroke="#8b5cf6" strokeWidth="2" strokeLinecap="round"/>
+              <path d="M36 26l-4-4M44 26l4-4M40 24v-5" stroke="#c4b5fd" strokeWidth="2" strokeLinecap="round"/>
+            </svg>
+          )}
+        </motion.div>
         <h2 className="text-2xl font-black font-sora">{passed ? 'Crushed it!' : 'Keep grinding!'}</h2>
         <p className="text-6xl font-black mt-2">{score}%</p>
         <p className="opacity-75 mt-1 text-sm">{correct} of {total} correct on "{topic}"</p>

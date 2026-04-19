@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { Trophy, Flame, BookOpen, Target, LogOut, Star, Zap, BarChart3, Pencil, Upload, Smile, Check, X, Edit2, Copy, Users } from 'lucide-react';
+import { Trophy, Flame, BookOpen, Target, LogOut, Star, Zap, BarChart3, Pencil, Upload, Smile, Check, X, Edit2, Copy, Users, TrendingUp, Globe, Map, Gem, Crown, Award } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -9,15 +9,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { format } from 'date-fns';
 import LevelXPBar, { calcLevelInfo, getLeague, PASS_THRESHOLD } from '@/components/shared/LevelXPBar';
 import { toast } from 'sonner';
+import SubjectIcon from '@/pages/SubjectIcon';
 
 const AVATARS = ['🐯','🦊','🐼','🦁','🐺','🦋','🐉','🦄','🐸','🤖','👾','🎭','🐨','🐧','🦅','🐬'];
 const COLORS = ['#7c3aed','#ec4899','#06b6d4','#10b981','#f59e0b','#ef4444','#8b5cf6','#3b82f6'];
-
-const subjectEmoji = {
-  math:'🔢', science:'🔬', history:'📜', geography:'🌍',
-  english:'📖', foreign_language:'🗣️', computer_science:'💻',
-  art:'🎨', music:'🎵', other:'📌'
-};
 
 export default function Profile() {
   const queryClient = useQueryClient();
@@ -70,44 +65,44 @@ export default function Profile() {
     {
       label: 'Study Milestones',
       badges: [
-        { label: 'First Quiz',   icon: '🎯', earned: submissions.length >= 1,   desc: 'Complete your first quiz' },
-        { label: '5 Quizzes',    icon: '📚', earned: submissions.length >= 5,   desc: 'Complete 5 quizzes' },
-        { label: '25 Quizzes',   icon: '🔟', earned: submissions.length >= 25,  desc: 'Complete 25 quizzes' },
-        { label: '50 Quizzes',   icon: '💯', earned: submissions.length >= 50,  desc: 'Complete 50 quizzes' },
+        { label: 'First Quiz',   Icon: Target,     color: 'text-blue-500',   bg: 'bg-blue-100',   earned: submissions.length >= 1,   desc: 'Complete your first quiz' },
+        { label: '5 Quizzes',    Icon: BookOpen,   color: 'text-violet-500', bg: 'bg-violet-100', earned: submissions.length >= 5,   desc: 'Complete 5 quizzes' },
+        { label: '25 Quizzes',   Icon: Zap,        color: 'text-amber-500',  bg: 'bg-amber-100',  earned: submissions.length >= 25,  desc: 'Complete 25 quizzes' },
+        { label: '50 Quizzes',   Icon: Award,      color: 'text-emerald-500',bg: 'bg-emerald-100',earned: submissions.length >= 50,  desc: 'Complete 50 quizzes' },
       ],
     },
     {
       label: 'Performance',
       badges: [
-        { label: 'Score 80%+',    icon: '⭐', earned: graded.some(s => s.quiz_score >= 80), desc: 'Ace a quiz with 80%+' },
-        { label: 'Perfect Score', icon: '🏆', earned: perfectScores >= 1,  desc: 'Score 100% on a quiz' },
-        { label: 'Hat Trick',     icon: '🎩', earned: perfectScores >= 3,  desc: 'Score 100% three times' },
-        { label: 'High Avg',      icon: '📈', earned: graded.length >= 5 && avgScore >= 85, desc: 'Maintain 85%+ average (5+ quizzes)' },
+        { label: 'Score 80%+',    Icon: Star,        color: 'text-amber-500',  bg: 'bg-amber-100',  earned: graded.some(s => s.quiz_score >= 80), desc: 'Ace a quiz with 80%+' },
+        { label: 'Perfect Score', Icon: Trophy,      color: 'text-amber-600',  bg: 'bg-amber-100',  earned: perfectScores >= 1,  desc: 'Score 100% on a quiz' },
+        { label: 'Hat Trick',     Icon: Crown,       color: 'text-purple-500', bg: 'bg-purple-100', earned: perfectScores >= 3,  desc: 'Score 100% three times' },
+        { label: 'High Avg',      Icon: TrendingUp,  color: 'text-green-500',  bg: 'bg-green-100',  earned: graded.length >= 5 && avgScore >= 85, desc: 'Maintain 85%+ average' },
       ],
     },
     {
       label: 'Streaks',
       badges: [
-        { label: '7-Day Streak',   icon: '🔥', earned: streak >= 7,   desc: 'Study 7 days in a row' },
-        { label: '30-Day Streak',  icon: '⚡', earned: streak >= 30,  desc: 'Study 30 days in a row' },
-        { label: '100-Day Streak', icon: '💎', earned: streak >= 100, desc: 'Study 100 days in a row' },
+        { label: '7-Day Streak',   Icon: Flame, color: 'text-orange-500', bg: 'bg-orange-100', earned: streak >= 7,   desc: 'Study 7 days in a row' },
+        { label: '30-Day Streak',  Icon: Zap,   color: 'text-violet-500', bg: 'bg-violet-100', earned: streak >= 30,  desc: 'Study 30 days in a row' },
+        { label: '100-Day Streak', Icon: Gem,   color: 'text-cyan-500',   bg: 'bg-cyan-100',   earned: streak >= 100, desc: 'Study 100 days in a row' },
       ],
     },
     {
       label: 'Explorer',
       badges: [
-        { label: '3 Subjects',   icon: '🌍', earned: subjectCount >= 3, desc: 'Study 3 different subjects' },
-        { label: '5 Subjects',   icon: '🗺️', earned: subjectCount >= 5, desc: 'Study 5 different subjects' },
-        { label: 'Level 10',     icon: '🚀', earned: level >= 10,       desc: 'Reach Level 10' },
-        { label: 'Level 50',     icon: '🌟', earned: level >= 50,       desc: 'Reach Level 50' },
+        { label: '3 Subjects', Icon: Globe,     color: 'text-teal-500',  bg: 'bg-teal-100',  earned: subjectCount >= 3, desc: 'Study 3 different subjects' },
+        { label: '5 Subjects', Icon: Map,       color: 'text-emerald-500',bg:'bg-emerald-100',earned: subjectCount >= 5, desc: 'Study 5 different subjects' },
+        { label: 'Level 10',   Icon: Star,      color: 'text-indigo-500', bg: 'bg-indigo-100',earned: level >= 10,       desc: 'Reach Level 10' },
+        { label: 'Level 50',   Icon: Trophy,    color: 'text-rose-500',   bg: 'bg-rose-100',  earned: level >= 50,       desc: 'Reach Level 50' },
       ],
     },
     {
       label: 'Social',
       badges: [
-        { label: 'Shared Profile', icon: '👨‍👩‍👧', earned: sharedProfile, desc: 'Share your progress with a parent' },
-        { label: '500 Points',     icon: '💰', earned: totalPoints >= 500,  desc: 'Earn 500 total points' },
-        { label: '1,000 Points',   icon: '💎', earned: totalPoints >= 1000, desc: 'Earn 1,000 total points' },
+        { label: 'Shared Profile', Icon: Users,  color: 'text-blue-500',  bg: 'bg-blue-100',  earned: sharedProfile,        desc: 'Share progress with a parent' },
+        { label: '500 Points',     Icon: Star,   color: 'text-amber-500', bg: 'bg-amber-100', earned: totalPoints >= 500,   desc: 'Earn 500 total points' },
+        { label: '1,000 Points',   Icon: Gem,    color: 'text-violet-500',bg: 'bg-violet-100',earned: totalPoints >= 1000,  desc: 'Earn 1,000 total points' },
       ],
     },
   ];
@@ -370,7 +365,7 @@ export default function Profile() {
               const pct = Math.round((count / submissions.length) * 100);
               return (
                 <div key={subj} className="flex items-center gap-3">
-                  <span className="text-base w-6 shrink-0">{subjectEmoji[subj] || '📌'}</span>
+                  <SubjectIcon subject={subj} size="xs" />
                   <div className="flex-1">
                     <div className="flex justify-between text-xs mb-1">
                       <span className="font-semibold capitalize">{subj.replace(/_/g, ' ')}</span>
@@ -405,7 +400,9 @@ export default function Profile() {
                 {group.badges.map(b => (
                   <div key={b.label} className={`rounded-xl p-2.5 text-center transition-all border ${
                     b.earned ? 'bg-violet-50 border-violet-200' : 'bg-muted/20 border-dashed border-muted/50 opacity-40 grayscale'}`}>
-                    <div className="text-xl mb-1">{b.icon}</div>
+                    <div className={`w-8 h-8 rounded-lg ${b.earned ? b.bg : 'bg-muted'} flex items-center justify-center mx-auto mb-1.5`}>
+                      <b.Icon className={`w-4 h-4 ${b.earned ? b.color : 'text-muted-foreground'}`} />
+                    </div>
                     <p className="text-[10px] font-black text-foreground leading-tight">{b.label}</p>
                     <p className="text-[9px] text-muted-foreground mt-0.5 leading-tight">{b.earned ? '✓ Earned' : b.desc}</p>
                   </div>
@@ -446,7 +443,7 @@ export default function Profile() {
       {/* Share with Parent */}
       <div className="bg-white rounded-2xl border border-border p-5">
         <h2 className="font-black text-sm text-foreground mb-1 flex items-center gap-2">
-          👨‍👩‍👧 Share Progress with a Parent
+          <Users className="w-4 h-4 text-blue-500 mr-2" /> Share Progress with a Parent
         </h2>
         <p className="text-xs text-muted-foreground mb-3">
           Generate a read-only link your parent or guardian can bookmark to see your scores, subjects, and activity — without needing an account.
@@ -483,7 +480,7 @@ export default function Profile() {
             {submissions.slice(0, 8).map(s => (
               <div key={s.id} className="px-5 py-3 flex items-center justify-between gap-3">
                 <div className="flex items-center gap-3 min-w-0">
-                  <span className="text-lg shrink-0">{subjectEmoji[s.subject] || '📌'}</span>
+                  <SubjectIcon subject={s.subject} size="xs" />
                   <div className="min-w-0">
                     <p className="text-sm font-semibold truncate text-foreground">{s.title}</p>
                     <p className="text-xs text-muted-foreground capitalize mt-0.5">{s.subject?.replace(/_/g, ' ')} · {format(new Date(s.created_date), 'MMM d')}</p>
