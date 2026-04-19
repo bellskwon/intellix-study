@@ -14,17 +14,30 @@ function parseSort(sort) {
 
 // ─── GET /api/submissions ─────────────────────────────────────────────────────
 // Returns submissions filtered by query params.
-// ?created_by=email  → only that user's submissions
-// (no filter)        → all submissions (used by leaderboard)
+// ?created_by=email  → only that user's submissions (full fields)
+// (no filter)        → all submissions (used by leaderboard) — notes/files excluded
 router.get('/', requireAuth, async (req, res) => {
   const { created_by, sort, limit } = req.query;
   const where = {};
   if (created_by) where.created_by = created_by;
 
+  // Cap at 500 to prevent unbounded dumps
+  const take = limit ? Math.min(parseInt(limit), 500) : 500;
+
+  // When fetching another user's data (leaderboard/friends), strip private fields
+  const isOwnData = created_by && created_by === req.user.email;
+  const select = isOwnData ? undefined : {
+    id: true, title: true, subject: true, grade_level: true, type: true,
+    status: true, quiz_score: true, quiz_passed: true, points_awarded: true,
+    created_by: true, created_date: true,
+    // notes_text and file_url intentionally excluded for other users' data
+  };
+
   const submissions = await prisma.submission.findMany({
     where,
     orderBy: parseSort(sort),
-    take: limit ? parseInt(limit) : undefined,
+    take,
+    ...(select ? { select } : {}),
   });
   res.json(submissions);
 });

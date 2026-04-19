@@ -77,11 +77,48 @@ export default function LevelUpModal({ level }) {
             className="bg-white rounded-3xl p-8 text-center max-w-xs w-full mx-4 shadow-2xl"
           >
             <motion.div
-              animate={{ rotate: [0, -10, 10, -10, 10, 0], scale: [1, 1.2, 1] }}
+              animate={{ rotate: [0, -8, 8, -8, 8, 0], scale: [1, 1.15, 1] }}
               transition={{ duration: 0.8, delay: 0.2 }}
-              className="text-6xl mb-3"
+              className="flex justify-center mb-3"
             >
-              🎉
+              <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+                {/* Outer glow ring */}
+                <circle cx="40" cy="40" r="38" fill="url(#glowRing)" opacity="0.2" />
+                {/* Star burst rays */}
+                {[0,45,90,135,180,225,270,315].map((deg, i) => (
+                  <line key={i}
+                    x1="40" y1="40"
+                    x2={40 + Math.cos((deg * Math.PI) / 180) * 36}
+                    y2={40 + Math.sin((deg * Math.PI) / 180) * 36}
+                    stroke={i % 2 === 0 ? '#f59e0b' : '#fcd34d'}
+                    strokeWidth={i % 2 === 0 ? "3" : "2"}
+                    strokeLinecap="round"
+                    opacity="0.7"
+                  />
+                ))}
+                {/* Trophy cup */}
+                <rect x="28" y="42" width="24" height="4" rx="2" fill="#7c3aed" />
+                <rect x="34" y="46" width="12" height="8" rx="2" fill="#7c3aed" />
+                <rect x="28" y="54" width="24" height="3" rx="1.5" fill="#7c3aed" />
+                <path d="M28 26 Q28 42 40 42 Q52 42 52 26 Z" fill="url(#cupGrad)" />
+                {/* Handles */}
+                <path d="M28 28 Q20 28 20 34 Q20 40 28 40" stroke="#a78bfa" strokeWidth="3" strokeLinecap="round" fill="none" />
+                <path d="M52 28 Q60 28 60 34 Q60 40 52 40" stroke="#a78bfa" strokeWidth="3" strokeLinecap="round" fill="none" />
+                {/* Cup shine */}
+                <path d="M33 29 Q36 27 36 36" stroke="white" strokeWidth="2" strokeLinecap="round" opacity="0.5" />
+                {/* Star on cup */}
+                <path d="M40 30 L41.5 34 L46 34 L42.5 36.5 L44 40.5 L40 38 L36 40.5 L37.5 36.5 L34 34 L38.5 34 Z" fill="#fde68a" />
+                <defs>
+                  <linearGradient id="cupGrad" x1="28" y1="26" x2="52" y2="42" gradientUnits="userSpaceOnUse">
+                    <stop offset="0%" stopColor="#8b5cf6" />
+                    <stop offset="100%" stopColor="#7c3aed" />
+                  </linearGradient>
+                  <radialGradient id="glowRing" cx="50%" cy="50%" r="50%">
+                    <stop offset="0%" stopColor="#f59e0b" />
+                    <stop offset="100%" stopColor="#f59e0b" stopOpacity="0" />
+                  </radialGradient>
+                </defs>
+              </svg>
             </motion.div>
             <p className="text-xs font-black text-muted-foreground uppercase tracking-widest mb-1">Level Up!</p>
             <motion.p

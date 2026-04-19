@@ -35,28 +35,64 @@ function StepWelcome() {
   );
 }
 
+function IconUpload() {
+  return (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+      <rect x="3" y="3" width="18" height="18" rx="4" fill="#dbeafe" />
+      <rect x="6" y="7" width="12" height="2" rx="1" fill="#93c5fd" />
+      <rect x="6" y="11" width="8" height="2" rx="1" fill="#bfdbfe" />
+      <circle cx="17" cy="16" r="4.5" fill="#3b82f6" />
+      <path d="M17 14 L17 18 M15 15.5 L17 13.5 L19 15.5" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function IconAI() {
+  return (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+      <rect x="3" y="3" width="18" height="18" rx="4" fill="#ede9fe" />
+      <circle cx="12" cy="11" r="5" fill="#8b5cf6" opacity="0.15" />
+      <circle cx="12" cy="11" r="3" fill="#7c3aed" opacity="0.8" />
+      <path d="M12 4 L12 6 M12 16 L12 18 M4 11 L6 11 M18 11 L20 11" stroke="#a78bfa" strokeWidth="1.5" strokeLinecap="round" />
+      <path d="M6.3 6.3 L7.7 7.7 M16.3 15.3 L17.7 16.7 M6.3 15.7 L7.7 14.3 M16.3 6.7 L17.7 5.3" stroke="#c4b5fd" strokeWidth="1.5" strokeLinecap="round" />
+      <circle cx="12" cy="11" r="1.2" fill="white" />
+    </svg>
+  );
+}
+
+function IconTrophy() {
+  return (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+      <rect x="3" y="3" width="18" height="18" rx="4" fill="#fdf4ff" />
+      <path d="M8 7 Q8 14 12 14 Q16 14 16 7 Z" fill="#a855f7" opacity="0.9" />
+      <path d="M8 8 Q5 8 5 11 Q5 13 8 13" stroke="#c084fc" strokeWidth="1.8" strokeLinecap="round" fill="none" />
+      <path d="M16 8 Q19 8 19 11 Q19 13 16 13" stroke="#c084fc" strokeWidth="1.8" strokeLinecap="round" fill="none" />
+      <rect x="10" y="14" width="4" height="3" rx="1" fill="#a855f7" />
+      <rect x="8.5" y="17" width="7" height="1.5" rx="0.75" fill="#a855f7" />
+      <path d="M12 8.5 L12.7 10.5 L14.8 10.5 L13.1 11.7 L13.8 13.7 L12 12.5 L10.2 13.7 L10.9 11.7 L9.2 10.5 L11.3 10.5 Z" fill="#fde68a" />
+    </svg>
+  );
+}
+
 function StepHowItWorks() {
   const steps = [
     {
-      icon: '📄',
+      icon: <IconUpload />,
       title: 'Upload Your Notes',
       desc: 'Upload a PDF, image, or paste text from your actual class notes or textbook.',
       color: 'bg-blue-50 border-blue-100',
-      iconBg: 'bg-blue-100',
     },
     {
-      icon: '✨',
+      icon: <IconAI />,
       title: 'AI Builds Your Quiz',
       desc: "Our AI reads your exact material and generates questions tailored to what you're learning — not generic practice problems.",
       color: 'bg-violet-50 border-violet-100',
-      iconBg: 'bg-violet-100',
     },
     {
-      icon: '🏆',
+      icon: <IconTrophy />,
       title: 'Earn Points',
       desc: 'Score 80%+ on the quiz to earn points. The harder the material, the more points you earn.',
       color: 'bg-fuchsia-50 border-fuchsia-100',
-      iconBg: 'bg-fuchsia-100',
     },
   ];
 
@@ -68,7 +104,7 @@ function StepHowItWorks() {
       </div>
       {steps.map((s, i) => (
         <div key={i} className={`flex items-start gap-4 p-4 rounded-2xl border ${s.color}`}>
-          <div className={`w-11 h-11 rounded-xl ${s.iconBg} flex items-center justify-center text-xl shrink-0`}>
+          <div className="w-11 h-11 rounded-xl bg-white flex items-center justify-center shrink-0 shadow-sm">
             {s.icon}
           </div>
           <div>
@@ -148,7 +184,13 @@ function StepLeaderboard() {
       </div>
 
       <div className="flex items-center gap-3 bg-amber-50 border border-amber-100 rounded-2xl p-4">
-        <span className="text-2xl">🏅</span>
+        <svg width="32" height="32" viewBox="0 0 32 32" fill="none" className="shrink-0">
+          <circle cx="16" cy="16" r="14" fill="#fde68a" />
+          <circle cx="16" cy="16" r="11" fill="#f59e0b" />
+          <path d="M16 9 L17.5 13.5 L22.5 13.5 L18.5 16.5 L20 21 L16 18 L12 21 L13.5 16.5 L9.5 13.5 L14.5 13.5 Z" fill="#fffbeb" />
+          <path d="M11 27 L13 29 M21 27 L19 29" stroke="#f59e0b" strokeWidth="2" strokeLinecap="round" />
+          <rect x="13" y="25" width="6" height="3" rx="1.5" fill="#fbbf24" />
+        </svg>
         <p className="text-sm text-amber-800">
           <span className="font-semibold">Top 3 winners</span> each week earn 500, 300, and 150 bonus points. Start studying to climb the board.
         </p>
@@ -161,7 +203,22 @@ function StepAction({ onCreateAccount, onSkip }) {
   return (
     <div className="flex flex-col items-center text-center px-6 py-8 gap-6">
       <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-fuchsia-500 to-violet-500 flex items-center justify-center shadow-lg shadow-fuchsia-200">
-        <span className="text-4xl">🚀</span>
+        <svg width="44" height="44" viewBox="0 0 44 44" fill="none">
+          <path d="M22 6 C22 6 30 10 30 22 L22 38 L14 22 C14 10 22 6 22 6Z" fill="white" opacity="0.9" />
+          <path d="M22 6 C22 6 30 10 30 22 L22 38 L14 22 C14 10 22 6 22 6Z" fill="url(#rocketBody)" />
+          <circle cx="22" cy="20" r="4" fill="white" opacity="0.3" />
+          <circle cx="22" cy="20" r="2.5" fill="white" opacity="0.6" />
+          <path d="M14 22 L8 28 L14 26 Z" fill="white" opacity="0.6" />
+          <path d="M30 22 L36 28 L30 26 Z" fill="white" opacity="0.6" />
+          <path d="M19 34 L22 40 L25 34" fill="#fde68a" opacity="0.9" />
+          <path d="M20 36 L22 42 L24 36" fill="#f59e0b" opacity="0.7" />
+          <defs>
+            <linearGradient id="rocketBody" x1="14" y1="6" x2="30" y2="38" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stopColor="white" stopOpacity="0.2" />
+              <stop offset="100%" stopColor="white" stopOpacity="0.05" />
+            </linearGradient>
+          </defs>
+        </svg>
       </div>
       <div>
         <h2 className="font-sora text-2xl font-bold text-slate-900 mb-3">

@@ -1,13 +1,19 @@
 {
-    "experimentalServices": {
-        "frontend": {
-            "routePrefix": "/",
-            "framework": "vite"
-        },
-        "backend": {
-            "entrypoint": "backend",
-            "routePrefix": "/_/backend",
-            "buildCommand": "npm install && npx prisma generate"
-        }
+  "experimentalServices": {
+    "frontend": {
+      "routePrefix": "/",
+      "framework": "vite"
+    },
+    "backend": {
+      "entrypoint": "backend",
+      "routePrefix": "/_/backend",
+      "buildCommand": "npm install && npx prisma generate"
     }
+  },
+  "rewrites": [
+    {
+      "source": "/((?!_/backend|assets|favicon).*)",
+      "destination": "/index.html"
+    }
+  ]
 }

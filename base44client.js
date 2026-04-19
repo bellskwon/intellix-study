@@ -80,13 +80,15 @@ export const base44 = {
 
     logout: (returnUrl) => {
       try { localStorage.removeItem(TOKEN_KEY); } catch {}
-      const url = new URL(`${API_BASE}/api/auth/logout`);
+      const base = API_BASE.startsWith('http') ? API_BASE : window.location.origin + API_BASE;
+      const url = new URL(`${base}/api/auth/logout`);
       if (returnUrl) url.searchParams.set('return_url', returnUrl);
       window.location.href = url.toString();
     },
 
     redirectToLogin: (returnUrl) => {
-      const url = new URL(`${API_BASE}/api/auth/google`);
+      const base = API_BASE.startsWith('http') ? API_BASE : window.location.origin + API_BASE;
+      const url = new URL(`${base}/api/auth/google`);
       url.searchParams.set('return_url', returnUrl || window.location.href);
       window.location.href = url.toString();
     },

@@ -321,7 +321,33 @@ Reply with ONLY one word: "correct" or "incorrect". Do not add any explanation.`
         <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}
           className={`rounded-3xl p-8 text-white text-center ${passed ? 'bg-gradient-to-br from-emerald-400 to-teal-500' : 'bg-gradient-to-br from-pink-500 to-rose-600'}`}>
           <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 0.2, type: 'spring' }}
-            className="text-6xl mb-3">{passed ? '🏆' : '💪'}</motion.div>
+            className="flex justify-center mb-3">
+            {passed ? (
+              <svg width="72" height="72" viewBox="0 0 72 72" fill="none">
+                <circle cx="36" cy="36" r="34" fill="white" opacity="0.2" />
+                {[0,60,120,180,240,300].map((deg, i) => (
+                  <line key={i} x1="36" y1="36"
+                    x2={36 + Math.cos((deg * Math.PI) / 180) * 32}
+                    y2={36 + Math.sin((deg * Math.PI) / 180) * 32}
+                    stroke="white" strokeWidth="2" strokeLinecap="round" opacity="0.4" />
+                ))}
+                <path d="M22 22 Q22 44 36 44 Q50 44 50 22 Z" fill="white" opacity="0.9" />
+                <path d="M22 24 Q14 24 14 32 Q14 40 22 40" stroke="white" strokeWidth="3" strokeLinecap="round" fill="none" opacity="0.7" />
+                <path d="M50 24 Q58 24 58 32 Q58 40 50 40" stroke="white" strokeWidth="3" strokeLinecap="round" fill="none" opacity="0.7" />
+                <rect x="30" y="44" width="12" height="8" rx="3" fill="white" opacity="0.8" />
+                <rect x="26" y="52" width="20" height="4" rx="2" fill="white" opacity="0.8" />
+                <path d="M36 27 L38 33 L44 33 L39.5 37 L41.5 43 L36 39.5 L30.5 43 L32.5 37 L28 33 L34 33 Z" fill="#fde68a" />
+              </svg>
+            ) : (
+              <svg width="72" height="72" viewBox="0 0 72 72" fill="none">
+                <circle cx="36" cy="36" r="34" fill="white" opacity="0.15" />
+                <path d="M20 52 Q20 36 28 30 L28 44 Q32 38 32 28 Q36 24 40 28 Q40 38 44 44 L44 30 Q52 36 52 52 Z" fill="white" opacity="0.85" />
+                <path d="M28 30 Q24 22 28 18 Q32 22 32 28" fill="white" opacity="0.6" />
+                <path d="M44 30 Q48 22 44 18 Q40 22 40 28" fill="white" opacity="0.6" />
+                <path d="M32 28 Q36 20 40 28" fill="white" opacity="0.4" />
+              </svg>
+            )}
+          </motion.div>
           <h2 className="text-2xl font-black">{passed ? 'Crushed it!' : 'Keep grinding!'}</h2>
           <p className="text-6xl font-black mt-2">{score}%</p>
           <p className="opacity-75 mt-1 text-sm">{correct} of {total} correct · {activeSubmission?.title}</p>
