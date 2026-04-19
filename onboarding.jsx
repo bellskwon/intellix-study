@@ -15,8 +15,8 @@ const STEPS = [
 function StepWelcome() {
   return (
     <div className="flex flex-col items-center text-center px-6 py-8 gap-6">
-      <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-violet-500 to-fuchsia-500 flex items-center justify-center shadow-lg shadow-violet-200">
-        <span className="text-4xl font-sora font-bold text-white">I</span>
+      <div className="w-20 h-20 rounded-2xl overflow-hidden shadow-lg shadow-violet-200">
+        <img src="/logo.png" alt="Intellix" className="w-full h-full object-cover" />
       </div>
       <div>
         <h1 className="font-sora text-3xl font-bold text-slate-900 mb-3">

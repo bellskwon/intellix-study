@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Zap, BarChart3, Users, User, X, Sparkles, FlaskConical, ShoppingBag, Brain, Crown, Archive, UserPlus, Moon, Sun, GraduationCap } from 'lucide-react';
+import { LayoutDashboard, Zap, BarChart3, Users, User, X, FlaskConical, ShoppingBag, Brain, Crown, Archive, UserPlus, Moon, Sun, GraduationCap } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
@@ -59,9 +59,7 @@ export default function Sidebar({ open, onClose }) {
         {/* Logo */}
         <div className="p-5 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2.5" onClick={onClose}>
-            <div className="w-9 h-9 rounded-xl gradient-violet flex items-center justify-center shadow-lg shadow-purple-500/30">
-              <Sparkles className="w-5 h-5 text-white" />
-            </div>
+            <img src="/logo.png" alt="Intellix" className="w-10 h-10 rounded-xl object-cover shadow-lg shadow-purple-500/30" />
             <div>
               <span className="text-base font-black font-sora text-foreground tracking-tight">Intellix</span>
               <span className="block text-[10px] text-muted-foreground -mt-0.5 font-medium">Online Study Platform</span>
