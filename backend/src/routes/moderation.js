@@ -42,8 +42,10 @@ router.post('/check', requireAuth, async (req, res) => {
   // Build the content string for analysis
   const contentPreview = [title, text].filter(Boolean).join('\n').slice(0, 4000);
 
-  const result = await invokeLLM({
-    prompt: `You are a content moderator for Intellix, an educational platform for students (grades 6–college).
+  let result;
+  try {
+    result = await invokeLLM({
+      prompt: `You are a content moderator for Intellix, an educational platform for students (grades 6–college).
 
 Review the following student-submitted study material.
 
@@ -66,15 +68,20 @@ DO NOT BLOCK (flagged = false) if it:
 
 Return ONLY valid JSON: { "flagged": boolean, "reason": string }
 If flagged=true, reason should be a brief, student-facing explanation (no slurs). If flagged=false, reason = "".`,
-    fileUrls: file_url ? [file_url] : [],
-    responseJsonSchema: {
-      type: 'object',
-      properties: {
-        flagged: { type: 'boolean' },
-        reason: { type: 'string' },
+      fileUrls: file_url ? [file_url] : [],
+      responseJsonSchema: {
+        type: 'object',
+        properties: {
+          flagged: { type: 'boolean' },
+          reason: { type: 'string' },
+        },
       },
-    },
-  });
+    });
+  } catch (err) {
+    // If moderation check fails (API error, etc.), allow the submission through
+    console.error('[moderation] check failed, allowing submission:', err.message);
+    return res.json({ flagged: false });
+  }
 
   // Content is clean
   if (!result.flagged) {
