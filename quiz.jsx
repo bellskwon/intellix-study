@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   FlaskConical, Upload, CheckCircle2, XCircle, Trophy,
-  RotateCcw, Loader2, ArrowRight, BookOpen, Zap, Star, Flag, ChevronDown, ChevronUp,
+  RotateCcw, Loader2, ArrowRight, BookOpen, Star, Flag, ChevronDown, ChevronUp, AlertTriangle, Sparkles,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -24,6 +24,7 @@ export default function Quiz() {
   const [currentQ, setCurrentQ] = useState(0);
   const [results, setResults] = useState(null);
   const [generating, setGenerating] = useState(false);
+  const [quizError, setQuizError] = useState(null);
   const [grading, setGrading] = useState(false);
   const [reportedQuestions, setReportedQuestions] = useState(new Set());
   const [expandedExplanations, setExpandedExplanations] = useState(new Set());
@@ -122,9 +123,8 @@ ${submission.notes_text || '(see attached file)'}`,
       setQuestions(res.questions);
       setAnswers({});
       setCurrentQ(0);
-    } catch {
-      toast.error('Failed to generate quiz. Please try again.');
-      setView('list');
+    } catch (err) {
+      setQuizError(err?.message || 'Failed to generate quiz. Please try again.');
     }
     setGenerating(false);
   };
@@ -210,17 +210,11 @@ Reply with ONLY one word: "correct" or "incorrect". Do not add any explanation.`
   }
 
   if (view === 'taking') {
-    if (generating) {
-      return (
-        <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
-          <motion.div animate={{ rotate: 360 }} transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
-            className="w-16 h-16 rounded-full bg-gradient-to-br from-violet-500 to-purple-700 flex items-center justify-center shadow-xl shadow-purple-300/50">
-            <Zap className="w-7 h-7 text-white" />
-          </motion.div>
-          <h2 className="text-lg font-black text-foreground">Generating your quiz...</h2>
-          <p className="text-sm text-muted-foreground">Analysing your notes...</p>
-        </div>
-      );
+    if (generating || quizError) {
+      return <QuizGeneratingStep
+        error={quizError}
+        onRetry={() => { setQuizError(null); setView('list'); }}
+      />;
     }
 
     const q = questions[currentQ];
@@ -544,6 +538,68 @@ Reply with ONLY one word: "correct" or "incorrect". Do not add any explanation.`
           </button>
         </div>
       )}
+    </div>
+  );
+}
+
+function QuizGeneratingStep({ error, onRetry }) {
+  const [progress, setProgress] = useState(0);
+
+  useEffect(() => {
+    if (error) return;
+    const interval = setInterval(() => {
+      setProgress(p => {
+        if (p >= 85) { clearInterval(interval); return p; }
+        return p + Math.random() * 4 + 1;
+      });
+    }, 300);
+    return () => clearInterval(interval);
+  }, [error]);
+
+  if (error) return (
+    <div className="flex flex-col items-center justify-center min-h-[60vh] gap-5 max-w-sm mx-auto text-center">
+      <div className="w-16 h-16 rounded-full bg-rose-100 flex items-center justify-center">
+        <AlertTriangle className="w-8 h-8 text-rose-500" />
+      </div>
+      <div>
+        <h2 className="text-lg font-black text-foreground">Quiz Generation Failed</h2>
+        <p className="text-sm text-muted-foreground mt-1">{error}</p>
+      </div>
+      <Button onClick={onRetry} className="rounded-xl font-bold bg-gradient-to-r from-violet-500 to-purple-600 border-0 text-white px-6">
+        <RotateCcw className="w-4 h-4 mr-2" /> Go Back
+      </Button>
+    </div>
+  );
+
+  const msgs = ['Analysing your notes...', 'Building questions...', 'Almost ready...'];
+  const msgIndex = progress < 33 ? 0 : progress < 70 ? 1 : 2;
+
+  return (
+    <div className="flex flex-col items-center justify-center min-h-[60vh] gap-5 max-w-sm mx-auto text-center">
+      <motion.div
+        animate={{ rotate: 360 }}
+        transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
+        className="w-16 h-16 rounded-full bg-gradient-to-br from-violet-500 to-purple-700 flex items-center justify-center shadow-xl shadow-purple-300/50"
+      >
+        <Sparkles className="w-7 h-7 text-white" />
+      </motion.div>
+      <div>
+        <h2 className="text-lg font-black text-foreground">Generating your quiz...</h2>
+        <p className="text-sm text-muted-foreground mt-1">{msgs[msgIndex]}</p>
+      </div>
+      <div className="w-full bg-secondary rounded-full h-2.5 overflow-hidden">
+        <motion.div
+          className="h-full rounded-full bg-gradient-to-r from-violet-500 to-purple-400"
+          animate={{ width: `${Math.min(progress, 85)}%` }}
+          transition={{ duration: 0.4, ease: 'easeOut' }}
+        />
+      </div>
+      <div className="flex gap-1">
+        {[0, 1, 2].map(i => (
+          <motion.div key={i} className="w-2 h-2 rounded-full bg-primary"
+            animate={{ y: [0, -8, 0] }} transition={{ duration: 0.6, repeat: Infinity, delay: i * 0.2 }} />
+        ))}
+      </div>
     </div>
   );
 }
