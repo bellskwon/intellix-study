@@ -1,10 +1,11 @@
-const { GoogleGenerativeAI } = require('@google/generative-ai');
 const fetch = require('node-fetch');
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+const GEMINI_MODEL = 'gemini-1.5-flash';
+const GEMINI_URL = `https://generativelanguage.googleapis.com/v1/models/${GEMINI_MODEL}:generateContent`;
 
 async function invokeLLM({ prompt, fileUrls = [], responseJsonSchema = null }) {
-  const systemPrompt = responseJsonSchema
+  const systemInstruction = responseJsonSchema
     ? 'You are a precise academic assistant for Intellix. Respond with valid JSON only — no markdown, no explanation. Never invent facts; only assert what you are certain is correct.'
     : 'You are a helpful academic assistant for Intellix, an online study platform for students. Be accurate and concise.';
 
@@ -17,25 +18,21 @@ async function invokeLLM({ prompt, fileUrls = [], responseJsonSchema = null }) {
 
   const parts = [];
 
-  // Attach images if provided
   for (const url of fileUrls) {
     try {
-      let base64, contentType;
-
+      let base64, mimeType;
       if (url.startsWith('data:')) {
         const commaIdx = url.indexOf(',');
-        const header = url.slice(0, commaIdx);
+        mimeType = url.slice(0, commaIdx).match(/data:([^;,]+)/)?.[1] || 'image/jpeg';
         base64 = url.slice(commaIdx + 1);
-        contentType = header.match(/data:([^;,]+)/)?.[1] || 'image/jpeg';
       } else {
-        const fetchRes = await fetch(url);
-        const buffer = await fetchRes.buffer();
-        base64 = buffer.toString('base64');
-        contentType = fetchRes.headers.get('content-type') || 'image/jpeg';
+        const r = await fetch(url);
+        const buf = await r.buffer();
+        base64 = buf.toString('base64');
+        mimeType = r.headers.get('content-type') || 'image/jpeg';
       }
-
-      if (contentType.startsWith('image/')) {
-        parts.push({ inlineData: { mimeType: contentType, data: base64 } });
+      if (mimeType.startsWith('image/')) {
+        parts.push({ inlineData: { mimeType, data: base64 } });
       }
     } catch (err) {
       console.warn('Could not process file for LLM:', err.message);
@@ -44,17 +41,29 @@ async function invokeLLM({ prompt, fileUrls = [], responseJsonSchema = null }) {
 
   parts.push({ text: fullPrompt });
 
-  const model = genAI.getGenerativeModel({
-    model: 'gemini-1.5-flash',
-    systemInstruction: systemPrompt,
+  const body = {
+    system_instruction: { parts: [{ text: systemInstruction }] },
+    contents: [{ role: 'user', parts }],
     generationConfig: {
       temperature: responseJsonSchema ? 0.2 : 0.5,
       maxOutputTokens: 4096,
     },
+  };
+
+  const res = await fetch(`${GEMINI_URL}?key=${GEMINI_API_KEY}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
   });
 
-  const result = await model.generateContent({ contents: [{ role: 'user', parts }] });
-  const rawText = result.response.text();
+  if (!res.ok) {
+    const errText = await res.text();
+    console.error('[Gemini] API error:', res.status, errText);
+    throw Object.assign(new Error(`Gemini API error: ${errText}`), { status: res.status });
+  }
+
+  const data = await res.json();
+  const rawText = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
 
   if (responseJsonSchema) {
     try {
