@@ -97,7 +97,7 @@ function AccountPausedScreen({ user }) {
 }
 
 const AuthenticatedApp = () => {
-  const { isLoadingAuth, isAuthenticated, navigateToLogin, user } = useAuth();
+  const { isLoadingAuth, isAuthenticated, navigateToLogin, user, hadExpiredToken } = useAuth();
   const [showTutorial, setShowTutorial] = useState(() => shouldShowTutorial());
 
   if (isLoadingAuth) {
@@ -110,7 +110,7 @@ const AuthenticatedApp = () => {
 
   // Show tutorial to first-time visitors before they log in.
   // Both "Create Account" and "I already have an account" trigger Google OAuth.
-  if (!isAuthenticated && showTutorial) {
+  if (!isAuthenticated && showTutorial && !hadExpiredToken) {
     return (
       <Onboarding
         onCreateAccount={() => {

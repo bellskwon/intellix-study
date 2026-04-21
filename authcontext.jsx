@@ -7,6 +7,7 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoadingAuth, setIsLoadingAuth] = useState(true);
+  const [hadExpiredToken, setHadExpiredToken] = useState(false);
 
   useEffect(() => {
     checkAuth();
@@ -23,8 +24,10 @@ export const AuthProvider = ({ children }) => {
       setUser(currentUser);
       setIsAuthenticated(true);
     } catch {
-      // Token is invalid or expired — clear it
+      // Token is invalid or expired — mark so we skip tutorial and go straight to login
       localStorage.removeItem('base44_access_token');
+      localStorage.setItem('intellix_tutorial_seen', 'true');
+      setHadExpiredToken(true);
     }
     setIsLoadingAuth(false);
   };
@@ -55,6 +58,7 @@ export const AuthProvider = ({ children }) => {
       user,
       isAuthenticated,
       isLoadingAuth,
+      hadExpiredToken,
       // legacy aliases so existing pages that destructure these don't break
       isLoadingPublicSettings: false,
       authError: null,

@@ -64,6 +64,7 @@ export default function Challenge() {
   const generate = async () => {
     if (!topic.trim() || !subject || !grade) { toast.error('Fill in all fields first!'); return; }
     setStep('generating');
+    try {
     const topicDetail = specificTopic ? `Specifically about: ${specificTopic}.` : '';
 
     const mathNote = subject === 'math' ? ' IMPORTANT: Verify ALL math calculations are correct before including. Double-check arithmetic using a step-by-step approach. Never include a wrong answer.' : '';
@@ -107,6 +108,10 @@ RULES:
     setAnswers({});
     setCurrentQ(0);
     setStep('quiz');
+    } catch (err) {
+      toast.error(`Generation failed: ${err?.message || 'Unknown error'}`);
+      setStep('setup');
+    }
   };
 
   const submitQuiz = async () => {

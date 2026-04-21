@@ -54,129 +54,141 @@ export default function Questions() {
   const handleAnalyze = async () => {
     if (!notes.trim() && !file) { toast.error('Paste your notes or upload a file first!'); return; }
     setLoading(true); setResult(null);
-    const { file_url, context } = await uploadAndGetContext();
-    const res = await base44.integrations.Core.InvokeLLM({
-      prompt: `You are an expert study coach. Analyze these student notes and:
+    try {
+      const { file_url, context } = await uploadAndGetContext();
+      const res = await base44.integrations.Core.InvokeLLM({
+        prompt: `You are an expert study coach. Analyze these student notes and:
 1. Identify the 5-8 most important key points most likely to appear on a test.
 2. For each key point, explain WHY it's important.
 3. Generate a brief summary of the main topic.
 Notes: ${context || '(see attached file)'}
 Subject: ${subject || 'general'}, Grade: ${grade || 'high school'}
 IMPORTANT: If the notes are blank, nonsensical, unrelated to any academic subject, or contain no real study content (e.g. a blank image), return key_points as an empty array and topic_summary as an empty string.`,
-      file_urls: file_url ? [file_url] : undefined,
-      response_json_schema: {
-        type: 'object',
-        properties: {
-          topic_summary: { type: 'string' },
-          key_points: {
-            type: 'array',
-            items: {
-              type: 'object',
-              properties: {
-                point: { type: 'string' },
-                importance: { type: 'string' },
-                likely_on_test: { type: 'boolean' },
+        file_urls: file_url ? [file_url] : undefined,
+        response_json_schema: {
+          type: 'object',
+          properties: {
+            topic_summary: { type: 'string' },
+            key_points: {
+              type: 'array',
+              items: {
+                type: 'object',
+                properties: {
+                  point: { type: 'string' },
+                  importance: { type: 'string' },
+                  likely_on_test: { type: 'boolean' },
+                }
               }
             }
           }
         }
+      });
+      if (!res.key_points?.length || !res.topic_summary?.trim()) {
+        toast.error("We couldn't find any study content. Please submit real notes or a valid topic!");
+        return;
       }
-    });
-    if (!res.key_points?.length || !res.topic_summary?.trim()) {
-      toast.error("We couldn't find any study content. Please submit real notes or a valid topic!");
-      setLoading(false); return;
+      setResult({ type: 'analyze', data: res });
+    } catch (err) {
+      toast.error(`Failed to analyze: ${err?.message || 'Unknown error'}`);
+    } finally {
+      setLoading(false);
     }
-    setResult({ type: 'analyze', data: res });
-    setLoading(false);
   };
 
   const handleGenerateQuestions = async () => {
     if (!notes.trim() && !file) { toast.error('Paste your notes or upload a file first!'); return; }
     const count = Math.min(numQuestions, maxQuestions);
     setLoading(true); setResult(null);
-    const { file_url, context } = await uploadAndGetContext();
-    const res = await base44.integrations.Core.InvokeLLM({
-      prompt: `Generate exactly ${count} practice questions based on these study notes.
+    try {
+      const { file_url, context } = await uploadAndGetContext();
+      const res = await base44.integrations.Core.InvokeLLM({
+        prompt: `Generate exactly ${count} practice questions based on these study notes.
 Difficulty: ${difficulty === 'mixed' ? 'mix of easy, medium, and hard' : difficulty}.
 For each question include: question text, difficulty level, a hint, and the full answer explanation.
 Subject: ${subject || 'general'}, Grade: ${grade || 'high school'}
 Notes: ${context || '(see attached file)'}
 IMPORTANT: If the notes contain no real study content, return an empty questions array.`,
-      file_urls: file_url ? [file_url] : undefined,
-      response_json_schema: {
-        type: 'object',
-        properties: {
-          questions: {
-            type: 'array',
-            items: {
-              type: 'object',
-              properties: {
-                question: { type: 'string' },
-                difficulty: { type: 'string', enum: ['easy', 'medium', 'hard'] },
-                hint: { type: 'string' },
-                answer: { type: 'string' },
+        file_urls: file_url ? [file_url] : undefined,
+        response_json_schema: {
+          type: 'object',
+          properties: {
+            questions: {
+              type: 'array',
+              items: {
+                type: 'object',
+                properties: {
+                  question: { type: 'string' },
+                  difficulty: { type: 'string', enum: ['easy', 'medium', 'hard'] },
+                  hint: { type: 'string' },
+                  answer: { type: 'string' },
+                }
               }
             }
           }
         }
+      });
+      if (!res.questions?.length) {
+        toast.error("No questions could be generated. Please submit real notes or a valid study topic!");
+        return;
       }
-    });
-    if (!res.questions?.length) {
-      toast.error("No questions could be generated. Please submit real notes or a valid study topic!");
-      setLoading(false); return;
+      setResult({ type: 'questions', data: res });
+    } catch (err) {
+      toast.error(`Failed to generate questions: ${err?.message || 'Unknown error'}`);
+    } finally {
+      setLoading(false);
     }
-    setResult({ type: 'questions', data: res });
-    setLoading(false);
   };
 
   const handleGenerateFlashcards = async () => {
     if (!notes.trim() && !file) { toast.error('Paste your notes or upload a file first!'); return; }
     setLoading(true); setResult(null);
-    const { file_url, context } = await uploadAndGetContext();
-    const res = await base44.integrations.Core.InvokeLLM({
-      prompt: `Create flashcards from these study notes. Generate 8-15 flashcards.
+    try {
+      const { file_url, context } = await uploadAndGetContext();
+      const res = await base44.integrations.Core.InvokeLLM({
+        prompt: `Create flashcards from these study notes. Generate 8-15 flashcards.
 Each flashcard has a concise front (term/question) and clear back (definition/answer).
 Subject: ${subject || 'general'}, Grade: ${grade || 'high school'}
 Notes: ${context || '(see attached file)'}
 IMPORTANT: If the notes contain no real study content, return an empty flashcards array.`,
-      file_urls: file_url ? [file_url] : undefined,
-      response_json_schema: {
-        type: 'object',
-        properties: {
-          deck_name: { type: 'string' },
-          flashcards: {
-            type: 'array',
-            items: {
-              type: 'object',
-              properties: {
-                front: { type: 'string' },
-                back: { type: 'string' },
+        file_urls: file_url ? [file_url] : undefined,
+        response_json_schema: {
+          type: 'object',
+          properties: {
+            deck_name: { type: 'string' },
+            flashcards: {
+              type: 'array',
+              items: {
+                type: 'object',
+                properties: {
+                  front: { type: 'string' },
+                  back: { type: 'string' },
+                }
               }
             }
           }
         }
+      });
+      if (!res.flashcards?.length) {
+        toast.error("No flashcards could be created. Please submit real notes or a valid study topic!");
+        return;
       }
-    });
-
-    if (!res.flashcards?.length) {
-      toast.error("No flashcards could be created. Please submit real notes or a valid study topic!");
-      setLoading(false); return;
+      if (subject) {
+        await Promise.all(res.flashcards.map(fc =>
+          base44.entities.StudyCard.create({
+            deck_name: res.deck_name || 'My Flashcards',
+            subject: subject || 'other',
+            front: fc.front,
+            back: fc.back,
+          })
+        ));
+        toast.success(`✅ ${res.flashcards.length} flashcards saved!`);
+      }
+      setResult({ type: 'flashcards', data: res });
+    } catch (err) {
+      toast.error(`Failed to generate flashcards: ${err?.message || 'Unknown error'}`);
+    } finally {
+      setLoading(false);
     }
-    // Save to StudyCard entity
-    if (res.flashcards?.length && subject) {
-      await Promise.all(res.flashcards.map(fc =>
-        base44.entities.StudyCard.create({
-          deck_name: res.deck_name || 'My Flashcards',
-          subject: subject || 'other',
-          front: fc.front,
-          back: fc.back,
-        })
-      ));
-      toast.success(`✅ ${res.flashcards.length} flashcards saved!`);
-    }
-
-    setResult({ type: 'flashcards', data: res });
-    setLoading(false);
   };
 
   const handleSubmit = () => {
