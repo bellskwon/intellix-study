@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
@@ -32,6 +32,7 @@ export default function Questions() {
   const [numQuestions, setNumQuestions] = useState(5);
   const [difficulty, setDifficulty] = useState('mixed');
   const [loading, setLoading] = useState(false);
+  const [generating, setGenerating] = useState(null); // label string while generating
   const [result, setResult] = useState(null);
   const [expandedHints, setExpandedHints] = useState({});
   const [showSaveModal, setShowSaveModal] = useState(false);
@@ -53,7 +54,7 @@ export default function Questions() {
 
   const handleAnalyze = async () => {
     if (!notes.trim() && !file) { toast.error('Paste your notes or upload a file first!'); return; }
-    setLoading(true); setResult(null);
+    setLoading(true); setResult(null); setGenerating('Key Points');
     try {
       const { file_url, context } = await uploadAndGetContext();
       const res = await base44.integrations.Core.InvokeLLM({
@@ -91,14 +92,14 @@ IMPORTANT: If the notes are blank, nonsensical, unrelated to any academic subjec
     } catch (err) {
       toast.error(`Failed to analyze: ${err?.message || 'Unknown error'}`);
     } finally {
-      setLoading(false);
+      setLoading(false); setGenerating(null);
     }
   };
 
   const handleGenerateQuestions = async () => {
     if (!notes.trim() && !file) { toast.error('Paste your notes or upload a file first!'); return; }
     const count = Math.min(numQuestions, maxQuestions);
-    setLoading(true); setResult(null);
+    setLoading(true); setResult(null); setGenerating('Practice Questions');
     try {
       const { file_url, context } = await uploadAndGetContext();
       const res = await base44.integrations.Core.InvokeLLM({
@@ -135,13 +136,13 @@ IMPORTANT: If the notes contain no real study content, return an empty questions
     } catch (err) {
       toast.error(`Failed to generate questions: ${err?.message || 'Unknown error'}`);
     } finally {
-      setLoading(false);
+      setLoading(false); setGenerating(null);
     }
   };
 
   const handleGenerateFlashcards = async () => {
     if (!notes.trim() && !file) { toast.error('Paste your notes or upload a file first!'); return; }
-    setLoading(true); setResult(null);
+    setLoading(true); setResult(null); setGenerating('Flashcards');
     try {
       const { file_url, context } = await uploadAndGetContext();
       const res = await base44.integrations.Core.InvokeLLM({
@@ -187,7 +188,7 @@ IMPORTANT: If the notes contain no real study content, return an empty flashcard
     } catch (err) {
       toast.error(`Failed to generate flashcards: ${err?.message || 'Unknown error'}`);
     } finally {
-      setLoading(false);
+      setLoading(false); setGenerating(null);
     }
   };
 
@@ -198,6 +199,8 @@ IMPORTANT: If the notes contain no real study content, return an empty flashcard
   };
 
   const diffColors = { easy: 'bg-emerald-50 text-emerald-700 border-emerald-200', medium: 'bg-amber-50 text-amber-700 border-amber-200', hard: 'bg-rose-50 text-rose-700 border-rose-200' };
+
+  if (generating) return <GeneratingStep label={generating} />;
 
   return (
     <div className="max-w-3xl mx-auto space-y-6">
@@ -424,6 +427,57 @@ IMPORTANT: If the notes contain no real study content, return an empty flashcard
         grade={grade}
         data={result?.data}
       />
+    </div>
+  );
+}
+
+function GeneratingStep({ label }) {
+  const [progress, setProgress] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setProgress(p => {
+        if (p >= 85) { clearInterval(interval); return p; }
+        return p + Math.random() * 4 + 1;
+      });
+    }, 300);
+    return () => clearInterval(interval);
+  }, []);
+
+  const messages = {
+    'Key Points': ['Reading your notes...', 'Finding key concepts...', 'Almost ready...'],
+    'Practice Questions': ['Analyzing your notes...', 'Crafting questions...', 'Almost ready...'],
+    'Flashcards': ['Reading your notes...', 'Building flashcards...', 'Almost ready...'],
+  };
+  const steps = messages[label] || messages['Key Points'];
+  const msgIndex = progress < 33 ? 0 : progress < 70 ? 1 : 2;
+
+  return (
+    <div className="flex flex-col items-center justify-center min-h-[60vh] gap-5 max-w-sm mx-auto text-center">
+      <motion.div
+        animate={{ rotate: 360 }}
+        transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
+        className="w-16 h-16 rounded-full gradient-violet flex items-center justify-center shadow-xl shadow-purple-300/50"
+      >
+        <Sparkles className="w-7 h-7 text-white" />
+      </motion.div>
+      <div>
+        <h2 className="text-lg font-black text-foreground">Generating {label}...</h2>
+        <p className="text-sm text-muted-foreground mt-1">{steps[msgIndex]}</p>
+      </div>
+      <div className="w-full bg-secondary rounded-full h-2.5 overflow-hidden">
+        <motion.div
+          className="h-full rounded-full gradient-violet"
+          animate={{ width: `${Math.min(progress, 85)}%` }}
+          transition={{ duration: 0.4, ease: 'easeOut' }}
+        />
+      </div>
+      <div className="flex gap-1">
+        {[0, 1, 2].map(i => (
+          <motion.div key={i} className="w-2 h-2 rounded-full bg-primary"
+            animate={{ y: [0, -8, 0] }} transition={{ duration: 0.6, repeat: Infinity, delay: i * 0.2 }} />
+        ))}
+      </div>
     </div>
   );
 }
