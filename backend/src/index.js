@@ -43,20 +43,22 @@ app.use(cors({
 app.use('/api/stripe/webhook', express.raw({ type: 'application/json' }));
 
 // ─── Body Parsing ─────────────────────────────────────────────────────────────
-// verify callback saves raw buffer so we can re-parse if body ends up empty
-app.use(express.json({
-  limit: '10mb',
-  verify: (req, res, buf) => { req._rawBody = buf.toString('utf8'); },
-}));
-app.use(express.urlencoded({ extended: true }));
-// Fallback: if Vercel's proxy caused express.json() to produce an empty body,
-// re-parse from the raw buffer we captured above
+// Use express.raw to capture the body as a Buffer regardless of Content-Type,
+// then parse JSON manually. This reliably handles Vercel's proxy which sometimes
+// strips or alters Content-Type headers before forwarding to the backend.
 app.use((req, res, next) => {
-  if (req._rawBody && (!req.body || !Object.keys(req.body).length)) {
-    try { req.body = JSON.parse(req._rawBody); } catch {}
-  }
-  next();
+  if (req.path.startsWith('/api/stripe/webhook')) return next();
+  express.raw({ type: '*/*', limit: '10mb' })(req, res, (err) => {
+    if (err) return next(err);
+    if (Buffer.isBuffer(req.body)) {
+      const raw = req.body.toString('utf8');
+      req._rawBody = raw;
+      try { req.body = raw ? JSON.parse(raw) : {}; } catch { req.body = {}; }
+    }
+    next();
+  });
 });
+app.use(express.urlencoded({ extended: true }));
 
 // ─── Static file serving (uploaded files) ────────────────────────────────────
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
