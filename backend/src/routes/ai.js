@@ -15,7 +15,11 @@ const router = express.Router();
 //
 // Returns: parsed JSON object | plain string
 router.post('/invoke-llm', requireAuth, async (req, res) => {
-  const { prompt, file_urls, response_json_schema } = req.body;
+  console.log('[AI] content-type:', req.headers['content-type']);
+  console.log('[AI] body keys:', req.body ? Object.keys(req.body) : 'null/undefined');
+  console.log('[AI] prompt length:', req.body?.prompt?.length ?? 'missing');
+
+  const { prompt, file_urls, response_json_schema } = req.body || {};
 
   if (!prompt) {
     return res.status(400).json({ message: 'prompt is required' });
