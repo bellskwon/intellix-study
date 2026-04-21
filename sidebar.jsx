@@ -96,7 +96,7 @@ export default function Sidebar({ open, onClose }) {
                 )}>
                   <item.icon className={cn("w-4 h-4", isActive ? "text-white" : item.color)} />
                 </div>
-                <span className="flex-1">{item.label}</span>
+                <span className="flex-1 font-nunito">{item.label}</span>
                 {isShop && !storeUnlocked && (
                   <span className="text-[10px] font-black bg-muted text-muted-foreground px-1.5 py-0.5 rounded-full">Lv.{STORE_UNLOCK_LEVEL}</span>
                 )}

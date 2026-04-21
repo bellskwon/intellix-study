@@ -25,8 +25,8 @@ function PointsBadge({ userEmail }) {
   return (
     <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-50 border border-amber-100">
       <Star className="w-4 h-4 text-amber-500 fill-amber-400" />
-      <span className="text-sm font-bold text-amber-600">{available.toLocaleString()}</span>
-      <span className="text-xs text-amber-400 font-medium hidden sm:block">pts</span>
+      <span className="text-sm font-bold font-space text-amber-600">{available.toLocaleString()}</span>
+      <span className="text-xs text-amber-400 font-nunito font-semibold hidden sm:block">pts</span>
     </div>
   );
 }
@@ -64,8 +64,8 @@ export default function AppLayout() {
             <PointsBadge userEmail={user?.email} />
             <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-orange-50 border border-orange-100">
               <Flame className="w-4 h-4 text-orange-500" />
-              <span className="text-sm font-bold text-orange-600">{user?.streak_count ?? 0}</span>
-              <span className="text-xs text-orange-400 font-medium hidden sm:block">streak</span>
+              <span className="text-sm font-bold font-space text-orange-600">{user?.streak_count ?? 0}</span>
+              <span className="text-xs text-orange-400 font-nunito font-semibold hidden sm:block">streak</span>
             </div>
             <div className="w-8 h-8 rounded-full gradient-violet flex items-center justify-center text-sm font-bold text-white shadow-md shadow-purple-500/25">
               {user?.avatar_emoji || (user?.display_name?.[0] || user?.full_name?.[0] || '?')}

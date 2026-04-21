@@ -35,12 +35,12 @@ export default function LevelXPBar({ submissions = [], className = '', dark = fa
     <div className={`space-y-1.5 ${className}`}>
       <div className="flex items-center justify-between text-xs">
         <div className="flex items-center gap-1.5">
-          <span className={`text-sm font-black px-2 py-0.5 rounded-full bg-gradient-to-r ${league.color} text-white shadow-sm`}>
+          <span className={`text-sm font-black font-space px-2 py-0.5 rounded-full bg-gradient-to-r ${league.color} text-white shadow-sm`}>
             {league.emoji} Lv.{level}
           </span>
-          <span className={dark ? 'text-white/60' : 'text-muted-foreground'}>{league.name} League</span>
+          <span className={`font-nunito font-semibold text-xs ${dark ? 'text-white/60' : 'text-muted-foreground'}`}>{league.name} League</span>
         </div>
-        <span className={`font-semibold ${dark ? 'text-white/70' : 'text-muted-foreground'}`}>
+        <span className={`font-space font-semibold text-xs ${dark ? 'text-white/70' : 'text-muted-foreground'}`}>
           {xpInLevel} / 200 XP
         </span>
       </div>

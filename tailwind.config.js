@@ -13,6 +13,8 @@ module.exports = {
   		fontFamily: {
   			jakarta: ['var(--font-jakarta)'],
   			sora: ['var(--font-sora)'],
+  			space: ['var(--font-space)'],
+  			nunito: ['var(--font-nunito)'],
   			mono: ['var(--font-mono)'],
   		},
   		borderRadius: {

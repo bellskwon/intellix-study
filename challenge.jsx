@@ -9,6 +9,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Zap, Loader2, ArrowRight, CheckCircle2, XCircle, Trophy, RotateCcw, Flame, Timer } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
+import SaveToFolderModal from '@/pages/SaveToFolder';
 
 const subjects = [
   { value: 'math', label: 'Mathematics' },
@@ -37,6 +38,7 @@ export default function Challenge() {
   const [currentQ, setCurrentQ] = useState(0);
   const [results, setResults] = useState(null);
   const [submitting, setSubmitting] = useState(false);
+  const [showSaveModal, setShowSaveModal] = useState(false);
   const queryClient = useQueryClient();
 
   const { data: user } = useQuery({ queryKey: ['currentUser'], queryFn: () => base44.auth.me() });
@@ -148,13 +150,14 @@ Reply with only "correct" or "incorrect".`
     setResults({ score, correct, total: questions.length, graded });
     setSubmitting(false);
     setStep('results');
+    setShowSaveModal(true);
     queryClient.invalidateQueries({ queryKey: ['mySubmissions'] });
   };
 
   if (step === 'setup') return <SetupStep topic={topic} setTopic={setTopic} subject={subject} setSubject={setSubject} grade={grade} setGrade={setGrade} specificTopic={specificTopic} setSpecificTopic={setSpecificTopic} onStart={generate} />;
   if (step === 'generating') return <GeneratingStep />;
   if (step === 'quiz') return <QuizStep questions={questions} currentQ={currentQ} setCurrentQ={setCurrentQ} answers={answers} setAnswers={setAnswers} onSubmit={submitQuiz} submitting={submitting} />;
-  if (step === 'results') return <ResultsStep results={results} topic={topic} subject={subject} grade={grade} onRetry={() => { setStep('setup'); setResults(null); }} />;
+  if (step === 'results') return <ResultsStep results={results} topic={topic} subject={subject} grade={grade} onRetry={() => { setStep('setup'); setResults(null); }} showSaveModal={showSaveModal} setShowSaveModal={setShowSaveModal} />;
 }
 
 function SetupStep({ topic, setTopic, subject, setSubject, grade, setGrade, specificTopic, setSpecificTopic, onStart }) {
@@ -167,6 +170,7 @@ function SetupStep({ topic, setTopic, subject, setSubject, grade, setGrade, spec
             <Zap className="w-8 h-8 text-white" />
           </div>
           <h1 className="text-3xl font-black text-foreground tracking-tight font-sora">Quick Challenge</h1>
+
           <p className="text-muted-foreground text-sm mt-1.5">Enter a topic and get a 5-question challenge instantly</p>
         </div>
 
@@ -346,7 +350,7 @@ function QuizStep({ questions, currentQ, setCurrentQ, answers, setAnswers, onSub
   );
 }
 
-function ResultsStep({ results, topic, subject, grade, onRetry }) {
+function ResultsStep({ results, topic, subject, grade, onRetry, showSaveModal, setShowSaveModal }) {
   const { score, correct, total, graded } = results;
   const passed = score >= PASS_THRESHOLD;
   const [aiExplanation, setAiExplanation] = React.useState('');
@@ -397,8 +401,8 @@ Keep it concise (3-5 short paragraphs), use simple language appropriate for the 
           )}
         </motion.div>
         <h2 className="text-2xl font-black font-sora">{passed ? 'Crushed it!' : 'Keep grinding!'}</h2>
-        <p className="text-6xl font-black mt-2">{score}%</p>
-        <p className="opacity-75 mt-1 text-sm">{correct} of {total} correct on "{topic}"</p>
+        <p className="text-6xl font-black font-space mt-2">{score}%</p>
+        <p className="opacity-75 mt-1 text-sm font-nunito">{correct} of {total} correct on "{topic}"</p>
       </motion.div>
 
       {/* Explanation Panel */}
@@ -445,9 +449,24 @@ Keep it concise (3-5 short paragraphs), use simple language appropriate for the 
         ))}
       </div>
 
-      <Button onClick={onRetry} className="w-full h-12 rounded-xl font-bold gradient-violet border-0 text-white shadow-lg hover:opacity-90">
-        <RotateCcw className="w-4 h-4 mr-2" /> Try Another Challenge
-      </Button>
+      <div className="flex gap-3">
+        <Button onClick={() => setShowSaveModal(true)} variant="outline" className="flex-1 h-12 rounded-xl font-bold border-2">
+          Save Result
+        </Button>
+        <Button onClick={onRetry} className="flex-1 h-12 rounded-xl font-bold gradient-violet border-0 text-white shadow-lg hover:opacity-90">
+          <RotateCcw className="w-4 h-4 mr-2" /> Try Another
+        </Button>
+      </div>
+
+      <SaveToFolderModal
+        open={showSaveModal}
+        onClose={() => setShowSaveModal(false)}
+        type="challenge"
+        title={`${topic} Challenge`}
+        subject={subject}
+        grade={grade}
+        data={results}
+      />
     </div>
   );
 }

@@ -117,7 +117,7 @@ export default function Friends() {
   return (
     <div className="max-w-2xl mx-auto space-y-6 pb-8">
       <div>
-        <h1 className="text-3xl font-black text-foreground tracking-tight">Friends</h1>
+        <h1 className="text-3xl font-black text-foreground tracking-tight font-sora">Friends</h1>
         <p className="text-muted-foreground text-sm mt-1.5">Add friends by Gmail, compete on leaderboards together.</p>
       </div>
 

@@ -336,7 +336,7 @@ export default function Shop() {
           </div>
           <div className="bg-white/20 backdrop-blur-sm rounded-2xl px-5 py-4 text-center border border-white/20">
             <p className="text-xs text-white/70 font-semibold uppercase tracking-wide">Available Points</p>
-            <p className="text-4xl font-black">{availablePoints.toLocaleString()}</p>
+            <p className="text-4xl font-black font-space">{availablePoints.toLocaleString()}</p>
             <p className="text-xs text-white/60 mt-0.5">{league.emoji} Lv.{level} · {league.name}</p>
           </div>
         </div>
@@ -393,7 +393,8 @@ export default function Shop() {
               <div className={`flex-1 h-px ${unlocked ? 'bg-primary/20' : 'bg-border'}`} />
             </div>
 
-            <div className={`grid grid-cols-1 sm:grid-cols-2 gap-4 relative ${!unlocked ? 'select-none' : ''}`}>
+            <div className={`grid grid-cols-1 sm:grid-cols-2 gap-4 relative ${!unlocked ? 'select-none pointer-events-none' : ''}`}>
+              <div className={`contents ${!unlocked ? '[&>*]:blur-md [&>*]:opacity-60' : ''}`}>
               {section.items.map(item => (
                 <ShopCard
                   key={item.id}
@@ -405,10 +406,11 @@ export default function Shop() {
                   ordering={ordering}
                 />
               ))}
+              </div>
 
               {/* Locked overlay */}
               {!unlocked && (
-                <div className="absolute inset-0 rounded-2xl flex flex-col items-center justify-center gap-3 backdrop-blur-[3px] bg-background/60 z-10 border-2 border-dashed border-border">
+                <div className="absolute inset-0 rounded-2xl flex flex-col items-center justify-center gap-3 bg-background/40 z-10 border-2 border-dashed border-border">
                   <div className="w-16 h-16 rounded-2xl bg-muted flex items-center justify-center">
                     <Lock className="w-8 h-8 text-muted-foreground" />
                   </div>

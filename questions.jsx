@@ -9,6 +9,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Sparkles, Brain, Layers, Star, ChevronDown, ChevronUp, Loader2, RotateCcw, Upload, Calendar, AlertTriangle } from 'lucide-react';
 import { toast } from 'sonner';
 import MiniCalendar from '@/components/dashboard/MiniCalendar';
+import SaveToFolderModal from '@/pages/SaveToFolder';
 
 const TABS = [
   { id: 'analyze', label: 'Key Points', icon: Star },
@@ -33,6 +34,7 @@ export default function Questions() {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
   const [expandedHints, setExpandedHints] = useState({});
+  const [showSaveModal, setShowSaveModal] = useState(false);
 
   const { data: user } = useQuery({ queryKey: ['currentUser'], queryFn: () => base44.auth.me() });
   const isPremium = user?.premium_plan && user.premium_plan !== 'free' &&
@@ -188,7 +190,7 @@ IMPORTANT: If the notes contain no real study content, return an empty flashcard
   return (
     <div className="max-w-3xl mx-auto space-y-6">
       <div>
-        <h1 className="text-3xl font-black text-foreground tracking-tight">Study Tools</h1>
+        <h1 className="text-3xl font-black text-foreground tracking-tight font-sora">Study Tools</h1>
         <p className="text-muted-foreground text-sm mt-1.5">Paste your notes — get key points, practice questions, or instant flashcards.</p>
       </div>
 
@@ -389,12 +391,27 @@ IMPORTANT: If the notes contain no real study content, return an empty flashcard
               </div>
             )}
 
-            <Button variant="outline" className="w-full rounded-xl font-semibold mt-4" onClick={() => setResult(null)}>
-              <RotateCcw className="w-4 h-4 mr-2" /> Generate New
-            </Button>
+            <div className="flex gap-3 mt-4">
+              <Button variant="outline" className="flex-1 rounded-xl font-semibold" onClick={() => setShowSaveModal(true)}>
+                Save Result
+              </Button>
+              <Button variant="outline" className="flex-1 rounded-xl font-semibold" onClick={() => setResult(null)}>
+                <RotateCcw className="w-4 h-4 mr-2" /> Generate New
+              </Button>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
+
+      <SaveToFolderModal
+        open={showSaveModal}
+        onClose={() => setShowSaveModal(false)}
+        type={result?.type === 'flashcards' ? 'flashcards' : 'tools'}
+        title={result?.type === 'flashcards' ? result.data.deck_name : result?.type === 'analyze' ? 'Key Points' : 'Practice Questions'}
+        subject={subject}
+        grade={grade}
+        data={result?.data}
+      />
     </div>
   );
 }

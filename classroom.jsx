@@ -62,7 +62,7 @@ export default function Classroom() {
   return (
     <div className="max-w-2xl mx-auto space-y-6 pb-8">
       <div>
-        <h1 className="text-3xl font-black text-foreground tracking-tight">Classrooms</h1>
+        <h1 className="text-3xl font-black text-foreground tracking-tight font-sora">Classrooms</h1>
         <p className="text-muted-foreground text-sm mt-1.5">
           Create a classroom and share the join code with students, or enter a code to join one.
         </p>

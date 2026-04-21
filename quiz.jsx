@@ -13,6 +13,7 @@ import { format } from 'date-fns';
 import SubmitStudy from '@/pages/SubmitStudy';
 import { PASS_THRESHOLD } from '@/components/shared/LevelXPBar';
 import SubjectIcon from '@/pages/SubjectIcon';
+import SaveToFolderModal from '@/pages/SaveToFolder';
 
 export default function Quiz() {
   const queryClient = useQueryClient();
@@ -26,6 +27,7 @@ export default function Quiz() {
   const [grading, setGrading] = useState(false);
   const [reportedQuestions, setReportedQuestions] = useState(new Set());
   const [expandedExplanations, setExpandedExplanations] = useState(new Set());
+  const [showSaveModal, setShowSaveModal] = useState(false);
 
   const reportQuestion = async (q, i) => {
     try {
@@ -178,6 +180,7 @@ Reply with ONLY one word: "correct" or "incorrect". Do not add any explanation.`
       queryClient.invalidateQueries({ queryKey: ['mySubmissions'] });
       setResults({ score, correct, total: questions.length, graded, pointsAwarded, passed });
       setView('results');
+      setShowSaveModal(true);
     } catch {
       toast.error('Failed to grade quiz. Please try again.');
     } finally {
@@ -343,8 +346,8 @@ Reply with ONLY one word: "correct" or "incorrect". Do not add any explanation.`
               </svg>
             )}
           </motion.div>
-          <h2 className="text-2xl font-black">{passed ? 'Crushed it!' : 'Keep grinding!'}</h2>
-          <p className="text-6xl font-black mt-2">{score}%</p>
+          <h2 className="text-2xl font-black font-sora">{passed ? 'Crushed it!' : 'Keep grinding!'}</h2>
+          <p className="text-6xl font-black font-space mt-2">{score}%</p>
           <p className="opacity-75 mt-1 text-sm">{correct} of {total} correct · {activeSubmission?.title}</p>
           {passed && pointsAwarded > 0 && (
             <div className="mt-3 inline-flex items-center gap-1.5 bg-white/20 rounded-full px-4 py-1.5">
@@ -422,6 +425,16 @@ Reply with ONLY one word: "correct" or "incorrect". Do not add any explanation.`
             <RotateCcw className="w-4 h-4 mr-2" /> Back to Quizzes
           </Button>
         </div>
+
+        <SaveToFolderModal
+          open={showSaveModal}
+          onClose={() => setShowSaveModal(false)}
+          type="quiz"
+          title={activeSubmission?.title || 'Study Quiz'}
+          subject={activeSubmission?.subject}
+          grade={activeSubmission?.grade_level}
+          data={results}
+        />
       </div>
     );
   }
