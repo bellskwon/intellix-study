@@ -33,6 +33,7 @@ export default function Questions() {
   const [difficulty, setDifficulty] = useState('mixed');
   const [loading, setLoading] = useState(false);
   const [generating, setGenerating] = useState(null); // label string while generating
+  const [generatingError, setGeneratingError] = useState(null);
   const [result, setResult] = useState(null);
   const [expandedHints, setExpandedHints] = useState({});
   const [showSaveModal, setShowSaveModal] = useState(false);
@@ -90,9 +91,9 @@ IMPORTANT: If the notes are blank, nonsensical, unrelated to any academic subjec
       }
       setResult({ type: 'analyze', data: res });
     } catch (err) {
-      toast.error(`Failed to analyze: ${err?.message || 'Unknown error'}`);
+      setGeneratingError(err?.message || 'Something went wrong. Please try again.');
     } finally {
-      setLoading(false); setGenerating(null);
+      setLoading(false);
     }
   };
 
@@ -134,9 +135,9 @@ IMPORTANT: If the notes contain no real study content, return an empty questions
       }
       setResult({ type: 'questions', data: res });
     } catch (err) {
-      toast.error(`Failed to generate questions: ${err?.message || 'Unknown error'}`);
+      setGeneratingError(err?.message || 'Something went wrong. Please try again.');
     } finally {
-      setLoading(false); setGenerating(null);
+      setLoading(false);
     }
   };
 
@@ -186,9 +187,9 @@ IMPORTANT: If the notes contain no real study content, return an empty flashcard
       }
       setResult({ type: 'flashcards', data: res });
     } catch (err) {
-      toast.error(`Failed to generate flashcards: ${err?.message || 'Unknown error'}`);
+      setGeneratingError(err?.message || 'Something went wrong. Please try again.');
     } finally {
-      setLoading(false); setGenerating(null);
+      setLoading(false);
     }
   };
 
@@ -200,7 +201,13 @@ IMPORTANT: If the notes contain no real study content, return an empty flashcard
 
   const diffColors = { easy: 'bg-emerald-50 text-emerald-700 border-emerald-200', medium: 'bg-amber-50 text-amber-700 border-amber-200', hard: 'bg-rose-50 text-rose-700 border-rose-200' };
 
-  if (generating) return <GeneratingStep label={generating} />;
+  if (generating) return (
+    <GeneratingStep
+      label={generating}
+      error={generatingError}
+      onRetry={() => { setGenerating(null); setGeneratingError(null); }}
+    />
+  );
 
   return (
     <div className="max-w-3xl mx-auto space-y-6">
@@ -431,10 +438,11 @@ IMPORTANT: If the notes contain no real study content, return an empty flashcard
   );
 }
 
-function GeneratingStep({ label }) {
+function GeneratingStep({ label, error, onRetry }) {
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
+    if (error) return;
     const interval = setInterval(() => {
       setProgress(p => {
         if (p >= 85) { clearInterval(interval); return p; }
@@ -442,7 +450,22 @@ function GeneratingStep({ label }) {
       });
     }, 300);
     return () => clearInterval(interval);
-  }, []);
+  }, [error]);
+
+  if (error) return (
+    <div className="flex flex-col items-center justify-center min-h-[60vh] gap-5 max-w-sm mx-auto text-center">
+      <div className="w-16 h-16 rounded-full bg-rose-100 flex items-center justify-center">
+        <AlertTriangle className="w-8 h-8 text-rose-500" />
+      </div>
+      <div>
+        <h2 className="text-lg font-black text-foreground">Generation Failed</h2>
+        <p className="text-sm text-muted-foreground mt-1">{error}</p>
+      </div>
+      <Button onClick={onRetry} className="rounded-xl font-bold gradient-violet border-0 text-white px-6">
+        <RotateCcw className="w-4 h-4 mr-2" /> Try Again
+      </Button>
+    </div>
+  );
 
   const messages = {
     'Key Points': ['Reading your notes...', 'Finding key concepts...', 'Almost ready...'],
