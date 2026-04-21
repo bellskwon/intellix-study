@@ -6,13 +6,13 @@
     },
     "backend": {
       "entrypoint": "backend",
-      "routePrefix": "/_/backend",
+      "routePrefix": "/_backend",
       "buildCommand": "npm install && npx prisma generate"
     }
   },
   "rewrites": [
     {
-      "source": "/((?!_/backend|assets|favicon).*)",
+      "source": "/((?!_backend|assets|favicon).*)",
       "destination": "/index.html"
     }
   ]
