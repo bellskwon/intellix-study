@@ -18,7 +18,15 @@ router.post('/invoke-llm', requireAuth, async (req, res) => {
   const { prompt, file_urls, response_json_schema } = req.body || {};
 
   if (!prompt) {
-    return res.status(400).json({ message: 'prompt is required' });
+    return res.status(400).json({
+      message: 'prompt is required',
+      debug: {
+        body: req.body,
+        rawBodyPreview: req._rawBody ? req._rawBody.slice(0, 300) : null,
+        contentType: req.headers['content-type'],
+        method: req.method,
+      }
+    });
   }
 
   try {
