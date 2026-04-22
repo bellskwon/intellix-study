@@ -42,7 +42,7 @@ async function invokeLLM({ prompt, fileUrls = [], responseJsonSchema = null }) {
   parts.push({ text: fullPrompt });
 
   const body = {
-    system_instruction: { parts: [{ text: systemInstruction }] },
+    systemInstruction: { parts: [{ text: systemInstruction }] },
     contents: [{ role: 'user', parts }],
     generationConfig: {
       temperature: responseJsonSchema ? 0.2 : 0.5,
