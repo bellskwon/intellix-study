@@ -89,7 +89,11 @@ export const base44 = {
     redirectToLogin: (returnUrl) => {
       const base = API_BASE.startsWith('http') ? API_BASE : window.location.origin + API_BASE;
       const url = new URL(`${base}/api/auth/google`);
-      url.searchParams.set('return_url', returnUrl || window.location.href);
+      // Never use an auth URL as return_url — it creates an infinite redirect loop
+      const safeReturn = (returnUrl && !returnUrl.includes('/api/auth/'))
+        ? returnUrl
+        : window.location.origin;
+      url.searchParams.set('return_url', safeReturn);
       window.location.href = url.toString();
     },
   },
