@@ -10,7 +10,7 @@ router.post('/invoke-llm', requireAuth, async (req, res) => {
   if (!prompt) {
     return res.status(400).json({ message: 'prompt is required' });
   }
-
+ 
   try {
     const result = await invokeLLM({
       prompt,
