@@ -1,8 +1,8 @@
+const Groq = require('groq-sdk');
 const fetch = require('node-fetch');
 
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
-const GEMINI_MODEL = 'gemini-2.0-flash';
-const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`;
+const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
+const GROQ_MODEL = 'llama-3.3-70b-versatile';
 
 async function invokeLLM({ prompt, fileUrls = [], responseJsonSchema = null }) {
   const systemInstruction = responseJsonSchema
@@ -16,61 +16,26 @@ async function invokeLLM({ prompt, fileUrls = [], responseJsonSchema = null }) {
       '\nDo not include any explanation or markdown — just the raw JSON object.';
   }
 
-  const parts = [];
+  const messages = [
+    { role: 'system', content: systemInstruction },
+    { role: 'user', content: fullPrompt },
+  ];
 
-  for (const url of fileUrls) {
-    try {
-      let base64, mimeType;
-      if (url.startsWith('data:')) {
-        const commaIdx = url.indexOf(',');
-        mimeType = url.slice(0, commaIdx).match(/data:([^;,]+)/)?.[1] || 'image/jpeg';
-        base64 = url.slice(commaIdx + 1);
-      } else {
-        const r = await fetch(url);
-        const buf = await r.buffer();
-        base64 = buf.toString('base64');
-        mimeType = r.headers.get('content-type') || 'image/jpeg';
-      }
-      if (mimeType.startsWith('image/')) {
-        parts.push({ inlineData: { mimeType, data: base64 } });
-      }
-    } catch (err) {
-      console.warn('Could not process file for LLM:', err.message);
-    }
-  }
-
-  parts.push({ text: fullPrompt });
-
-  const body = {
-    systemInstruction: { parts: [{ text: systemInstruction }] },
-    contents: [{ role: 'user', parts }],
-    generationConfig: {
-      temperature: responseJsonSchema ? 0.2 : 0.5,
-      maxOutputTokens: 4096,
-    },
-  };
-
-  const res = await fetch(`${GEMINI_URL}?key=${GEMINI_API_KEY}`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body),
+  const completion = await groq.chat.completions.create({
+    model: GROQ_MODEL,
+    messages,
+    temperature: responseJsonSchema ? 0.2 : 0.5,
+    max_tokens: 4096,
   });
 
-  if (!res.ok) {
-    const errText = await res.text();
-    console.error('[Gemini] API error:', res.status, errText);
-    throw Object.assign(new Error(`Gemini API error: ${errText}`), { status: res.status });
-  }
-
-  const data = await res.json();
-  const rawText = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+  const rawText = completion.choices?.[0]?.message?.content || '';
 
   if (responseJsonSchema) {
     try {
       const cleaned = rawText.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '').trim();
       return JSON.parse(cleaned);
     } catch {
-      console.error('Failed to parse Gemini JSON response:', rawText);
+      console.error('Failed to parse Groq JSON response:', rawText);
       throw new Error('AI returned invalid JSON');
     }
   }
