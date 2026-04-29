@@ -1,3 +1,4 @@
+import React from "react"
 import { clsx } from "clsx"
 import { twMerge } from "tailwind-merge"
 
@@ -17,7 +18,7 @@ export function renderWithSubscripts(text) {
   while ((match = regex.exec(text)) !== null) {
     if (match.index > lastIndex) parts.push(text.slice(lastIndex, match.index));
     parts.push(match[1]);
-    parts.push(<sub key={match.index}>{match[2]}</sub>);
+    parts.push(React.createElement('sub', { key: match.index }, match[2]));
     lastIndex = match.index + match[0].length;
   }
   if (lastIndex < text.length) parts.push(text.slice(lastIndex));
