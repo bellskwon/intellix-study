@@ -13,6 +13,7 @@ import { format } from 'date-fns';
 import SubmitStudy from '@/pages/SubmitStudy';
 import { PASS_THRESHOLD } from '@/components/shared/LevelXPBar';
 import SubjectIcon from '@/pages/SubjectIcon';
+import { renderWithSubscripts } from '@/lib/utils';
 import SaveToFolderModal from '@/pages/SaveToFolder';
 
 export default function Quiz() {
@@ -29,6 +30,7 @@ export default function Quiz() {
   const [reportedQuestions, setReportedQuestions] = useState(new Set());
   const [expandedExplanations, setExpandedExplanations] = useState(new Set());
   const [showSaveModal, setShowSaveModal] = useState(false);
+  const [showHints, setShowHints] = useState({});
 
   const reportQuestion = async (q, i) => {
     try {
@@ -249,7 +251,7 @@ Reply with ONLY one word: "correct" or "incorrect". Do not add any explanation.`
                  q.question_type === 'fill_blank' ? 'Fill in Blank' : 'Short Answer'}
               </span>
             </div>
-            <p className="text-base font-bold text-foreground mb-5 leading-relaxed">{q.question_text}</p>
+            <p className="text-base font-bold text-foreground mb-5 leading-relaxed">{renderWithSubscripts(q.question_text)}</p>
 
             {q.question_type === 'multiple_choice' && q.options?.length > 0 ? (
               <div className="space-y-2">
@@ -276,9 +278,18 @@ Reply with ONLY one word: "correct" or "incorrect". Do not add any explanation.`
             )}
 
             {q.hint && (
-              <p className="mt-3 text-xs text-muted-foreground bg-secondary/50 rounded-lg px-3 py-2">
-                💡 <span className="font-medium">Hint:</span> {q.hint}
-              </p>
+              <div className="mt-3">
+                {!showHints[currentQ] ? (
+                  <button
+                    className="text-xs text-muted-foreground hover:text-foreground underline-offset-2 hover:underline transition-colors"
+                    onClick={() => setShowHints(h => ({ ...h, [currentQ]: true }))}
+                  >
+                    Need a hint?
+                  </button>
+                ) : (
+                  <p className="text-xs text-muted-foreground/70 italic">{q.hint}</p>
+                )}
+              </div>
             )}
           </motion.div>
         </AnimatePresence>
@@ -366,7 +377,7 @@ Reply with ONLY one word: "correct" or "incorrect". Do not add any explanation.`
                       : <XCircle className="w-4 h-4 text-rose-600" />}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold text-foreground">{q.question_text}</p>
+                    <p className="text-sm font-semibold text-foreground">{renderWithSubscripts(q.question_text)}</p>
                     <div className="mt-2 space-y-1">
                       <p className="text-xs text-muted-foreground">
                         Your answer: <span className={`font-semibold ${q.isCorrect ? 'text-emerald-600' : 'text-rose-600'}`}>

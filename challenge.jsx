@@ -10,6 +10,7 @@ import { Zap, Loader2, ArrowRight, CheckCircle2, XCircle, Trophy, RotateCcw, Fla
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
 import SaveToFolderModal from '@/pages/SaveToFolder';
+import { renderWithSubscripts } from '@/lib/utils';
 
 const subjects = [
   { value: 'math', label: 'Mathematics' },
@@ -39,6 +40,7 @@ export default function Challenge() {
   const [results, setResults] = useState(null);
   const [submitting, setSubmitting] = useState(false);
   const [showSaveModal, setShowSaveModal] = useState(false);
+  const [showHints, setShowHints] = useState({});
   const queryClient = useQueryClient();
 
   const { data: user } = useQuery({ queryKey: ['currentUser'], queryFn: () => base44.auth.me() });
@@ -299,7 +301,7 @@ function QuizStep({ questions, currentQ, setCurrentQ, answers, setAnswers, onSub
               {q.question_type === 'multiple_choice' ? 'Multiple Choice' : q.question_type === 'fill_blank' ? 'Fill in Blank' : 'Short Answer'}
             </span>
           </div>
-          <p className="text-base font-bold text-foreground mb-5 leading-relaxed select-none">{q.question_text}</p>
+          <p className="text-base font-bold text-foreground mb-5 leading-relaxed select-none">{renderWithSubscripts(q.question_text)}</p>
 
           {q.question_type === 'multiple_choice' && q.options?.length > 0 ? (
             <div className="space-y-2">
@@ -327,9 +329,18 @@ function QuizStep({ questions, currentQ, setCurrentQ, answers, setAnswers, onSub
           )}
 
           {q.hint && (
-            <p className="mt-3 text-xs text-muted-foreground bg-secondary/50 rounded-lg px-3 py-2">
-              💡 <span className="font-medium">Hint:</span> {q.hint}
-            </p>
+            <div className="mt-3">
+              {!showHints[currentQ] ? (
+                <button
+                  className="text-xs text-muted-foreground hover:text-foreground underline-offset-2 hover:underline transition-colors"
+                  onClick={() => setShowHints(h => ({ ...h, [currentQ]: true }))}
+                >
+                  Need a hint?
+                </button>
+              ) : (
+                <p className="text-xs text-muted-foreground/70 italic">{q.hint}</p>
+              )}
+            </div>
           )}
         </motion.div>
       </AnimatePresence>
@@ -443,7 +454,7 @@ Keep it concise (3-5 short paragraphs), use simple language appropriate for the 
                 {q.isCorrect ? <CheckCircle2 className="w-4 h-4 text-emerald-600" /> : <XCircle className="w-4 h-4 text-rose-600" />}
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold text-foreground">{q.question_text}</p>
+                <p className="text-sm font-semibold text-foreground">{renderWithSubscripts(q.question_text)}</p>
                 <div className="mt-2 space-y-1">
                   <p className="text-xs text-muted-foreground">Your answer: <span className={`font-semibold ${q.isCorrect ? 'text-emerald-600' : 'text-rose-600'}`}>{q.studentAnswer || '(no answer)'}</span></p>
                   {!q.isCorrect && <p className="text-xs text-muted-foreground">Correct: <span className="font-semibold text-emerald-600">{q.correct_answer}</span></p>}
