@@ -120,12 +120,14 @@ RULES:
     setSubmitting(true);
     let correct = 0;
 
-    const graded = await Promise.all(questions.map(async (q, i) => {
+    const graded = [];
+    for (const [i, q] of questions.entries()) {
       const ans = answers[i] || '';
       if (q.question_type === 'multiple_choice') {
         const isCorrect = ans.trim().toLowerCase() === q.correct_answer.trim().toLowerCase();
         if (isCorrect) correct++;
-        return { ...q, studentAnswer: ans, isCorrect };
+        graded.push({ ...q, studentAnswer: ans, isCorrect });
+        continue;
       }
       const check = await base44.integrations.Core.InvokeLLM({
         prompt: `Grade this student answer leniently. Allow abbreviations (bc, cuz, etc.), minor spelling errors, informal phrasing, and synonymous expressions. If the student clearly understands the concept, mark correct.
@@ -136,8 +138,8 @@ Reply with only "correct" or "incorrect".`
       });
       const isCorrect = check.toLowerCase().includes('correct') && !check.toLowerCase().includes('incorrect');
       if (isCorrect) correct++;
-      return { ...q, studentAnswer: ans, isCorrect };
-    }));
+      graded.push({ ...q, studentAnswer: ans, isCorrect });
+    }
 
     const score = Math.round((correct / questions.length) * 100);
 

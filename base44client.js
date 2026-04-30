@@ -28,6 +28,13 @@ const apiFetch = async (path, options = {}) => {
   });
 
   if (!res.ok) {
+    // If the server says the token is invalid, clear it so the app re-authenticates
+    // instead of silently retrying with a bad token on every query.
+    if (res.status === 401 && token) {
+      try { localStorage.removeItem(TOKEN_KEY); } catch {}
+      // Reload the page — the AuthProvider will detect no token and redirect to login.
+      window.location.reload();
+    }
     const err = await res.json().catch(() => ({ message: res.statusText }));
     const error = new Error(err.message || 'Request failed');
     error.status = res.status;
