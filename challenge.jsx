@@ -170,7 +170,7 @@ Reply with only "correct" or "incorrect".`
 
   if (step === 'setup') return <SetupStep topic={topic} setTopic={setTopic} subject={subject} setSubject={setSubject} grade={grade} setGrade={setGrade} specificTopic={specificTopic} setSpecificTopic={setSpecificTopic} onStart={generate} />;
   if (step === 'generating') return <GeneratingStep />;
-  if (step === 'quiz') return <QuizStep questions={questions} currentQ={currentQ} setCurrentQ={setCurrentQ} answers={answers} setAnswers={setAnswers} onSubmit={submitQuiz} submitting={submitting} />;
+  if (step === 'quiz') return <QuizStep questions={questions} currentQ={currentQ} setCurrentQ={setCurrentQ} answers={answers} setAnswers={setAnswers} onSubmit={submitQuiz} submitting={submitting} showHints={showHints} setShowHints={setShowHints} />;
   if (step === 'results') return <ResultsStep results={results} topic={topic} subject={subject} grade={grade} onRetry={() => { setStep('setup'); setResults(null); }} showSaveModal={showSaveModal} setShowSaveModal={setShowSaveModal} />;
 }
 
@@ -279,7 +279,7 @@ function GeneratingStep() {
   );
 }
 
-function QuizStep({ questions, currentQ, setCurrentQ, answers, setAnswers, onSubmit, submitting }) {
+function QuizStep({ questions, currentQ, setCurrentQ, answers, setAnswers, onSubmit, submitting, showHints, setShowHints }) {
   const q = questions[currentQ];
   const progress = ((currentQ) / questions.length) * 100;
   const answered = answers[currentQ] !== undefined && answers[currentQ] !== '';
