@@ -120,47 +120,52 @@ RULES:
     setSubmitting(true);
     let correct = 0;
 
-    const graded = [];
-    for (const [i, q] of questions.entries()) {
-      const ans = answers[i] || '';
-      if (q.question_type === 'multiple_choice') {
-        const isCorrect = ans.trim().toLowerCase() === q.correct_answer.trim().toLowerCase();
-        if (isCorrect) correct++;
-        graded.push({ ...q, studentAnswer: ans, isCorrect });
-        continue;
-      }
-      const check = await base44.integrations.Core.InvokeLLM({
-        prompt: `Grade this student answer leniently. Allow abbreviations (bc, cuz, etc.), minor spelling errors, informal phrasing, and synonymous expressions. If the student clearly understands the concept, mark correct.
+    try {
+      const graded = [];
+      for (const [i, q] of questions.entries()) {
+        const ans = answers[i] || '';
+        if (q.question_type === 'multiple_choice') {
+          const isCorrect = ans.trim().toLowerCase() === q.correct_answer.trim().toLowerCase();
+          if (isCorrect) correct++;
+          graded.push({ ...q, studentAnswer: ans, isCorrect });
+          continue;
+        }
+        const check = await base44.integrations.Core.InvokeLLM({
+          prompt: `Grade this student answer leniently. Allow abbreviations (bc, cuz, etc.), minor spelling errors, informal phrasing, and synonymous expressions. If the student clearly understands the concept, mark correct.
 Question: "${q.question_text}"
 Correct answer: "${q.correct_answer}"
 Student answer: "${ans}"
 Reply with only "correct" or "incorrect".`
+        });
+        const isCorrect = check.toLowerCase().includes('correct') && !check.toLowerCase().includes('incorrect');
+        if (isCorrect) correct++;
+        graded.push({ ...q, studentAnswer: ans, isCorrect });
+      }
+
+      const score = Math.round((correct / questions.length) * 100);
+
+      // 1 point per completed daily challenge (only if score ≥ 80%)
+      await base44.entities.Submission.create({
+        title: topic,
+        subject,
+        grade_level: grade,
+        type: 'video',
+        status: score >= PASS_THRESHOLD ? 'approved' : 'rejected',
+        quiz_score: score,
+        quiz_passed: score >= PASS_THRESHOLD,
+        points_awarded: score >= PASS_THRESHOLD ? 1 : 0,
+        ai_difficulty_score: 5,
       });
-      const isCorrect = check.toLowerCase().includes('correct') && !check.toLowerCase().includes('incorrect');
-      if (isCorrect) correct++;
-      graded.push({ ...q, studentAnswer: ans, isCorrect });
+
+      setResults({ score, correct, total: questions.length, graded });
+      setStep('results');
+      setShowSaveModal(true);
+      queryClient.invalidateQueries({ queryKey: ['mySubmissions'] });
+    } catch (err) {
+      toast.error(err?.message?.includes('Rate limit') ? 'AI is busy — wait a moment and try again.' : `Grading failed: ${err?.message || 'Unknown error'}`);
+    } finally {
+      setSubmitting(false);
     }
-
-    const score = Math.round((correct / questions.length) * 100);
-
-    // 1 point per completed daily challenge (only if score ≥ 80%)
-    await base44.entities.Submission.create({
-      title: topic,
-      subject,
-      grade_level: grade,
-      type: 'video',
-      status: score >= PASS_THRESHOLD ? 'approved' : 'rejected',
-      quiz_score: score,
-      quiz_passed: score >= PASS_THRESHOLD,
-      points_awarded: score >= PASS_THRESHOLD ? 1 : 0,
-      ai_difficulty_score: 5,
-    });
-
-    setResults({ score, correct, total: questions.length, graded });
-    setSubmitting(false);
-    setStep('results');
-    setShowSaveModal(true);
-    queryClient.invalidateQueries({ queryKey: ['mySubmissions'] });
   };
 
   if (step === 'setup') return <SetupStep topic={topic} setTopic={setTopic} subject={subject} setSubject={setSubject} grade={grade} setGrade={setGrade} specificTopic={specificTopic} setSpecificTopic={setSpecificTopic} onStart={generate} />;
