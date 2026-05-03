@@ -137,34 +137,34 @@ ${submission.notes_text || '(see attached file)'}`,
     let correct = 0;
 
     try {
-      const graded = await Promise.all(
-        questions.map(async (q, i) => {
-          const ans = answers[i] || '';
-          if (q.question_type === 'multiple_choice') {
-            const isCorrect = ans.trim().toLowerCase() === q.correct_answer.trim().toLowerCase();
-            if (isCorrect) correct++;
-            return { ...q, studentAnswer: ans, isCorrect };
-          }
-          // Use AI to grade open answers leniently
-          try {
-            const check = await base44.integrations.Core.InvokeLLM({
-              prompt: `Grade this student answer. Be lenient: allow minor spelling errors, abbreviations, and synonyms. If the student clearly demonstrates understanding of the core concept, mark it correct.
+      const graded = [];
+      for (const [i, q] of questions.entries()) {
+        const ans = answers[i] || '';
+        if (q.question_type === 'multiple_choice') {
+          const isCorrect = ans.trim().toLowerCase() === q.correct_answer.trim().toLowerCase();
+          if (isCorrect) correct++;
+          graded.push({ ...q, studentAnswer: ans, isCorrect });
+          continue;
+        }
+        // Use AI to grade open answers leniently
+        try {
+          const check = await base44.integrations.Core.InvokeLLM({
+            prompt: `Grade this student answer. Be lenient: allow minor spelling errors, abbreviations, and synonyms. If the student clearly demonstrates understanding of the core concept, mark it correct.
 Question: "${q.question_text}"
 Expected answer: "${q.correct_answer}"
 Student answer: "${ans}"
 
 Reply with ONLY one word: "correct" or "incorrect". Do not add any explanation.`,
-            });
-            const normalized = (typeof check === 'string' ? check : JSON.stringify(check)).toLowerCase().trim();
-            const isCorrect = normalized.startsWith('correct');
-            if (isCorrect) correct++;
-            return { ...q, studentAnswer: ans, isCorrect };
-          } catch {
-            // If grading this question fails, count it incorrect but don't fail the whole quiz
-            return { ...q, studentAnswer: ans, isCorrect: false };
-          }
-        })
-      );
+          });
+          const normalized = (typeof check === 'string' ? check : JSON.stringify(check)).toLowerCase().trim();
+          const isCorrect = normalized.startsWith('correct');
+          if (isCorrect) correct++;
+          graded.push({ ...q, studentAnswer: ans, isCorrect });
+        } catch {
+          // If grading this question fails, count it incorrect but don't fail the whole quiz
+          graded.push({ ...q, studentAnswer: ans, isCorrect: false });
+        }
+      }
 
       const score = Math.round((correct / questions.length) * 100);
       const passed = score >= PASS_THRESHOLD;
