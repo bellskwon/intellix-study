@@ -108,6 +108,7 @@ IMPORTANT: If the notes are blank, nonsensical, unrelated to any academic subjec
         prompt: `Generate exactly ${count} practice questions based on these study notes.
 Difficulty: ${difficulty === 'mixed' ? 'mix of easy, medium, and hard' : difficulty}.
 For each question include: question text, difficulty level, a hint, and the full answer explanation.
+ALL questions must be unique — do NOT repeat the same concept, fact, or phrasing across multiple questions.
 Subject: ${subject || 'general'}, Grade: ${grade || 'high school'}
 Notes: ${context || '(see attached file)'}
 IMPORTANT: If the notes contain no real study content, return an empty questions array.`,
@@ -134,7 +135,14 @@ IMPORTANT: If the notes contain no real study content, return an empty questions
         toast.error("No questions could be generated. Please submit real notes or a valid study topic!");
         return;
       }
-      setResult({ type: 'questions', data: res });
+      const seen = new Set();
+      const unique = res.questions.filter(q => {
+        const key = q.question.trim().toLowerCase();
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+      });
+      setResult({ type: 'questions', data: { ...res, questions: unique } });
     } catch (err) {
       setGeneratingError(err?.message || 'Something went wrong. Please try again.');
     } finally {

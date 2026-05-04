@@ -85,6 +85,7 @@ Subject: ${submission.subject}. ${gradeNote}${mathNote}
 RULES:
 - Every question and answer MUST be directly supported by the notes. Do NOT add facts, dates, or details not present in the notes.
 - If the notes are too thin to support 5 questions, generate fewer rather than inventing content.
+- ALL questions must be unique — do NOT repeat the same concept, fact, or phrasing across multiple questions.
 - For each question, include a brief source_quote (the exact phrase from the notes that supports the answer).
 - For each question, include a 1-2 sentence explanation of WHY the correct answer is right (used to teach the student after the quiz).
 - Mix types: 2-3 short answer, 1-2 fill-in-the-blank, 1 multiple choice (exactly 4 options).
@@ -122,7 +123,15 @@ ${submission.notes_text || '(see attached file)'}`,
         return;
       }
 
-      setQuestions(res.questions);
+      const seen = new Set();
+      const unique = res.questions.filter(q => {
+        const key = q.question_text.trim().toLowerCase();
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+      });
+
+      setQuestions(unique);
       setAnswers({});
       setCurrentQ(0);
     } catch (err) {

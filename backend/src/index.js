@@ -48,6 +48,7 @@ app.use('/api/stripe/webhook', express.raw({ type: 'application/json' }));
 app.use((req, res, next) => {
   if (req.method === 'GET' || req.method === 'HEAD') return next();
   if (req.path.startsWith('/api/stripe/webhook')) return next();
+  if (req.headers['content-type']?.startsWith('multipart/form-data')) return next();
   const chunks = [];
   req.on('data', chunk => chunks.push(chunk));
   req.on('end', () => {
