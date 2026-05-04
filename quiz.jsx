@@ -18,7 +18,8 @@ import SaveToFolderModal from '@/pages/SaveToFolder';
 
 export default function Quiz() {
   const queryClient = useQueryClient();
-  const [view, setView] = useState('list'); // list | submit | taking | results
+  const [view, setView] = useState('list'); // list | taking | results
+  const [showUploadForm, setShowUploadForm] = useState(false);
   const [activeSubmission, setActiveSubmission] = useState(null);
   const [questions, setQuestions] = useState([]);
   const [answers, setAnswers] = useState({});
@@ -209,16 +210,10 @@ Reply with ONLY one word: "correct" or "incorrect". Do not add any explanation.`
 
   // ── Views ─────────────────────────────────────────────────────────────────
 
-  if (view === 'submit') {
-    return (
-      <div>
-        <button onClick={() => setView('list')} className="text-sm text-muted-foreground hover:text-foreground mb-4 flex items-center gap-1 font-semibold">
-          ← Back to quizzes
-        </button>
-        <SubmitStudy />
-      </div>
-    );
-  }
+  const handleSubmitSuccess = (submission) => {
+    setShowUploadForm(false);
+    startQuiz(submission);
+  };
 
   if (view === 'taking') {
     if (generating || quizError) {
@@ -466,15 +461,24 @@ Reply with ONLY one word: "correct" or "incorrect". Do not add any explanation.`
         </div>
       </div>
 
-      {/* Upload CTA */}
-      <button onClick={() => setView('submit')}
-        className="w-full bg-white rounded-2xl border-2 border-dashed border-violet-200 hover:border-violet-400 hover:bg-violet-50/50 transition-all p-5 text-center group">
-        <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-violet-500 to-purple-700 flex items-center justify-center mx-auto mb-3 shadow-md group-hover:scale-105 transition-transform">
-          <Upload className="w-6 h-6 text-white" />
+      {/* Upload CTA / inline form */}
+      {!showUploadForm ? (
+        <button onClick={() => setShowUploadForm(true)}
+          className="w-full bg-white rounded-2xl border-2 border-dashed border-violet-200 hover:border-violet-400 hover:bg-violet-50/50 transition-all p-5 text-center group">
+          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-violet-500 to-purple-700 flex items-center justify-center mx-auto mb-3 shadow-md group-hover:scale-105 transition-transform">
+            <Upload className="w-6 h-6 text-white" />
+          </div>
+          <p className="font-black text-foreground">Upload New Notes</p>
+          <p className="text-xs text-muted-foreground mt-1">PDF, image, or paste text — get a quiz in seconds</p>
+        </button>
+      ) : (
+        <div>
+          <button onClick={() => setShowUploadForm(false)} className="text-sm text-muted-foreground hover:text-foreground mb-4 flex items-center gap-1 font-semibold">
+            ← Cancel
+          </button>
+          <SubmitStudy onSuccess={handleSubmitSuccess} />
         </div>
-        <p className="font-black text-foreground">Upload New Notes</p>
-        <p className="text-xs text-muted-foreground mt-1">PDF, image, or paste text — get a quiz in seconds</p>
-      </button>
+      )}
 
       {/* Pending quizzes */}
       {pending.length > 0 && (

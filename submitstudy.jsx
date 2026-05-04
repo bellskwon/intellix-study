@@ -31,7 +31,7 @@ const inputModes = [
   { id: 'camera', icon: Camera, label: 'Scan Notes', desc: 'Use your camera', color: 'text-pink-500', bg: 'bg-pink-50 border-pink-200' },
 ];
 
-export default function SubmitStudy() {
+export default function SubmitStudy({ onSuccess }) {
   const [form, setForm] = useState({ title: '', subject: '', grade_level: '', type: 'notes', notes_text: '' });
   const [inputMode, setInputMode] = useState('file');
   const [file, setFile] = useState(null);
@@ -94,7 +94,11 @@ export default function SubmitStudy() {
         return;
       }
       queryClient.invalidateQueries({ queryKey: ['mySubmissions'] });
-      setSubmitted(true);
+      if (onSuccess) {
+        onSuccess(result);
+      } else {
+        setSubmitted(true);
+      }
     },
     onError: () => {
       setUploading(false);
