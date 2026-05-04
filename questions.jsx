@@ -55,7 +55,7 @@ export default function Questions() {
 
   const handleAnalyze = async () => {
     if (!notes.trim() && !file) { toast.error('Paste your notes or upload a file first!'); return; }
-    setLoading(true); setResult(null); setGenerating('Key Points');
+    setLoading(true); setResult(null); setGeneratingError(null); setGenerating('Key Points');
     try {
       const { file_url, context } = await uploadAndGetContext();
       const res = await base44.integrations.Core.InvokeLLM({
@@ -87,21 +87,22 @@ IMPORTANT: If the notes are blank, nonsensical, unrelated to any academic subjec
       });
       if (!res.key_points?.length || !res.topic_summary?.trim()) {
         toast.error("We couldn't find any study content. Please submit real notes or a valid topic!");
+        setGenerating(null);
         return;
       }
       setResult({ type: 'analyze', data: res });
+      setGenerating(null);
     } catch (err) {
       setGeneratingError(err?.message || 'Something went wrong. Please try again.');
     } finally {
       setLoading(false);
-      setGenerating(null);
     }
   };
 
   const handleGenerateQuestions = async () => {
     if (!notes.trim() && !file) { toast.error('Paste your notes or upload a file first!'); return; }
     const count = Math.min(numQuestions, maxQuestions);
-    setLoading(true); setResult(null); setGenerating('Practice Questions');
+    setLoading(true); setResult(null); setGeneratingError(null); setGenerating('Practice Questions');
     try {
       const { file_url, context } = await uploadAndGetContext();
       const res = await base44.integrations.Core.InvokeLLM({
@@ -133,6 +134,7 @@ IMPORTANT: If the notes contain no real study content, return an empty questions
       });
       if (!res.questions?.length) {
         toast.error("No questions could be generated. Please submit real notes or a valid study topic!");
+        setGenerating(null);
         return;
       }
       const seen = new Set();
@@ -143,17 +145,17 @@ IMPORTANT: If the notes contain no real study content, return an empty questions
         return true;
       });
       setResult({ type: 'questions', data: { ...res, questions: unique } });
+      setGenerating(null);
     } catch (err) {
       setGeneratingError(err?.message || 'Something went wrong. Please try again.');
     } finally {
       setLoading(false);
-      setGenerating(null);
     }
   };
 
   const handleGenerateFlashcards = async () => {
     if (!notes.trim() && !file) { toast.error('Paste your notes or upload a file first!'); return; }
-    setLoading(true); setResult(null); setGenerating('Flashcards');
+    setLoading(true); setResult(null); setGeneratingError(null); setGenerating('Flashcards');
     try {
       const { file_url, context } = await uploadAndGetContext();
       const res = await base44.integrations.Core.InvokeLLM({
@@ -182,6 +184,7 @@ IMPORTANT: If the notes contain no real study content, return an empty flashcard
       });
       if (!res.flashcards?.length) {
         toast.error("No flashcards could be created. Please submit real notes or a valid study topic!");
+        setGenerating(null);
         return;
       }
       if (subject) {
@@ -196,11 +199,11 @@ IMPORTANT: If the notes contain no real study content, return an empty flashcard
         toast.success(`✅ ${res.flashcards.length} flashcards saved!`);
       }
       setResult({ type: 'flashcards', data: res });
+      setGenerating(null);
     } catch (err) {
       setGeneratingError(err?.message || 'Something went wrong. Please try again.');
     } finally {
       setLoading(false);
-      setGenerating(null);
     }
   };
 

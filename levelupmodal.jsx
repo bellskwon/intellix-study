@@ -9,12 +9,12 @@ const LEVEL_KEY = 'intellix_known_level';
  * Uses localStorage to track the last seen level so it only fires on actual upgrades.
  * Usage: <LevelUpModal level={level} />
  */
-export default function LevelUpModal({ level }) {
+export default function LevelUpModal({ level, isLoaded }) {
   const [show, setShow] = useState(false);
   const [celebratedLevel, setCelebratedLevel] = useState(null);
 
   useEffect(() => {
-    if (!level || level < 1) return;
+    if (!isLoaded || !level || level < 1) return;
     try {
       const stored = parseInt(localStorage.getItem(LEVEL_KEY) || '0', 10);
       if (stored === 0) {
@@ -30,7 +30,7 @@ export default function LevelUpModal({ level }) {
         return () => clearTimeout(timer);
       }
     } catch {}
-  }, [level]);
+  }, [level, isLoaded]);
 
   if (!celebratedLevel) return null;
   const league = getLeague(celebratedLevel);

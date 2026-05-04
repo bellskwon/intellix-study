@@ -49,12 +49,31 @@ export default function SubmitStudy({ onSuccess }) {
   const cameraInputRef = useRef();
   const queryClient = useQueryClient();
 
-  const handleFile = (f) => {
+  const compressImage = (f) => new Promise((resolve) => {
+    const img = new Image();
+    const objectUrl = URL.createObjectURL(f);
+    img.onload = () => {
+      URL.revokeObjectURL(objectUrl);
+      const MAX = 1200;
+      const scale = Math.min(1, MAX / Math.max(img.width, img.height));
+      const canvas = document.createElement('canvas');
+      canvas.width  = Math.round(img.width  * scale);
+      canvas.height = Math.round(img.height * scale);
+      canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+      canvas.toBlob(blob => {
+        resolve(new File([blob], f.name.replace(/\.\w+$/, '.jpg'), { type: 'image/jpeg' }));
+      }, 'image/jpeg', 0.78);
+    };
+    img.onerror = () => { URL.revokeObjectURL(objectUrl); resolve(f); };
+    img.src = objectUrl;
+  });
+
+  const handleFile = async (f) => {
     if (!f) return;
-    setFile(f);
-    if (f.type.startsWith('image/')) {
-      const url = URL.createObjectURL(f);
-      setFilePreview(url);
+    const processed = f.type.startsWith('image/') ? await compressImage(f) : f;
+    setFile(processed);
+    if (processed.type.startsWith('image/')) {
+      setFilePreview(URL.createObjectURL(processed));
     } else {
       setFilePreview(null);
     }
@@ -112,8 +131,8 @@ export default function SubmitStudy({ onSuccess }) {
       toast.error('Please fill in the title, subject, and grade level');
       return;
     }
-    if (inputMode === 'file' && !file) {
-      toast.error('Please upload a file');
+    if ((inputMode === 'file' || inputMode === 'camera') && !file) {
+      toast.error(inputMode === 'camera' ? 'Please take a photo first' : 'Please upload a file');
       return;
     }
     if (inputMode === 'text' && !form.notes_text?.trim()) {

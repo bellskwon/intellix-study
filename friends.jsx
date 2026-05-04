@@ -81,6 +81,18 @@ export default function Friends() {
     queryFn: () => base44.entities.Submission.list('-created_date', 500),
   });
 
+  const { data: allUsers = [] } = useQuery({
+    queryKey: ['allUsers'],
+    queryFn: () => base44.entities.User.list(),
+  });
+
+  const userMap = Object.fromEntries(allUsers.map(u => [u.email, u]));
+  const getName = (email) => {
+    const u = userMap[email];
+    return u?.display_name || u?.full_name || email.split('@')[0];
+  };
+  const getInitial = (email) => getName(email)[0]?.toUpperCase() || '?';
+
   // My sent requests
   const sentRequests = allFriendships.filter(f => f.requester_email === user?.email);
   // Requests I received
@@ -159,9 +171,9 @@ export default function Friends() {
             {receivedRequests.map(req => (
               <div key={req.id} className="bg-white rounded-xl border border-border px-4 py-3 flex items-center gap-3">
                 <div className="w-9 h-9 rounded-xl gradient-violet flex items-center justify-center text-white font-black text-sm shrink-0">
-                  {req.requester_email[0].toUpperCase()}
+                  {getInitial(req.requester_email)}
                 </div>
-                <p className="flex-1 text-sm font-semibold text-foreground truncate">{req.requester_email}</p>
+                <p className="flex-1 text-sm font-semibold text-foreground truncate">{getName(req.requester_email)}</p>
                 <div className="flex gap-2 shrink-0">
                   <Button size="sm" className="rounded-lg h-8 font-bold bg-emerald-500 hover:bg-emerald-600 text-white"
                     onClick={() => respondRequest.mutate({ id: req.id, status: 'accepted' })}>
@@ -203,10 +215,10 @@ export default function Friends() {
                 <motion.div key={email} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}
                   className="flex items-center gap-3 bg-secondary/30 rounded-xl px-4 py-3">
                   <div className="w-10 h-10 rounded-xl gradient-violet flex items-center justify-center text-white font-black text-sm shrink-0">
-                    {email[0].toUpperCase()}
+                    {getInitial(email)}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-bold text-foreground truncate">{email}</p>
+                    <p className="text-sm font-bold text-foreground truncate">{getName(email)}</p>
                     <p className="text-xs text-muted-foreground">{stats.league.emoji} Lv.{stats.level} · {stats.quizCount} quizzes</p>
                   </div>
                   <div className="text-right shrink-0">
@@ -229,7 +241,7 @@ export default function Friends() {
             {sentRequests.filter(r => r.status === 'pending').map(req => (
               <div key={req.id} className="flex items-center gap-3 px-4 py-3 bg-secondary/30 rounded-xl">
                 <Mail className="w-4 h-4 text-muted-foreground shrink-0" />
-                <p className="text-sm text-muted-foreground flex-1 truncate">{req.recipient_email}</p>
+                <p className="text-sm text-muted-foreground flex-1 truncate">{getName(req.recipient_email)}</p>
                 <span className="text-xs font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full">Pending</span>
               </div>
             ))}

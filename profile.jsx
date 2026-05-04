@@ -486,12 +486,17 @@ export default function Profile() {
                     <p className="text-xs text-muted-foreground capitalize mt-0.5">{s.subject?.replace(/_/g, ' ')} · {format(new Date(s.created_date), 'MMM d')}</p>
                   </div>
                 </div>
-                {s.quiz_score != null ? (
-                  <span className={`text-xs font-black px-2.5 py-1 rounded-full shrink-0 ${
-                    s.quiz_score >= PASS_THRESHOLD ? 'bg-emerald-50 text-emerald-600' :
-                    s.quiz_score >= 60 ? 'bg-amber-50 text-amber-600' :
-                    'bg-rose-50 text-rose-600'}`}>{s.quiz_score}%</span>
-                ) : <span className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded-full shrink-0">—</span>}
+                <div className="flex items-center gap-1.5 shrink-0">
+                  <span className="text-xs font-bold text-violet-600 bg-violet-50 px-2 py-1 rounded-full">
+                    +{s.quiz_passed ? 60 : 40} XP
+                  </span>
+                  {s.quiz_score != null ? (
+                    <span className={`text-xs font-black px-2.5 py-1 rounded-full ${
+                      s.quiz_score >= PASS_THRESHOLD ? 'bg-emerald-50 text-emerald-600' :
+                      s.quiz_score >= 60 ? 'bg-amber-50 text-amber-600' :
+                      'bg-rose-50 text-rose-600'}`}>{s.quiz_score}%</span>
+                  ) : null}
+                </div>
               </div>
             ))}
           </div>

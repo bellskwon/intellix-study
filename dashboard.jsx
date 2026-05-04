@@ -117,7 +117,7 @@ export default function Dashboard() {
     queryFn: () => base44.auth.me(),
   });
 
-  const { data: submissions = [] } = useQuery({
+  const { data: submissions = [], isSuccess: submissionsLoaded } = useQuery({
     queryKey: ['mySubmissions'],
     queryFn: () => base44.entities.Submission.filter(
       { created_by: user?.email }, '-created_date', 100
@@ -179,7 +179,7 @@ export default function Dashboard() {
 
   return (
     <div className="max-w-4xl mx-auto space-y-6 pb-8">
-      <LevelUpModal level={level} />
+      <LevelUpModal level={level} isLoaded={submissionsLoaded} />
       <StreakNotification streak={streak} lastActivity={lastActivity} />
 
       {/* Hero greeting */}

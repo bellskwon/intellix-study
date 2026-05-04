@@ -32,6 +32,7 @@ export default function Quiz() {
   const [expandedExplanations, setExpandedExplanations] = useState(new Set());
   const [showSaveModal, setShowSaveModal] = useState(false);
   const [showHints, setShowHints] = useState({});
+  const [numQuestions, setNumQuestions] = useState(5);
 
   const reportQuestion = async (q, i) => {
     try {
@@ -68,7 +69,7 @@ export default function Quiz() {
   const completed = submissions.filter(s => s.quiz_score != null);
 
   // ── Generate quiz from a submission's notes ──────────────────────────────
-  const startQuiz = async (submission) => {
+  const startQuiz = async (submission, count = numQuestions) => {
     setActiveSubmission(submission);
     setGenerating(true);
     setView('taking');
@@ -80,16 +81,16 @@ export default function Quiz() {
         : '';
 
       const res = await base44.integrations.Core.InvokeLLM({
-        prompt: `You are a strict quiz generator. Create a 5-question quiz ONLY from the student's notes below.
+        prompt: `You are a strict quiz generator. Create a ${count}-question quiz ONLY from the student's notes below.
 Subject: ${submission.subject}. ${gradeNote}${mathNote}
 
 RULES:
 - Every question and answer MUST be directly supported by the notes. Do NOT add facts, dates, or details not present in the notes.
-- If the notes are too thin to support 5 questions, generate fewer rather than inventing content.
+- If the notes are too thin to support ${count} questions, generate fewer rather than inventing content.
 - ALL questions must be unique — do NOT repeat the same concept, fact, or phrasing across multiple questions.
 - For each question, include a brief source_quote (the exact phrase from the notes that supports the answer).
 - For each question, include a 1-2 sentence explanation of WHY the correct answer is right (used to teach the student after the quiz).
-- Mix types: 2-3 short answer, 1-2 fill-in-the-blank, 1 multiple choice (exactly 4 options).
+- Mix question types across the set. If count > 5, include multiple choice questions (exactly 4 options each).
 - If no valid content is found, return an empty questions array.
 
 Notes:
@@ -483,9 +484,22 @@ Reply with ONLY one word: "correct" or "incorrect". Do not add any explanation.`
       {/* Pending quizzes */}
       {pending.length > 0 && (
         <div>
-          <h2 className="font-black text-foreground text-sm uppercase tracking-wider mb-3 flex items-center gap-2">
-            <FlaskConical className="w-4 h-4 text-pink-500" /> Ready to Quiz ({pending.length})
-          </h2>
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="font-black text-foreground text-sm uppercase tracking-wider flex items-center gap-2">
+              <FlaskConical className="w-4 h-4 text-pink-500" /> Ready to Quiz ({pending.length})
+            </h2>
+            <div className="flex items-center gap-2">
+              <label className="text-xs text-muted-foreground font-semibold">Questions</label>
+              <input
+                type="number"
+                min={1}
+                max={50}
+                value={numQuestions}
+                onChange={e => setNumQuestions(Math.min(50, Math.max(1, parseInt(e.target.value) || 1)))}
+                className="w-16 text-center text-sm font-bold border border-border rounded-lg px-2 py-1 bg-white focus:outline-none focus:ring-2 focus:ring-violet-400"
+              />
+            </div>
+          </div>
           <div className="space-y-3">
             {pending.map((sub, i) => (
               <motion.div key={sub.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
@@ -498,7 +512,7 @@ Reply with ONLY one word: "correct" or "incorrect". Do not add any explanation.`
                     {sub.subject?.replace(/_/g, ' ')} · {sub.grade_level} · {format(new Date(sub.created_date), 'MMM d')}
                   </p>
                 </div>
-                <Button size="sm" onClick={() => startQuiz(sub)}
+                <Button size="sm" onClick={() => startQuiz(sub, numQuestions)}
                   className="rounded-xl font-bold bg-gradient-to-r from-violet-500 to-purple-600 text-white border-0 hover:opacity-90 shrink-0">
                   Take Quiz
                 </Button>

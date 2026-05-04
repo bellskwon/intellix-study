@@ -2,9 +2,10 @@ const Groq = require('groq-sdk');
 const fetch = require('node-fetch');
 
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
-const GROQ_MODEL = 'llama-3.3-70b-versatile';
+const GROQ_TEXT_MODEL   = 'llama-3.3-70b-versatile';
+const GROQ_VISION_MODEL = 'meta-llama/llama-4-scout-17b-16e-instruct';
 
-async function invokeLLM({ prompt, fileUrls = [], responseJsonSchema = null }) {
+async function invokeLLM({ prompt, fileUrls = [], responseJsonSchema = null, maxTokens = null }) {
   const systemInstruction = responseJsonSchema
     ? 'You are a precise academic assistant for Intellix. Respond with valid JSON only — no markdown, no explanation. Never invent facts; only assert what you are certain is correct.'
     : 'You are a helpful academic assistant for Intellix, an online study platform for students. Be accurate and concise.';
@@ -16,16 +17,31 @@ async function invokeLLM({ prompt, fileUrls = [], responseJsonSchema = null }) {
       '\nDo not include any explanation or markdown — just the raw JSON object.';
   }
 
+  // Build user message — include images when present
+  const imageUrls = fileUrls.filter(u => u && (u.startsWith('data:image/') || /\.(jpe?g|png|gif|webp)$/i.test(u)));
+  const hasImages = imageUrls.length > 0;
+
+  const userContent = hasImages
+    ? [
+        { type: 'text', text: fullPrompt },
+        ...imageUrls.map(url => ({ type: 'image_url', image_url: { url } })),
+      ]
+    : fullPrompt;
+
   const messages = [
     { role: 'system', content: systemInstruction },
-    { role: 'user', content: fullPrompt },
+    { role: 'user', content: userContent },
   ];
 
+  // JSON schema responses can be large (up to 50 questions); use a high ceiling.
+  // Text responses (summaries etc.) don't need as many tokens.
+  const tokenLimit = maxTokens || (responseJsonSchema ? 16384 : 4096);
+
   const completion = await groq.chat.completions.create({
-    model: GROQ_MODEL,
+    model: hasImages ? GROQ_VISION_MODEL : GROQ_TEXT_MODEL,
     messages,
     temperature: responseJsonSchema ? 0.2 : 0.5,
-    max_tokens: 4096,
+    max_tokens: tokenLimit,
   });
 
   const rawText = completion.choices?.[0]?.message?.content || '';
