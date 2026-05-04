@@ -365,16 +365,22 @@ function TeacherOverview({ classroom }) {
 }
 
 // ── Teacher: Assignments ──────────────────────────────────────────────────────
+const blankQuestion = () => ({ question_text: '', options: ['', '', '', ''], correct_answer: '', explanation: '' });
+
 function TeacherAssignments({ classroom }) {
   const queryClient = useQueryClient();
   const [view, setView] = useState('list'); // list | create | results
   const [selectedAssignment, setSelectedAssignment] = useState(null);
   const [title, setTitle] = useState('');
   const [subject, setSubject] = useState('');
-  const [topic, setTopic] = useState('');
-  const [numQ, setNumQ] = useState(5);
-  const [questions, setQuestions] = useState([]);
-  const [generating, setGenerating] = useState(false);
+  const [questions, setQuestions] = useState([blankQuestion()]);
+  // AI assistant panel
+  const [showAI, setShowAI] = useState(false);
+  const [aiPrompt, setAiPrompt] = useState('');
+  const [aiSuggestions, setAiSuggestions] = useState([]);
+  const [aiLoading, setAiLoading] = useState(false);
+
+  const resetCreate = () => { setTitle(''); setSubject(''); setQuestions([blankQuestion()]); setShowAI(false); setAiPrompt(''); setAiSuggestions([]); };
 
   const { data: assignments = [], isLoading } = useQuery({
     queryKey: ['classAssignments', classroom.id],
@@ -382,12 +388,12 @@ function TeacherAssignments({ classroom }) {
   });
 
   const createMutation = useMutation({
-    mutationFn: () => base44.classroom.createAssignment(classroom.id, { title, subject, questions }),
+    mutationFn: () => base44.classroom.createAssignment(classroom.id, { title, subject, questions: questions.filter(q => q.question_text.trim() && q.correct_answer) }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['classAssignments', classroom.id] });
       queryClient.invalidateQueries({ queryKey: ['classProgress', classroom.id] });
       toast.success('Assignment published!');
-      setView('list'); setTitle(''); setSubject(''); setTopic(''); setQuestions([]);
+      setView('list'); resetCreate();
     },
     onError: (e) => toast.error(e.message),
   });
@@ -401,18 +407,20 @@ function TeacherAssignments({ classroom }) {
     onError: (e) => toast.error(e.message),
   });
 
-  const generateQuestions = async () => {
-    if (!topic.trim()) { toast.error('Enter a topic or paste notes first.'); return; }
-    setGenerating(true);
+  const updateQuestion = (i, field, value) =>
+    setQuestions(qs => qs.map((q, j) => j === i ? { ...q, [field]: value } : q));
+  const updateOption = (qi, oi, value) =>
+    setQuestions(qs => qs.map((q, j) => j !== qi ? q : { ...q, options: q.options.map((o, k) => k === oi ? value : o) }));
+
+  const fetchAISuggestions = async () => {
+    if (!aiPrompt.trim()) { toast.error('Describe a topic first.'); return; }
+    setAiLoading(true);
+    setAiSuggestions([]);
     try {
       const res = await base44.integrations.Core.InvokeLLM({
-        prompt: `Generate exactly ${numQ} multiple-choice practice questions based on: "${topic}".
-Subject: ${subject || 'general'}.
-RULES:
-- Each question has exactly 4 options labelled A), B), C), D).
-- correct_answer must be the full text of the correct option (e.g. "B) Warm front").
-- Include a 1-sentence explanation for the correct answer.
-- All questions must be unique.`,
+        prompt: `Suggest 3 multiple-choice practice questions for: "${aiPrompt}". Subject: ${subject || 'general'}.
+Each question has exactly 4 options labelled A), B), C), D).
+correct_answer must be the full text of the correct option. Include a 1-sentence explanation.`,
         response_json_schema: {
           type: 'object',
           properties: {
@@ -431,13 +439,22 @@ RULES:
           },
         },
       });
-      if (!res.questions?.length) { toast.error('Could not generate questions. Try a more specific topic.'); return; }
-      setQuestions(res.questions);
-    } catch (e) {
-      toast.error(e.message || 'Generation failed.');
-    }
-    setGenerating(false);
+      setAiSuggestions(res.questions || []);
+    } catch (e) { toast.error(e.message || 'AI failed. Try again.'); }
+    setAiLoading(false);
   };
+
+  const addSuggestion = (q) => {
+    setQuestions(qs => {
+      const last = qs[qs.length - 1];
+      const hasEmpty = !last.question_text.trim() && !last.correct_answer;
+      return hasEmpty ? [...qs.slice(0, -1), q] : [...qs, q];
+    });
+    setAiSuggestions(s => s.filter(x => x !== q));
+    toast.success('Question added!');
+  };
+
+  const validQuestions = questions.filter(q => q.question_text.trim() && q.correct_answer);
 
   // ── Results view ─────────────────────────────────────────────────────────
   if (view === 'results' && selectedAssignment) {
@@ -476,68 +493,122 @@ RULES:
   if (view === 'create') {
     return (
       <div className="space-y-4">
-        <button onClick={() => { setView('list'); setQuestions([]); }}
-          className="text-sm text-muted-foreground hover:text-foreground flex items-center gap-1 font-semibold">
-          <ArrowLeft className="w-4 h-4" /> Cancel
-        </button>
-        <h2 className="font-black text-foreground">Create Assignment</h2>
-
-        <div className="bg-white rounded-2xl border border-border p-5 space-y-4">
-          <div className="grid grid-cols-2 gap-3">
-            <div className="col-span-2">
-              <label className="text-xs font-black text-muted-foreground uppercase tracking-wide mb-1 block">Title *</label>
-              <Input value={title} onChange={e => setTitle(e.target.value)} placeholder="e.g. Chapter 5 Quiz" className="h-10 rounded-xl" />
-            </div>
-            <div>
-              <label className="text-xs font-black text-muted-foreground uppercase tracking-wide mb-1 block">Subject</label>
-              <Input value={subject} onChange={e => setSubject(e.target.value)} placeholder="e.g. Biology" className="h-10 rounded-xl" />
-            </div>
-            <div>
-              <label className="text-xs font-black text-muted-foreground uppercase tracking-wide mb-1 block"># Questions</label>
-              <Input type="number" min={1} max={20} value={numQ} onChange={e => setNumQ(Number(e.target.value))} className="h-10 rounded-xl" />
-            </div>
-          </div>
-
-          <div>
-            <label className="text-xs font-black text-muted-foreground uppercase tracking-wide mb-1 block">Topic / Notes for AI</label>
-            <Textarea value={topic} onChange={e => setTopic(e.target.value)}
-              placeholder="Paste notes or describe the topic — AI will generate questions from this."
-              className="min-h-[100px] rounded-xl resize-none text-sm" />
-          </div>
-
-          <Button onClick={generateQuestions} disabled={generating || !topic.trim()}
-            variant="outline" className="w-full rounded-xl font-bold h-10 gap-2">
-            {generating ? <><Loader2 className="w-4 h-4 animate-spin" /> Generating…</> : <><Sparkles className="w-4 h-4 text-violet-500" /> Generate with AI</>}
-          </Button>
+        {/* Header row */}
+        <div className="flex items-center gap-3">
+          <button onClick={() => { setView('list'); resetCreate(); }}
+            className="text-sm text-muted-foreground hover:text-foreground flex items-center gap-1 font-semibold">
+            <ArrowLeft className="w-4 h-4" /> Cancel
+          </button>
+          <h2 className="font-black text-foreground flex-1">Create Assignment</h2>
+          <button
+            onClick={() => setShowAI(s => !s)}
+            className={`flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-xl border transition-all ${showAI ? 'bg-violet-100 border-violet-300 text-violet-700' : 'border-border text-muted-foreground hover:border-violet-300 hover:text-violet-600'}`}>
+            <Sparkles className="w-3.5 h-3.5" /> AI Help
+          </button>
         </div>
 
-        {/* Question preview */}
-        {questions.length > 0 && (
-          <div className="space-y-3">
-            <p className="text-xs font-black text-muted-foreground uppercase tracking-wide">{questions.length} questions preview</p>
-            {questions.map((q, i) => (
-              <div key={i} className="bg-white rounded-xl border border-border p-4 space-y-2">
-                <div className="flex gap-2">
-                  <span className="text-xs font-black text-primary shrink-0">Q{i + 1}</span>
-                  <p className="text-sm font-semibold text-foreground flex-1">{q.question_text}</p>
-                  <button onClick={() => setQuestions(qs => qs.filter((_, j) => j !== i))}
-                    className="text-muted-foreground hover:text-rose-500 shrink-0"><X className="w-4 h-4" /></button>
-                </div>
-                <div className="grid grid-cols-2 gap-1 pl-5">
-                  {q.options.map((opt, j) => (
-                    <p key={j} className={`text-xs rounded-lg px-2 py-1 ${opt === q.correct_answer ? 'bg-emerald-50 text-emerald-700 font-bold' : 'text-muted-foreground'}`}>{opt}</p>
+        {/* Title + subject */}
+        <div className="bg-white rounded-2xl border border-border p-4 grid grid-cols-2 gap-3">
+          <div className="col-span-2">
+            <label className="text-xs font-black text-muted-foreground uppercase tracking-wide mb-1 block">Title *</label>
+            <Input value={title} onChange={e => setTitle(e.target.value)} placeholder="e.g. Chapter 5 Quiz" className="h-10 rounded-xl" />
+          </div>
+          <div className="col-span-2">
+            <label className="text-xs font-black text-muted-foreground uppercase tracking-wide mb-1 block">Subject</label>
+            <Input value={subject} onChange={e => setSubject(e.target.value)} placeholder="e.g. Biology" className="h-10 rounded-xl" />
+          </div>
+        </div>
+
+        {/* AI assistant panel */}
+        <AnimatePresence>
+          {showAI && (
+            <motion.div initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }}
+              className="bg-violet-50 border border-violet-200 rounded-2xl p-4 space-y-3">
+              <p className="text-xs font-black text-violet-700 uppercase tracking-wide flex items-center gap-1.5">
+                <Sparkles className="w-3.5 h-3.5" /> AI Question Assistant
+              </p>
+              <p className="text-xs text-violet-600">Type a topic or concept and get 3 suggested questions. Add the ones you like.</p>
+              <div className="flex gap-2">
+                <Input value={aiPrompt} onChange={e => setAiPrompt(e.target.value)}
+                  onKeyDown={e => e.key === 'Enter' && fetchAISuggestions()}
+                  placeholder="e.g. photosynthesis, World War II causes…"
+                  className="h-9 rounded-xl text-sm flex-1 bg-white" />
+                <Button onClick={fetchAISuggestions} disabled={aiLoading || !aiPrompt.trim()}
+                  size="sm" className="rounded-xl font-bold h-9 px-3 shrink-0 bg-violet-600 hover:bg-violet-700 text-white border-0">
+                  {aiLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : 'Suggest'}
+                </Button>
+              </div>
+              {aiSuggestions.length > 0 && (
+                <div className="space-y-2">
+                  {aiSuggestions.map((s, i) => (
+                    <div key={i} className="bg-white rounded-xl border border-violet-200 p-3 flex gap-2 items-start">
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-semibold text-foreground">{s.question_text}</p>
+                        <p className="text-xs text-emerald-600 font-semibold mt-1">✓ {s.correct_answer}</p>
+                        {s.explanation && <p className="text-xs text-muted-foreground mt-0.5 italic">{s.explanation}</p>}
+                      </div>
+                      <button onClick={() => addSuggestion(s)}
+                        className="shrink-0 w-7 h-7 rounded-lg bg-violet-100 hover:bg-violet-200 text-violet-700 flex items-center justify-center font-black text-base transition-colors">
+                        +
+                      </button>
+                    </div>
                   ))}
                 </div>
-                {q.explanation && <p className="text-xs text-muted-foreground pl-5 italic">{q.explanation}</p>}
-              </div>
-            ))}
+              )}
+            </motion.div>
+          )}
+        </AnimatePresence>
 
-            <Button onClick={() => createMutation.mutate()} disabled={!title.trim() || createMutation.isPending}
-              className="w-full h-12 rounded-xl font-bold gradient-violet border-0 text-white">
-              {createMutation.isPending ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Publishing…</> : '📤 Publish to Class'}
-            </Button>
-          </div>
-        )}
+        {/* Question builder */}
+        <div className="space-y-3">
+          <p className="text-xs font-black text-muted-foreground uppercase tracking-wide">{validQuestions.length} question{validQuestions.length !== 1 ? 's' : ''}</p>
+          {questions.map((q, qi) => (
+            <div key={qi} className="bg-white rounded-2xl border border-border p-4 space-y-3">
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-black text-primary w-6 shrink-0">Q{qi + 1}</span>
+                <Input value={q.question_text} onChange={e => updateQuestion(qi, 'question_text', e.target.value)}
+                  placeholder="Question text…" className="h-9 rounded-xl text-sm flex-1" />
+                {questions.length > 1 && (
+                  <button onClick={() => setQuestions(qs => qs.filter((_, j) => j !== qi))}
+                    className="text-muted-foreground hover:text-rose-500 shrink-0"><X className="w-4 h-4" /></button>
+                )}
+              </div>
+
+              <div className="grid grid-cols-2 gap-2 pl-8">
+                {q.options.map((opt, oi) => (
+                  <div key={oi} className="flex items-center gap-1.5">
+                    <button
+                      onClick={() => updateQuestion(qi, 'correct_answer', opt)}
+                      className={`w-4 h-4 rounded-full border-2 shrink-0 transition-colors ${q.correct_answer === opt && opt.trim() ? 'border-emerald-500 bg-emerald-500' : 'border-border'}`}
+                      title="Mark as correct" />
+                    <Input value={opt} onChange={e => updateOption(qi, oi, e.target.value)}
+                      placeholder={`Option ${String.fromCharCode(65 + oi)}`}
+                      className={`h-8 rounded-lg text-xs ${q.correct_answer === opt && opt.trim() ? 'border-emerald-300 bg-emerald-50' : ''}`} />
+                  </div>
+                ))}
+              </div>
+
+              <div className="pl-8">
+                <Input value={q.explanation} onChange={e => updateQuestion(qi, 'explanation', e.target.value)}
+                  placeholder="Explanation (optional — shown to students after they answer)"
+                  className="h-8 rounded-lg text-xs text-muted-foreground" />
+              </div>
+            </div>
+          ))}
+
+          <button onClick={() => setQuestions(qs => [...qs, blankQuestion()])}
+            className="text-xs font-bold text-primary hover:underline flex items-center gap-1">
+            <Plus className="w-3.5 h-3.5" /> Add question
+          </button>
+        </div>
+
+        <Button onClick={() => createMutation.mutate()}
+          disabled={!title.trim() || validQuestions.length === 0 || createMutation.isPending}
+          className="w-full h-12 rounded-xl font-bold gradient-violet border-0 text-white">
+          {createMutation.isPending
+            ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Publishing…</>
+            : `📤 Publish ${validQuestions.length} Question${validQuestions.length !== 1 ? 's' : ''} to Class`}
+        </Button>
       </div>
     );
   }
