@@ -151,6 +151,17 @@ export const base44 = {
     delete: (id) => apiFetch(`/api/classroom/${id}`, { method: 'DELETE' }),
     removeMember: (id, email) =>
       apiFetch(`/api/classroom/${id}/members/${encodeURIComponent(email)}`, { method: 'DELETE' }),
+    // Progress
+    getProgress: (id) => apiFetch(`/api/classroom/${id}/progress`),
+    // Assignments
+    getAssignments: (id) => apiFetch(`/api/classroom/${id}/assignments`),
+    createAssignment: (id, data) => apiFetch(`/api/classroom/${id}/assignments`, { method: 'POST', body: JSON.stringify(data) }),
+    deleteAssignment: (id, assignmentId) => apiFetch(`/api/classroom/${id}/assignments/${assignmentId}`, { method: 'DELETE' }),
+    submitAssignment: (assignmentId, answers) => apiFetch(`/api/classroom/assignments/${assignmentId}/submit`, { method: 'POST', body: JSON.stringify({ answers }) }),
+    // Flashcard decks
+    getDecks: (id) => apiFetch(`/api/classroom/${id}/decks`),
+    createDeck: (id, data) => apiFetch(`/api/classroom/${id}/decks`, { method: 'POST', body: JSON.stringify(data) }),
+    deleteDeck: (id, deckId) => apiFetch(`/api/classroom/${id}/decks/${deckId}`, { method: 'DELETE' }),
   },
 
   // ── Moderation ────────────────────────────────────────────────────────────

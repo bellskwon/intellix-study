@@ -40,6 +40,7 @@ model User {
   moderation_logs      ModerationLog[]
   owned_classrooms     Classroom[]     @relation("ClassroomOwner")
   class_memberships    ClassMembership[]
+  assignment_results   ClassroomAssignmentResult[]
 }
 
 model Submission {
@@ -141,8 +142,10 @@ model Classroom {
   teacher_email String
   created_date  DateTime @default(now())
 
-  teacher User              @relation("ClassroomOwner", fields: [teacher_email], references: [email])
-  members ClassMembership[]
+  teacher      User                      @relation("ClassroomOwner", fields: [teacher_email], references: [email])
+  members      ClassMembership[]
+  assignments  ClassroomAssignment[]
+  shared_decks ClassroomSharedDeck[]
 }
 
 model ClassMembership {
@@ -155,6 +158,46 @@ model ClassMembership {
   student   User      @relation(fields: [student_email], references: [email])
 
   @@unique([classroom_id, student_email])
+}
+
+model ClassroomAssignment {
+  id           String   @id @default(cuid())
+  classroom_id String
+  title        String
+  subject      String?
+  questions    Json
+  created_by   String
+  created_date DateTime @default(now())
+
+  classroom Classroom                   @relation(fields: [classroom_id], references: [id], onDelete: Cascade)
+  results   ClassroomAssignmentResult[]
+}
+
+model ClassroomAssignmentResult {
+  id             String   @id @default(cuid())
+  assignment_id  String
+  student_email  String
+  score          Float
+  passed         Boolean  @default(false)
+  answers        Json
+  completed_date DateTime @default(now())
+
+  assignment ClassroomAssignment @relation(fields: [assignment_id], references: [id], onDelete: Cascade)
+  student    User                @relation(fields: [student_email], references: [email])
+
+  @@unique([assignment_id, student_email])
+}
+
+model ClassroomSharedDeck {
+  id           String   @id @default(cuid())
+  classroom_id String
+  deck_name    String
+  subject      String?
+  cards        Json
+  created_by   String
+  created_date DateTime @default(now())
+
+  classroom Classroom @relation(fields: [classroom_id], references: [id], onDelete: Cascade)
 }
 
 model ModerationLog {
