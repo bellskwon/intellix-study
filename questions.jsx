@@ -94,6 +94,7 @@ IMPORTANT: If the notes are blank, nonsensical, unrelated to any academic subjec
       setGeneratingError(err?.message || 'Something went wrong. Please try again.');
     } finally {
       setLoading(false);
+      setGenerating(null);
     }
   };
 
@@ -138,6 +139,7 @@ IMPORTANT: If the notes contain no real study content, return an empty questions
       setGeneratingError(err?.message || 'Something went wrong. Please try again.');
     } finally {
       setLoading(false);
+      setGenerating(null);
     }
   };
 
@@ -175,14 +177,14 @@ IMPORTANT: If the notes contain no real study content, return an empty flashcard
         return;
       }
       if (subject) {
-        await Promise.all(res.flashcards.map(fc =>
-          base44.entities.StudyCard.create({
+        await base44.entities.StudyCard.bulkCreate(
+          res.flashcards.map(fc => ({
             deck_name: res.deck_name || 'My Flashcards',
             subject: subject || 'other',
             front: fc.front,
             back: fc.back,
-          })
-        ));
+          }))
+        );
         toast.success(`✅ ${res.flashcards.length} flashcards saved!`);
       }
       setResult({ type: 'flashcards', data: res });
@@ -190,6 +192,7 @@ IMPORTANT: If the notes contain no real study content, return an empty flashcard
       setGeneratingError(err?.message || 'Something went wrong. Please try again.');
     } finally {
       setLoading(false);
+      setGenerating(null);
     }
   };
 

@@ -30,8 +30,12 @@ function ChallengeButton({ friendEmail }) {
 
   const sendChallenge = (subject) => {
     const url = `${window.location.origin}/challenge?subject=${subject}&challenger=${encodeURIComponent(friendEmail)}`;
-    navigator.clipboard.writeText(url);
-    toast.success(`Challenge link copied! Send it to ${friendEmail.split('@')[0]}.`);
+    try {
+      navigator.clipboard.writeText(url);
+      toast.success(`Challenge link copied! Send it to ${friendEmail.split('@')[0]}.`);
+    } catch {
+      toast.error('Could not copy link. Please copy it manually.');
+    }
     setOpen(false);
   };
 
