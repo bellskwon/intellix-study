@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Zap, Upload, Brain, BarChart3, ArrowRight, Flame, Star, Trophy, BookOpen, CheckCircle2, Circle, X, Users } from 'lucide-react';
+import { Zap, Upload, Brain, BarChart3, ArrowRight, Flame, Star, Trophy, CheckCircle2, Circle, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import StatsRow from '@/components/dashboard/StatsRow';
 import RecentSubmissions from '@/components/dashboard/RecentSubmissions';
@@ -185,15 +185,12 @@ export default function Dashboard() {
       {/* Hero greeting */}
       <motion.div
         initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
-        className="relative rounded-3xl overflow-hidden text-white p-7"
+        className="relative rounded-3xl overflow-hidden text-white p-6"
         style={{ background: 'linear-gradient(135deg, #7c3aed 0%, #a855f7 60%, #ec4899 100%)' }}
       >
-        <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute -top-8 -right-8 w-48 h-48 bg-white/10 rounded-full blur-2xl" />
-          <div className="absolute bottom-0 left-10 w-32 h-32 bg-pink-400/20 rounded-full blur-2xl" />
-        </div>
+        <div className="absolute -top-8 -right-8 w-48 h-48 bg-white/10 rounded-full blur-3xl pointer-events-none" />
         <div className="relative z-10">
-          <p className="text-purple-200 text-xs font-bold uppercase tracking-widest mb-1">
+          <p className="text-white/60 text-xs font-semibold mb-1">
             {league.name} League · Lv.{level}
           </p>
           <h1 className="text-2xl font-black mb-1 font-sora">
@@ -262,9 +259,6 @@ export default function Dashboard() {
 
       {/* Quick Actions */}
       <div>
-        <h2 className="font-black font-sora text-foreground text-sm uppercase tracking-wider mb-3 flex items-center gap-2">
-          <Zap className="w-4 h-4 text-amber-500" /> Quick Actions
-        </h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           {quickActions.map((action, i) => (
             <motion.div
@@ -274,7 +268,7 @@ export default function Dashboard() {
               transition={{ delay: i * 0.06 }}
             >
               <Link to={action.to}
-                className="block bg-white rounded-2xl border border-border p-4 hover:shadow-lg hover:-translate-y-0.5 transition-all group">
+                className="block bg-white rounded-2xl border border-border p-4 hover:shadow-md hover:-translate-y-0.5 transition-all group">
                 <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${action.gradient} flex items-center justify-center mb-3 shadow-md ${action.shadow}`}>
                   <action.icon className="w-5 h-5 text-white" />
                 </div>
@@ -289,9 +283,7 @@ export default function Dashboard() {
       {/* Friends Activity Feed */}
       {friendActivity.length > 0 && (
         <div>
-          <h2 className="font-black font-sora text-foreground text-sm uppercase tracking-wider mb-3 flex items-center gap-2">
-            <Users className="w-4 h-4 text-blue-500" /> Friends Activity
-          </h2>
+          <h2 className="font-semibold text-sm text-muted-foreground mb-3">Friends Activity</h2>
           <div className="grid sm:grid-cols-2 gap-3">
             {friendActivity.map((s, i) => (
               <motion.div key={s.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}
@@ -323,9 +315,7 @@ export default function Dashboard() {
       {/* Recent Submissions */}
       <div>
         <div className="flex items-center justify-between mb-3">
-          <h2 className="font-black font-sora text-foreground text-sm uppercase tracking-wider flex items-center gap-2">
-            <BookOpen className="w-4 h-4 text-violet-500" /> Recent Activity
-          </h2>
+          <h2 className="font-semibold text-sm text-muted-foreground">Recent Activity</h2>
           {submissions.length > 5 && (
             <Link to="/storage" className="text-xs text-primary font-bold hover:underline flex items-center gap-1">
               View all <ArrowRight className="w-3 h-3" />

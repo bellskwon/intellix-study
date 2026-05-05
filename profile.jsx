@@ -324,9 +324,7 @@ export default function Profile() {
 
       {/* Next Goal Panel */}
       <div className="bg-white rounded-2xl border border-border p-5">
-        <h2 className="font-black text-sm text-muted-foreground uppercase tracking-wide mb-3 flex items-center gap-2">
-          <Target className="w-4 h-4 text-primary" /> Next Goals
-        </h2>
+        <h2 className="font-semibold text-sm text-muted-foreground mb-3">Next Goals</h2>
         <div className="space-y-3">
           {[
             { label: 'Reach 10 quizzes', target: 10, current: visibleSubmissions.length, Icon: BookOpen },
@@ -358,9 +356,7 @@ export default function Profile() {
       {/* Subject Breakdown */}
       {sortedSubjects.length > 0 && (
         <div className="bg-white rounded-2xl border border-border p-5">
-          <h2 className="font-black text-sm text-muted-foreground uppercase tracking-wide mb-3 flex items-center gap-2">
-            <BarChart3 className="w-4 h-4 text-cyan-500" /> Subject Breakdown
-          </h2>
+          <h2 className="font-semibold text-sm text-muted-foreground mb-3">Subject Breakdown</h2>
           <div className="space-y-2.5">
             {sortedSubjects.slice(0, 5).map(([subj, count]) => {
               const pct = Math.round((count / (visibleSubmissions.length || 1)) * 100);
@@ -386,9 +382,7 @@ export default function Profile() {
 
       {/* Achievements */}
       <div className="bg-white rounded-2xl border border-border p-5 space-y-5">
-        <h2 className="font-black text-sm text-muted-foreground uppercase tracking-wide flex items-center gap-2">
-          <Trophy className="w-4 h-4 text-amber-500" /> Achievements
-        </h2>
+        <h2 className="font-semibold text-sm text-muted-foreground">Achievements</h2>
         {badgeGroups.map(group => {
           const earnedCount = group.badges.filter(b => b.earned).length;
           return (
@@ -416,9 +410,7 @@ export default function Profile() {
 
       {/* Referral Section */}
       <div className="bg-gradient-to-br from-violet-50 to-purple-50 rounded-2xl border border-violet-200 p-5">
-        <h2 className="font-black text-sm text-foreground mb-1 flex items-center gap-2">
-          <Users className="w-4 h-4 text-violet-500" /> Refer a Friend — Earn Bonus XP
-        </h2>
+        <h2 className="font-bold text-sm text-foreground mb-1">Refer a Friend — Earn Bonus XP</h2>
         <p className="text-xs text-muted-foreground mb-3">Share your Intellix referral link. When a new friend signs up using your link and completes their first quiz, you both earn bonus XP!</p>
         {referralLink ? (
           <div className="flex items-center gap-2 bg-white rounded-xl border border-violet-200 px-3 py-2 mb-2">
@@ -443,9 +435,7 @@ export default function Profile() {
 
       {/* Share with Parent */}
       <div className="bg-white rounded-2xl border border-border p-5">
-        <h2 className="font-black text-sm text-foreground mb-1 flex items-center gap-2">
-          <Users className="w-4 h-4 text-blue-500 mr-2" /> Share Progress with a Parent
-        </h2>
+        <h2 className="font-bold text-sm text-foreground mb-1">Share Progress with a Parent</h2>
         <p className="text-xs text-muted-foreground mb-3">
           Generate a read-only link your parent or guardian can bookmark to see your scores, subjects, and activity — without needing an account.
         </p>

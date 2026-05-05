@@ -245,10 +245,10 @@ IMPORTANT: If the notes contain no real study content, return an empty flashcard
       )}
 
       {/* Tabs */}
-      <div className="flex gap-1.5 p-1.5 bg-secondary rounded-2xl">
+      <div className="flex gap-1 p-1 bg-secondary rounded-xl">
         {TABS.map(tab => (
           <button key={tab.id} onClick={() => { setActiveTab(tab.id); setResult(null); }}
-            className={`flex-1 text-xs font-bold py-2.5 px-2 rounded-xl transition-all ${activeTab === tab.id ? 'bg-white shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground'}`}>
+            className={`flex-1 text-xs font-semibold py-2 px-2 rounded-lg transition-all ${activeTab === tab.id ? 'bg-white shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground'}`}>
             {tab.label}
           </button>
         ))}
@@ -257,7 +257,7 @@ IMPORTANT: If the notes contain no real study content, return an empty flashcard
       {/* Input area - hide for calendar */}
       {activeTab !== 'calendar' && <div className="bg-white rounded-2xl border border-border p-5 space-y-4">
         <div>
-          <label className="text-sm font-bold text-foreground mb-2 block">📋 Paste Notes or Study Guide</label>
+          <label className="text-sm font-semibold text-muted-foreground mb-2 block">Your Notes</label>
           <Textarea
             placeholder="Paste your notes, textbook excerpt, or study guide here..."
             value={notes}

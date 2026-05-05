@@ -98,7 +98,7 @@ export default function Progress() {
           {timeline.length > 1 && (
             <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
               className="bg-white rounded-2xl border border-border p-6">
-              <h2 className="font-black text-foreground mb-4">Score Timeline</h2>
+              <h2 className="font-semibold text-sm text-muted-foreground mb-4">Score Timeline</h2>
               <ResponsiveContainer width="100%" height={200}>
                 <AreaChart data={timeline}>
                   <defs>
@@ -125,7 +125,7 @@ export default function Progress() {
             {radarData.length >= 3 && (
               <motion.div initial={{ opacity: 0, x: -16 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.4 }}
                 className="bg-white rounded-2xl border border-border p-6">
-                <h2 className="font-black text-foreground mb-4">Subject Radar</h2>
+                <h2 className="font-semibold text-sm text-muted-foreground mb-4">Subject Radar</h2>
                 <ResponsiveContainer width="100%" height={220}>
                   <RadarChart data={radarData}>
                     <PolarGrid stroke="hsl(240,12%,89%)" />
@@ -138,7 +138,7 @@ export default function Progress() {
 
             <motion.div initial={{ opacity: 0, x: 16 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.45 }}
               className="bg-white rounded-2xl border border-border p-6 space-y-3">
-              <h2 className="font-black text-foreground">By Subject</h2>
+              <h2 className="font-semibold text-sm text-muted-foreground mb-3">By Subject</h2>
               {subjectAvg.map(s => (
                 <div key={s.subject}>
                   <div className="flex items-center justify-between mb-1">

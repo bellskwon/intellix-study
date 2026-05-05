@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { Users, UserPlus, Check, X, Mail, Swords } from 'lucide-react';
+import { UserPlus, Check, X, Mail, Swords } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { motion } from 'framer-motion';
@@ -139,9 +139,7 @@ export default function Friends() {
 
       {/* Add Friend */}
       <div className="bg-white rounded-2xl border border-border p-5">
-        <h2 className="font-black text-sm text-foreground mb-3 flex items-center gap-2">
-          <UserPlus className="w-4 h-4 text-primary" /> Add a Friend
-        </h2>
+        <h2 className="font-semibold text-sm text-muted-foreground mb-3">Add a Friend</h2>
         <div className="flex gap-2">
           <Input
             placeholder="Enter their Gmail address..."
@@ -164,9 +162,7 @@ export default function Friends() {
       {/* Pending Requests */}
       {receivedRequests.length > 0 && (
         <div className="bg-white rounded-2xl border border-amber-200 bg-amber-50/50 p-5">
-          <h2 className="font-black text-sm text-foreground mb-3 flex items-center gap-2">
-            <Mail className="w-4 h-4 text-amber-500" /> Friend Requests ({receivedRequests.length})
-          </h2>
+          <h2 className="font-semibold text-sm text-muted-foreground mb-3">Friend Requests ({receivedRequests.length})</h2>
           <div className="space-y-2">
             {receivedRequests.map(req => (
               <div key={req.id} className="bg-white rounded-xl border border-border px-4 py-3 flex items-center gap-3">
@@ -192,9 +188,7 @@ export default function Friends() {
 
       {/* Friends List */}
       <div className="bg-white rounded-2xl border border-border p-5">
-        <h2 className="font-black text-sm text-foreground mb-3 flex items-center gap-2">
-          <Users className="w-4 h-4 text-primary" /> My Friends ({myFriends.length})
-        </h2>
+        <h2 className="font-semibold text-sm text-muted-foreground mb-3">My Friends ({myFriends.length})</h2>
         {myFriends.length === 0 ? (
           <div className="text-center py-10">
             <svg width="120" height="80" viewBox="0 0 120 80" fill="none" className="mx-auto mb-4 opacity-80">

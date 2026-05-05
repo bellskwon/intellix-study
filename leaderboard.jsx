@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { Trophy, Crown, TrendingUp, Users, Star, Zap } from 'lucide-react';
+import { Trophy, Crown, TrendingUp, Star, Zap } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { calcLevelInfo, getLeague } from '@/components/shared/LevelXPBar';
 
@@ -86,41 +86,27 @@ export default function Leaderboard() {
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
-      {/* Header */}
-      <div className="relative rounded-3xl overflow-hidden text-white p-6"
-        style={{ background: 'linear-gradient(135deg, #7c3aed 0%, #a855f7 60%, #ec4899 100%)' }}>
-        <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute top-2 right-8 w-40 h-40 bg-white/10 rounded-full blur-2xl" />
+      <div className="flex items-start justify-between gap-4 flex-wrap">
+        <div>
+          <h1 className="text-3xl font-black text-foreground tracking-tight font-sora">Leaderboard</h1>
+          <p className="text-muted-foreground text-sm mt-1.5">Top 5 earn bonus points every week.</p>
         </div>
-        <div className="relative z-10 flex items-center gap-3 mb-1">
-          <Trophy className="w-7 h-7 text-amber-300" />
-          <h1 className="text-2xl font-black tracking-tight">Leaderboard</h1>
-        </div>
-        <p className="relative z-10 text-purple-200 text-sm">Compete, improve, and climb the ranks. Top 5 earn bonus points every week!</p>
         {myRank > 0 && topPct && (
-          <div className="relative z-10 mt-3 inline-flex items-center gap-2 bg-white/20 rounded-full px-3 py-1.5">
-            <span className="text-xs font-black">You're ranked #{myRank}</span>
-            <span className="text-xs text-white/70">— Top {topPct}% of all students</span>
+          <div className="flex items-center gap-2 bg-primary/10 rounded-xl px-3 py-2 shrink-0">
+            <span className="text-sm font-black text-primary">#{myRank}</span>
+            <span className="text-xs text-muted-foreground">Top {topPct}%</span>
           </div>
         )}
       </div>
 
-      {/* Weekly Awards Banner */}
-      <div className="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-2xl p-4">
-        <div className="flex items-center gap-2 mb-2">
-          <Trophy className="w-4 h-4 text-amber-500" />
-          <p className="text-sm font-black text-amber-800">Weekly Leaderboard Awards</p>
-        </div>
-        <p className="text-xs text-amber-700 mb-3">Every week the leaderboard resets. Top 5 players earn bonus points!</p>
-        <div className="flex gap-2 flex-wrap">
-          {WEEKLY_AWARDS.map(a => (
-            <div key={a.place} className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold ${a.color} border border-current/20`}>
-              <span>{a.place}</span>
-              <span className="opacity-60">→</span>
-              <span>+{a.pts} pts</span>
-            </div>
-          ))}
-        </div>
+      {/* Weekly Awards */}
+      <div className="flex items-center gap-2 flex-wrap">
+        <span className="text-xs font-semibold text-muted-foreground mr-1">Weekly prizes:</span>
+        {WEEKLY_AWARDS.map(a => (
+          <div key={a.place} className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold ${a.color}`}>
+            {a.place} · +{a.pts} pts
+          </div>
+        ))}
       </div>
 
       {/* Tabs */}
@@ -238,10 +224,7 @@ export default function Leaderboard() {
       {/* Full list */}
       <div className="bg-white rounded-2xl border border-border overflow-hidden">
         <div className="px-5 py-3 border-b border-border flex items-center justify-between">
-          <p className="text-xs font-black text-muted-foreground uppercase tracking-wide flex items-center gap-2">
-            <Users className="w-4 h-4" />
-            {sorted.length} Students
-          </p>
+          <p className="text-xs font-semibold text-muted-foreground">{sorted.length} Students</p>
           <p className="text-xs text-muted-foreground">Sorted by {TABS.find(t => t.key === tab)?.label}</p>
         </div>
         {sorted.length === 0 ? (

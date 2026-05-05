@@ -452,14 +452,9 @@ Reply with ONLY one word: "correct" or "incorrect". Do not add any explanation.`
   // ── Default: list view ───────────────────────────────────────────────────
   return (
     <div className="max-w-2xl mx-auto space-y-6">
-      {/* Header */}
-      <div className="relative rounded-3xl overflow-hidden text-white p-7"
-        style={{ background: 'linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%)' }}>
-        <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-10 translate-x-10" />
-        <div className="relative z-10">
-          <h1 className="text-2xl font-black mb-1">Study Quiz</h1>
-          <p className="text-pink-200 text-sm">Upload notes → get a quiz → earn points</p>
-        </div>
+      <div>
+        <h1 className="text-3xl font-black text-foreground tracking-tight font-sora">Study Quiz</h1>
+        <p className="text-muted-foreground text-sm mt-1.5">Upload your notes, take a quiz, earn points.</p>
       </div>
 
       {/* Upload CTA / inline form */}
@@ -485,9 +480,7 @@ Reply with ONLY one word: "correct" or "incorrect". Do not add any explanation.`
       {pending.length > 0 && (
         <div>
           <div className="flex items-center justify-between mb-3">
-            <h2 className="font-black text-foreground text-sm uppercase tracking-wider flex items-center gap-2">
-              <FlaskConical className="w-4 h-4 text-pink-500" /> Ready to Quiz ({pending.length})
-            </h2>
+            <h2 className="font-semibold text-sm text-muted-foreground">Ready to Quiz ({pending.length})</h2>
             <div className="flex items-center gap-2">
               <label className="text-xs text-muted-foreground font-semibold">Questions</label>
               <input
@@ -525,9 +518,7 @@ Reply with ONLY one word: "correct" or "incorrect". Do not add any explanation.`
       {/* Completed quizzes */}
       {completed.length > 0 && (
         <div>
-          <h2 className="font-black text-foreground text-sm uppercase tracking-wider mb-3 flex items-center gap-2">
-            <BookOpen className="w-4 h-4 text-emerald-500" /> Completed ({completed.length})
-          </h2>
+          <h2 className="font-semibold text-sm text-muted-foreground mb-3">Completed ({completed.length})</h2>
           <div className="space-y-2">
             {completed.slice(0, 10).map(sub => (
               <div key={sub.id} className="bg-white rounded-xl border border-border px-4 py-3 flex items-center gap-3">
