@@ -39,7 +39,7 @@ export default function Sidebar({ open, onClose }) {
   const { data: user } = useQuery({ queryKey: ['currentUser'], queryFn: () => base44.auth.me() });
   const { data: submissions = [] } = useQuery({
     queryKey: ['mySubmissions'],
-    queryFn: () => base44.entities.Submission.filter({ created_by: user?.email }, '-created_date', 100),
+    queryFn: () => base44.entities.Submission.filter({ created_by: user?.email }, '-created_date', 2000),
     enabled: !!user?.email,
   });
 

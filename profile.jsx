@@ -42,12 +42,13 @@ export default function Profile() {
   const savedImageUrl = user?.avatar_image_url || null;
   const displayName = user?.display_name || user?.full_name || 'Student';
 
-  const graded = submissions.filter(s => s.quiz_score != null);
-  const approved = submissions.filter(s => s.status === 'approved');
+  const visibleSubmissions = submissions.filter(s => s.type !== 'xp_boost');
+  const graded = visibleSubmissions.filter(s => s.quiz_score != null);
+  const approved = visibleSubmissions.filter(s => s.status === 'approved');
   const totalPoints = approved.reduce((a, b) => a + (b.points_awarded || 0), 0);
   const avgScore = graded.length ? Math.round(graded.reduce((s, q) => s + q.quiz_score, 0) / graded.length) : 0;
   const best = graded.length ? Math.max(...graded.map(s => s.quiz_score)) : 0;
-  const passed = submissions.filter(s => s.quiz_passed).length;
+  const passed = visibleSubmissions.filter(s => s.quiz_passed).length;
 
   const { level } = calcLevelInfo(submissions);
   const league = getLeague(level);
@@ -65,10 +66,10 @@ export default function Profile() {
     {
       label: 'Study Milestones',
       badges: [
-        { label: 'First Quiz',   Icon: Target,     color: 'text-blue-500',   bg: 'bg-blue-100',   earned: submissions.length >= 1,   desc: 'Complete your first quiz' },
-        { label: '5 Quizzes',    Icon: BookOpen,   color: 'text-violet-500', bg: 'bg-violet-100', earned: submissions.length >= 5,   desc: 'Complete 5 quizzes' },
-        { label: '25 Quizzes',   Icon: Zap,        color: 'text-amber-500',  bg: 'bg-amber-100',  earned: submissions.length >= 25,  desc: 'Complete 25 quizzes' },
-        { label: '50 Quizzes',   Icon: Award,      color: 'text-emerald-500',bg: 'bg-emerald-100',earned: submissions.length >= 50,  desc: 'Complete 50 quizzes' },
+        { label: 'First Quiz',   Icon: Target,     color: 'text-blue-500',   bg: 'bg-blue-100',   earned: visibleSubmissions.length >= 1,   desc: 'Complete your first quiz' },
+        { label: '5 Quizzes',    Icon: BookOpen,   color: 'text-violet-500', bg: 'bg-violet-100', earned: visibleSubmissions.length >= 5,   desc: 'Complete 5 quizzes' },
+        { label: '25 Quizzes',   Icon: Zap,        color: 'text-amber-500',  bg: 'bg-amber-100',  earned: visibleSubmissions.length >= 25,  desc: 'Complete 25 quizzes' },
+        { label: '50 Quizzes',   Icon: Award,      color: 'text-emerald-500',bg: 'bg-emerald-100',earned: visibleSubmissions.length >= 50,  desc: 'Complete 50 quizzes' },
       ],
     },
     {
@@ -308,7 +309,7 @@ export default function Profile() {
           { label: 'Total Points', value: totalPoints, gradient: 'from-amber-400 to-orange-500', Icon: Star },
           { label: 'Avg Score', value: `${avgScore}%`, gradient: 'from-violet-500 to-purple-600', Icon: Target },
           { label: 'Best Score', value: `${best}%`, gradient: 'from-emerald-400 to-teal-500', Icon: Trophy },
-          { label: 'Quizzes', value: submissions.length, gradient: 'from-cyan-400 to-blue-500', Icon: Zap },
+          { label: 'Quizzes', value: visibleSubmissions.length, gradient: 'from-cyan-400 to-blue-500', Icon: Zap },
         ].map((s, i) => (
           <motion.div key={s.label} initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: i * 0.07 }}
             className="bg-white rounded-2xl border border-border p-4 text-center card-hover">
@@ -328,7 +329,7 @@ export default function Profile() {
         </h2>
         <div className="space-y-3">
           {[
-            { label: 'Reach 10 quizzes', target: 10, current: submissions.length, Icon: BookOpen },
+            { label: 'Reach 10 quizzes', target: 10, current: visibleSubmissions.length, Icon: BookOpen },
             { label: 'Avg score 80%', target: 80, current: avgScore, Icon: BarChart3 },
             { label: 'Pass 5 quizzes', target: 5, current: passed, Icon: Trophy },
           ].map(g => {
@@ -362,7 +363,7 @@ export default function Profile() {
           </h2>
           <div className="space-y-2.5">
             {sortedSubjects.slice(0, 5).map(([subj, count]) => {
-              const pct = Math.round((count / submissions.length) * 100);
+              const pct = Math.round((count / (visibleSubmissions.length || 1)) * 100);
               return (
                 <div key={subj} className="flex items-center gap-3">
                   <SubjectIcon subject={subj} size="xs" />
@@ -470,14 +471,14 @@ export default function Profile() {
       </div>
 
       {/* Quiz History */}
-      {submissions.length > 0 && (
+      {visibleSubmissions.length > 0 && (
         <div className="bg-white rounded-2xl border border-border overflow-hidden">
           <div className="px-5 py-4 border-b border-border flex items-center justify-between">
             <h2 className="font-black text-foreground">Quiz History</h2>
             <BarChart3 className="w-4 h-4 text-muted-foreground" />
           </div>
           <div className="divide-y divide-border">
-            {submissions.slice(0, 8).map(s => (
+            {visibleSubmissions.slice(0, 8).map(s => (
               <div key={s.id} className="px-5 py-3 flex items-center justify-between gap-3">
                 <div className="flex items-center gap-3 min-w-0">
                   <SubjectIcon subject={s.subject} size="xs" />

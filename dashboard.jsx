@@ -120,7 +120,7 @@ export default function Dashboard() {
   const { data: submissions = [], isSuccess: submissionsLoaded } = useQuery({
     queryKey: ['mySubmissions'],
     queryFn: () => base44.entities.Submission.filter(
-      { created_by: user?.email }, '-created_date', 100
+      { created_by: user?.email }, '-created_date', 2000
     ),
     enabled: !!user?.email,
   });

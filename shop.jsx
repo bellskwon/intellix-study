@@ -80,7 +80,7 @@ const SHOP_SECTIONS = [
         id: 'sephora_gc',
         name: 'Sephora Gift Card',
         desc: 'Makeup, skincare, and fragrance at Sephora. Digital delivery to your email.',
-        image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT1Wwf9PyHRVh0Yfyt9IN9vRfVoaw9mBfvF1A&s',
+        image: 'https://m.media-amazon.com/images/I/61E2MPWJNNL._AC_UF894,1000_QL80_.jpg',
         color: 'bg-rose-50 border-rose-200',
         // ── Edit point costs for each denomination ──────────────────────────
         tiers: [
@@ -113,7 +113,7 @@ const SHOP_SECTIONS = [
         id: 'visa_gc',
         name: 'Visa Gift Card',
         desc: 'Spend anywhere Visa is accepted. Fully digital — no physical card required.',
-        image: 'https://productimages.nimbledeals.com/nimblebuy/visa-gift-card-133-62711-regular.jpg',
+        image: 'https://m.media-amazon.com/images/I/71Fo9kRCiNL._AC_UF894,1000_QL80_.jpg',
         color: 'bg-blue-50 border-blue-200',
         // ── Edit point costs for each denomination ──────────────────────────
         tiers: [
@@ -126,7 +126,7 @@ const SHOP_SECTIONS = [
         id: 'mastercard_gc',
         name: 'Mastercard Gift Card',
         desc: 'Use online or in-store anywhere Mastercard is accepted. Delivered digitally.',
-        image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRx_Wo6CniSwdiq4_687AttT_G_xwRDldKR7w&s',
+        image: 'https://m.media-amazon.com/images/I/71yjKYhBcDL._AC_UF894,1000_QL80_.jpg',
         color: 'bg-orange-50 border-orange-200',
         // ── Edit point costs for each denomination ──────────────────────────
         tiers: [
@@ -146,7 +146,7 @@ const SHOP_SECTIONS = [
         id: 'target_gc',
         name: 'Target Gift Card',
         desc: 'Shop groceries, electronics, clothing, and more at Target. Digital delivery.',
-        image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRhGeMBjSgqMNpJWGm0mIagD4FkqL9i8HnU5A&s',
+        image: 'https://m.media-amazon.com/images/I/81f7BXAFVWL._AC_UF894,1000_QL80_.jpg',
         color: 'bg-red-50 border-red-200',
         // ── Edit point costs for each denomination ──────────────────────────
         tiers: [
@@ -179,7 +179,7 @@ const SHOP_SECTIONS = [
         id: 'pacsun_gc',
         name: 'PacSun Gift Card',
         desc: 'Trendy streetwear and surf-inspired clothing at PacSun. Emailed to you.',
-        image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTmI4tD5X-FVCGZ8zYYEpk8UcfFaePeFkqkzQ&s',
+        image: 'https://m.media-amazon.com/images/I/71LQ9m3T2nL._AC_UF894,1000_QL80_.jpg',
         color: 'bg-rose-50 border-rose-200',
         // ── Edit point costs for each denomination ──────────────────────────
         tiers: [
@@ -192,7 +192,7 @@ const SHOP_SECTIONS = [
         id: 'uniqlo_gc',
         name: 'UNIQLO Gift Card',
         desc: 'Clean, quality everyday clothing at UNIQLO. Digital code delivered by email.',
-        image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTRi3PALtfboYXfDuAFTQ40qWracf0mKRnqtA&s',
+        image: 'https://m.media-amazon.com/images/I/61uDmCewbnL._AC_UF894,1000_QL80_.jpg',
         color: 'bg-pink-50 border-pink-200',
         // ── Edit point costs for each denomination ──────────────────────────
         tiers: [
@@ -212,7 +212,7 @@ const SHOP_SECTIONS = [
         id: 'adidas_gc',
         name: 'Adidas Gift Card',
         desc: 'Shoes, athletic gear, and streetwear from Adidas. Delivered as a digital code.',
-        image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT5OS_Fs1K5WvPYKnKsOg0bUR2TrZRBWyh2sQ&s',
+        image: 'https://m.media-amazon.com/images/I/71WCJlC4hsL._AC_UF894,1000_QL80_.jpg',
         color: 'bg-green-50 border-green-200',
         // ── Edit point costs for each denomination ──────────────────────────
         tiers: [
@@ -225,7 +225,7 @@ const SHOP_SECTIONS = [
         id: 'nike_gc',
         name: 'Nike Gift Card',
         desc: 'Sneakers, sports apparel, and gear from Nike. Digital gift card, emailed to you.',
-        image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTdnBSUatFGWtnndGAB3bidVOuhPCAoB8FMaQ&s',
+        image: 'https://m.media-amazon.com/images/I/71eGrpSaXGL._AC_UF894,1000_QL80_.jpg',
         color: 'bg-cyan-50 border-cyan-200',
         // ── Edit point costs for each denomination ──────────────────────────
         tiers: [
@@ -258,7 +258,7 @@ const SHOP_SECTIONS = [
         id: 'chickfila_gc',
         name: 'Chick-fil-A Gift Card',
         desc: 'Nuggets, sandwiches, and waffle fries at Chick-fil-A. Digital delivery by email.',
-        image: 'https://bhn.imgix.net/sites/default/files/2025-07/ChickfilA-GC-0322.webp?fm=webp&ixlib=php-4.1.0',
+        image: 'https://m.media-amazon.com/images/I/71suxFpnUSL._AC_UF894,1000_QL80_.jpg',
         color: 'bg-rose-50 border-rose-200',
         // ── Edit point costs for each denomination ──────────────────────────
         tiers: [
@@ -282,7 +282,7 @@ export default function Shop() {
   const { data: user } = useQuery({ queryKey: ['currentUser'], queryFn: () => base44.auth.me() });
   const { data: submissions = [] } = useQuery({
     queryKey: ['mySubmissions'],
-    queryFn: () => base44.entities.Submission.filter({ created_by: user?.email }, '-created_date', 200),
+    queryFn: () => base44.entities.Submission.filter({ created_by: user?.email }, '-created_date', 2000),
     enabled: !!user?.email,
   });
   const { data: redemptions = [] } = useQuery({
@@ -468,7 +468,11 @@ function ShopCard({ item, section, unlocked, availablePoints, onOrder, ordering 
           alt={item.name}
           className="w-full h-full object-cover object-center"
           loading="lazy"
+          onError={e => { e.currentTarget.style.display = 'none'; e.currentTarget.nextSibling.style.display = 'flex'; }}
         />
+        <div style={{ display: 'none' }} className="w-full h-full items-center justify-center bg-gradient-to-br from-violet-100 to-purple-200">
+          <span className="text-4xl font-black text-violet-400">{item.name[0]}</span>
+        </div>
       </div>
 
       {/* ── Content ─────────────────────────────────────────────────────── */}

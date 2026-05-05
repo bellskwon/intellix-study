@@ -73,6 +73,18 @@
   --sidebar-border: 228 16% 18%;
 }
 
+/* ── Map hardcoded light-mode colours to their semantic dark equivalents ──── */
+/* bg-white is used throughout components instead of bg-card */
+.dark .bg-white { background-color: hsl(var(--card)) !important; }
+/* light grey surface variants */
+.dark .bg-gray-50,
+.dark .bg-gray-100 { background-color: hsl(var(--muted)) !important; }
+/* inputs / text areas */
+.dark input:not([class*="bg-"]),
+.dark textarea:not([class*="bg-"]) { background-color: hsl(var(--input)); color: hsl(var(--foreground)); }
+/* make sure white text on gradient/coloured buttons stays white */
+.dark .bg-white.text-foreground { color: hsl(var(--card-foreground)) !important; }
+
 @layer base {
   * { @apply border-border outline-ring/50; }
   body { @apply bg-background text-foreground font-jakarta antialiased; }

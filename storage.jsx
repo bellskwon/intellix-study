@@ -46,7 +46,7 @@ export default function Storage() {
 
   const { data: submissions = [] } = useQuery({
     queryKey: ['mySubmissions'],
-    queryFn: () => base44.entities.Submission.filter({ created_by: user?.email }, '-created_date', 100),
+    queryFn: () => base44.entities.Submission.filter({ created_by: user?.email }, '-created_date', 100).then(r => r.filter(s => s.type !== 'xp_boost')),
     enabled: !!user?.email,
   });
 
