@@ -197,12 +197,15 @@ export default function Friends() {
         </h2>
         {myFriends.length === 0 ? (
           <div className="text-center py-10">
-            <svg width="100" height="80" viewBox="0 0 100 80" fill="none" className="mx-auto mb-4 opacity-80">
-              <circle cx="36" cy="28" r="14" fill="#ede9fe" stroke="#c4b5fd" strokeWidth="2"/>
-              <path d="M36 20 L36 36 M28 28 L44 28" stroke="#7c3aed" strokeWidth="2.5" strokeLinecap="round"/>
-              <circle cx="64" cy="28" r="14" fill="#fce7f3" stroke="#f9a8d4" strokeWidth="2"/>
-              <path d="M64 20 L64 36 M56 28 L72 28" stroke="#ec4899" strokeWidth="2.5" strokeLinecap="round"/>
-              <path d="M22 68 C22 56 30 50 36 50 C42 50 48 54 50 58 C52 54 58 50 64 50 C70 50 78 56 78 68" stroke="#c4b5fd" strokeWidth="2" fill="#ede9fe" strokeLinejoin="round"/>
+            <svg width="120" height="80" viewBox="0 0 120 80" fill="none" className="mx-auto mb-4 opacity-80">
+              {/* Person 1 */}
+              <circle cx="38" cy="22" r="12" fill="#ede9fe" stroke="#c4b5fd" strokeWidth="2"/>
+              <circle cx="38" cy="20" r="7" fill="#c4b5fd"/>
+              <path d="M18 70 C18 54 28 47 38 47 C48 47 58 54 58 70" fill="#ede9fe" stroke="#c4b5fd" strokeWidth="2" strokeLinejoin="round"/>
+              {/* Person 2 */}
+              <circle cx="82" cy="22" r="12" fill="#fce7f3" stroke="#f9a8d4" strokeWidth="2"/>
+              <circle cx="82" cy="20" r="7" fill="#f9a8d4"/>
+              <path d="M62 70 C62 54 72 47 82 47 C92 47 102 54 102 70" fill="#fce7f3" stroke="#f9a8d4" strokeWidth="2" strokeLinejoin="round"/>
             </svg>
             <p className="font-bold text-foreground text-sm mb-1">No friends yet</p>
             <p className="text-xs text-muted-foreground">Add someone using their Gmail address above to see how you compare!</p>

@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
@@ -6,9 +6,76 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { Upload, Video, FileText, BookOpen, Loader2, CheckCircle2, Camera, ClipboardPaste, X, FileImage } from 'lucide-react';
+import { Upload, Loader2, CheckCircle2, Camera, ClipboardPaste, X, SwitchCamera } from 'lucide-react';
 import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
+
+function CameraModal({ onCapture, onClose }) {
+  const videoRef = useRef();
+  const streamRef = useRef(null);
+  const [facing, setFacing] = useState('environment');
+  const [ready, setReady] = useState(false);
+
+  const startStream = useCallback(async (facingMode) => {
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach(t => t.stop());
+      streamRef.current = null;
+      setReady(false);
+    }
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode } });
+      streamRef.current = stream;
+      if (videoRef.current) { videoRef.current.srcObject = stream; }
+      setReady(true);
+    } catch {
+      toast.error('Camera access denied. Please allow camera permission and try again.');
+      onClose();
+    }
+  }, [onClose]);
+
+  useEffect(() => {
+    startStream(facing);
+    return () => { streamRef.current?.getTracks().forEach(t => t.stop()); };
+  }, []);  // eslint-disable-line
+
+  const flip = () => {
+    const next = facing === 'environment' ? 'user' : 'environment';
+    setFacing(next);
+    startStream(next);
+  };
+
+  const capture = () => {
+    const video = videoRef.current;
+    if (!video) return;
+    const canvas = document.createElement('canvas');
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    canvas.getContext('2d').drawImage(video, 0, 0);
+    canvas.toBlob(blob => {
+      const file = new File([blob], `scan-${Date.now()}.jpg`, { type: 'image/jpeg' });
+      streamRef.current?.getTracks().forEach(t => t.stop());
+      onCapture(file);
+    }, 'image/jpeg', 0.9);
+  };
+
+  return (
+    <div className="fixed inset-0 z-[200] bg-black flex flex-col items-center justify-center">
+      <video ref={videoRef} autoPlay playsInline muted
+        className="w-full max-w-lg aspect-[4/3] object-cover rounded-2xl" />
+      <div className="flex items-center gap-6 mt-6">
+        <button onClick={onClose} className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center text-white">
+          <X className="w-5 h-5" />
+        </button>
+        <button onClick={capture} disabled={!ready}
+          className="w-16 h-16 rounded-full bg-white border-4 border-white/40 shadow-xl disabled:opacity-40" />
+        <button onClick={flip} className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center text-white">
+          <SwitchCamera className="w-5 h-5" />
+        </button>
+      </div>
+      <p className="text-white/60 text-xs mt-4">Tap the white button to capture · tap ↺ to flip camera</p>
+    </div>
+  );
+}
 
 const subjects = [
   { value: 'math', label: 'Mathematics' },
@@ -45,8 +112,8 @@ export default function SubmitStudy({ onSuccess }) {
   const [appealSent, setAppealSent] = useState(false);
   const [appealSending, setAppealSending] = useState(false);
 
+  const [showCamera, setShowCamera] = useState(false);
   const fileInputRef = useRef();
-  const cameraInputRef = useRef();
   const queryClient = useQueryClient();
 
   const compressImage = (f) => new Promise((resolve) => {
@@ -314,15 +381,20 @@ export default function SubmitStudy({ onSuccess }) {
                   </button>
                 </div>
               ) : (
-                <label className="block border-2 border-dashed border-pink-200 rounded-xl p-10 text-center hover:border-pink-400 hover:bg-pink-50 transition-all cursor-pointer">
+                <button type="button" onClick={() => setShowCamera(true)}
+                  className="w-full border-2 border-dashed border-pink-200 rounded-xl p-10 text-center hover:border-pink-400 hover:bg-pink-50 transition-all cursor-pointer">
                   <Camera className="w-8 h-8 text-pink-400 mx-auto mb-2" />
-                  <p className="text-sm font-bold text-foreground">Open camera</p>
+                  <p className="text-sm font-bold text-foreground">Open Camera</p>
                   <p className="text-xs text-muted-foreground mt-1">Take a photo of your handwritten or printed notes</p>
-                  <input ref={cameraInputRef} type="file" accept="image/*" capture="environment"
-                    onChange={e => handleFile(e.target.files[0])} className="hidden" />
-                </label>
+                </button>
               )}
             </motion.div>
+          )}
+          {showCamera && (
+            <CameraModal
+              onCapture={f => { setShowCamera(false); handleFile(f); }}
+              onClose={() => setShowCamera(false)}
+            />
           )}
         </AnimatePresence>
 

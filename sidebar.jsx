@@ -59,7 +59,9 @@ export default function Sidebar({ open, onClose }) {
         {/* Logo */}
         <div className="p-5 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2.5" onClick={onClose}>
-            <img src="/logo.png" alt="Intellix" className="w-10 h-10 rounded-xl object-cover shadow-lg shadow-purple-500/30" />
+            <div className="w-10 h-10 rounded-xl overflow-hidden shadow-lg shadow-purple-500/30 bg-violet-600 shrink-0">
+              <img src="/logo.png" alt="Intellix" className="w-full h-full object-cover scale-[1.18]" />
+            </div>
             <div>
               <span className="text-base font-black font-sora text-foreground tracking-tight">Intellix</span>
               <span className="block text-[10px] text-muted-foreground -mt-0.5 font-medium">Online Study Platform</span>

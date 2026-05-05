@@ -197,7 +197,7 @@ export default function Dashboard() {
             {league.name} League · Lv.{level}
           </p>
           <h1 className="text-2xl font-black mb-1 font-sora">
-            Hey, {displayName}! 👋
+            Hey, {displayName}!
           </h1>
           <p className="text-purple-200 text-sm mb-4">
             {submissions.length === 0
