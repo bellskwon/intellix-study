@@ -79,11 +79,99 @@
 /* light grey surface variants */
 .dark .bg-gray-50,
 .dark .bg-gray-100 { background-color: hsl(var(--muted)) !important; }
+.dark .bg-slate-50  { background-color: hsl(var(--muted)) !important; }
+.dark .bg-slate-100 { background-color: hsl(var(--secondary)) !important; }
 /* inputs / text areas */
 .dark input:not([class*="bg-"]),
 .dark textarea:not([class*="bg-"]) { background-color: hsl(var(--input)); color: hsl(var(--foreground)); }
 /* make sure white text on gradient/coloured buttons stays white */
 .dark .bg-white.text-foreground { color: hsl(var(--card-foreground)) !important; }
+
+/* ── Dark mode: pastel -50 backgrounds → dark tinted versions ──────────────── */
+.dark .bg-amber-50   { background-color: rgb(245 158  11 / 0.12) !important; }
+.dark .bg-emerald-50 { background-color: rgb( 16 185 129 / 0.12) !important; }
+.dark .bg-rose-50    { background-color: rgb(244  63  94 / 0.12) !important; }
+.dark .bg-red-50     { background-color: rgb(239  68  68 / 0.12) !important; }
+.dark .bg-orange-50  { background-color: rgb(249 115  22 / 0.12) !important; }
+.dark .bg-blue-50    { background-color: rgb( 59 130 246 / 0.12) !important; }
+.dark .bg-violet-50  { background-color: rgb(139  92 246 / 0.12) !important; }
+.dark .bg-purple-50  { background-color: rgb(168  85 247 / 0.12) !important; }
+.dark .bg-fuchsia-50 { background-color: rgb(217  70 239 / 0.12) !important; }
+.dark .bg-pink-50    { background-color: rgb(236  72 153 / 0.12) !important; }
+.dark .bg-cyan-50    { background-color: rgb(  6 182 212 / 0.12) !important; }
+.dark .bg-teal-50    { background-color: rgb( 20 184 166 / 0.12) !important; }
+.dark .bg-indigo-50  { background-color: rgb( 99 102 241 / 0.12) !important; }
+.dark .bg-sky-50     { background-color: rgb( 14 165 233 / 0.12) !important; }
+.dark .bg-green-50   { background-color: rgb( 34 197  94 / 0.12) !important; }
+.dark .bg-yellow-50  { background-color: rgb(234 179   8 / 0.12) !important; }
+.dark .bg-lime-50    { background-color: rgb(132 204  22 / 0.12) !important; }
+
+/* ── Dark mode: pastel -100 backgrounds ────────────────────────────────────── */
+.dark .bg-amber-100   { background-color: rgb(245 158  11 / 0.18) !important; }
+.dark .bg-emerald-100 { background-color: rgb( 16 185 129 / 0.18) !important; }
+.dark .bg-rose-100    { background-color: rgb(244  63  94 / 0.18) !important; }
+.dark .bg-red-100     { background-color: rgb(239  68  68 / 0.18) !important; }
+.dark .bg-orange-100  { background-color: rgb(249 115  22 / 0.18) !important; }
+.dark .bg-blue-100    { background-color: rgb( 59 130 246 / 0.18) !important; }
+.dark .bg-violet-100  { background-color: rgb(139  92 246 / 0.18) !important; }
+.dark .bg-purple-100  { background-color: rgb(168  85 247 / 0.18) !important; }
+.dark .bg-fuchsia-100 { background-color: rgb(217  70 239 / 0.18) !important; }
+.dark .bg-pink-100    { background-color: rgb(236  72 153 / 0.18) !important; }
+.dark .bg-cyan-100    { background-color: rgb(  6 182 212 / 0.18) !important; }
+.dark .bg-teal-100    { background-color: rgb( 20 184 166 / 0.18) !important; }
+.dark .bg-indigo-100  { background-color: rgb( 99 102 241 / 0.18) !important; }
+.dark .bg-sky-100     { background-color: rgb( 14 165 233 / 0.18) !important; }
+.dark .bg-green-100   { background-color: rgb( 34 197  94 / 0.18) !important; }
+
+/* ── Dark mode: light borders ─────────────────────────────────────────────── */
+.dark .border-amber-100,   .dark .border-amber-200   { border-color: rgb(245 158  11 / 0.30) !important; }
+.dark .border-emerald-100, .dark .border-emerald-200 { border-color: rgb( 16 185 129 / 0.30) !important; }
+.dark .border-rose-100,    .dark .border-rose-200    { border-color: rgb(244  63  94 / 0.30) !important; }
+.dark .border-red-100,     .dark .border-red-200     { border-color: rgb(239  68  68 / 0.30) !important; }
+.dark .border-violet-100,  .dark .border-violet-200  { border-color: rgb(139  92 246 / 0.30) !important; }
+.dark .border-violet-300                             { border-color: rgb(139  92 246 / 0.45) !important; }
+.dark .border-blue-100,    .dark .border-blue-200    { border-color: rgb( 59 130 246 / 0.30) !important; }
+.dark .border-cyan-100,    .dark .border-cyan-200    { border-color: rgb(  6 182 212 / 0.30) !important; }
+.dark .border-pink-100,    .dark .border-pink-200    { border-color: rgb(236  72 153 / 0.30) !important; }
+.dark .border-orange-100,  .dark .border-orange-200  { border-color: rgb(249 115  22 / 0.30) !important; }
+.dark .border-fuchsia-100, .dark .border-fuchsia-200 { border-color: rgb(217  70 239 / 0.30) !important; }
+.dark .border-indigo-100,  .dark .border-indigo-200  { border-color: rgb( 99 102 241 / 0.30) !important; }
+.dark .border-teal-100,    .dark .border-teal-200    { border-color: rgb( 20 184 166 / 0.30) !important; }
+.dark .border-slate-100,   .dark .border-slate-200   { border-color: hsl(var(--border)) !important; }
+.dark .border-amber-300 { border-color: rgb(245 158 11 / 0.45) !important; }
+
+/* ── Dark mode: hover states for light backgrounds ──────────────────────────── */
+.dark .hover\:bg-amber-50:hover   { background-color: rgb(245 158  11 / 0.15) !important; }
+.dark .hover\:bg-amber-100:hover  { background-color: rgb(245 158  11 / 0.22) !important; }
+.dark .hover\:bg-amber-200:hover  { background-color: rgb(245 158  11 / 0.28) !important; }
+.dark .hover\:bg-emerald-50:hover { background-color: rgb( 16 185 129 / 0.15) !important; }
+.dark .hover\:bg-rose-50:hover    { background-color: rgb(244  63  94 / 0.15) !important; }
+.dark .hover\:bg-violet-50:hover  { background-color: rgb(139  92 246 / 0.15) !important; }
+.dark .hover\:bg-violet-100:hover { background-color: rgb(139  92 246 / 0.22) !important; }
+.dark .hover\:bg-violet-200:hover { background-color: rgb(139  92 246 / 0.28) !important; }
+.dark .hover\:bg-pink-50:hover    { background-color: rgb(236  72 153 / 0.15) !important; }
+.dark .hover\:bg-pink-100:hover   { background-color: rgb(236  72 153 / 0.22) !important; }
+.dark .hover\:bg-orange-50:hover  { background-color: rgb(249 115  22 / 0.15) !important; }
+.dark .hover\:bg-slate-50:hover   { background-color: hsl(var(--muted)) !important; }
+.dark .group:hover .group-hover\:bg-white    { background-color: hsl(var(--muted)) !important; }
+.dark .group:hover .group-hover\:bg-amber-200 { background-color: rgb(245 158 11 / 0.25) !important; }
+
+/* ── Dark mode: dark text colours → lighter equivalents ────────────────────── */
+.dark .text-amber-700,   .dark .text-amber-800,   .dark .text-amber-900   { color: hsl( 38 92% 62%) !important; }
+.dark .text-emerald-700, .dark .text-emerald-800, .dark .text-emerald-900 { color: hsl(158 60% 52%) !important; }
+.dark .text-rose-700,    .dark .text-rose-800,    .dark .text-rose-900    { color: hsl(347 77% 65%) !important; }
+.dark .text-red-700,     .dark .text-red-800,     .dark .text-red-900     { color: hsl(  0 78% 65%) !important; }
+.dark .text-violet-700,  .dark .text-violet-800,  .dark .text-violet-900  { color: hsl(258 85% 72%) !important; }
+.dark .text-blue-700,    .dark .text-blue-800,    .dark .text-blue-900    { color: hsl(213 94% 65%) !important; }
+.dark .text-orange-700,  .dark .text-orange-800,  .dark .text-orange-900  { color: hsl( 25 95% 62%) !important; }
+.dark .text-indigo-700,  .dark .text-indigo-800,  .dark .text-indigo-900  { color: hsl(239 68% 72%) !important; }
+.dark .text-pink-700,    .dark .text-pink-800,    .dark .text-pink-900    { color: hsl(330 78% 68%) !important; }
+.dark .text-cyan-700,    .dark .text-cyan-800,    .dark .text-cyan-900    { color: hsl(192 85% 55%) !important; }
+.dark .text-teal-700,    .dark .text-teal-800,    .dark .text-teal-900    { color: hsl(175 60% 50%) !important; }
+.dark .text-purple-700,  .dark .text-purple-800,  .dark .text-purple-900  { color: hsl(272 68% 72%) !important; }
+.dark .text-fuchsia-700, .dark .text-fuchsia-800, .dark .text-fuchsia-900 { color: hsl(295 72% 70%) !important; }
+.dark .text-green-700,   .dark .text-green-800,   .dark .text-green-900   { color: hsl(142 68% 52%) !important; }
+.dark .text-slate-600,   .dark .text-slate-700                            { color: hsl(var(--muted-foreground)) !important; }
 
 @layer base {
   * { @apply border-border outline-ring/50; }
