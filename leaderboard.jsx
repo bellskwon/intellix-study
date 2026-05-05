@@ -46,7 +46,7 @@ export default function Leaderboard() {
       }
       return a;
     }, 0);
-    const { level } = calcLevelInfo(subs);
+    const { level } = calcLevelInfo(subs, u.xp_bonus || 0);
     const league = getLeague(level);
     // Use display_name if available, fallback to full_name
     const displayName = u.display_name || u.full_name || 'Anonymous';

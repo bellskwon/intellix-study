@@ -9,9 +9,9 @@ import { motion } from 'framer-motion';
 // Single source of truth for the quiz pass threshold — import this everywhere
 export const PASS_THRESHOLD = 80;
 
-export function calcLevelInfo(submissions = []) {
+export function calcLevelInfo(submissions = [], xpBonus = 0) {
   const passed = submissions.filter(s => s.quiz_passed).length;
-  const xpTotal = submissions.length * 40 + passed * 20;
+  const xpTotal = submissions.length * 40 + passed * 20 + (xpBonus || 0);
   const level = Math.floor(xpTotal / 200) + 1;
   const xpInLevel = xpTotal % 200;
   const xpPct = Math.round((xpInLevel / 200) * 100);
@@ -26,8 +26,8 @@ export function getLeague(level) {
   return { name: 'Bronze', emoji: '🥉', color: 'from-amber-600 to-orange-700' };
 }
 
-export default function LevelXPBar({ submissions = [], className = '', dark = false }) {
-  const { level, xpInLevel, xpPct } = calcLevelInfo(submissions);
+export default function LevelXPBar({ submissions = [], xpBonus = 0, className = '', dark = false }) {
+  const { level, xpInLevel, xpPct } = calcLevelInfo(submissions, xpBonus);
   const league = getLeague(level);
   const nextUnlock = level < 50 ? 50 : level < 100 ? 100 : level < 150 ? 150 : level < 350 ? 350 : null;
 

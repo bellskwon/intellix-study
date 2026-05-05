@@ -3,7 +3,7 @@ const fetch = require('node-fetch');
 
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 const GROQ_TEXT_MODEL   = 'llama-3.3-70b-versatile';
-const GROQ_VISION_MODEL = 'meta-llama/llama-4-scout-17b-16e-instruct';
+const GROQ_VISION_MODEL = 'llama-3.2-11b-vision-preview';
 
 async function invokeLLM({ prompt, fileUrls = [], responseJsonSchema = null, maxTokens = null }) {
   const systemInstruction = responseJsonSchema
@@ -33,9 +33,9 @@ async function invokeLLM({ prompt, fileUrls = [], responseJsonSchema = null, max
     { role: 'user', content: userContent },
   ];
 
-  // JSON schema responses can be large (up to 50 questions); use a high ceiling.
-  // Text responses (summaries etc.) don't need as many tokens.
-  const tokenLimit = maxTokens || (responseJsonSchema ? 16384 : 4096);
+  // Vision model (llama-3.2-11b-vision-preview) max output is 8192.
+  // Text model (llama-3.3-70b-versatile) supports up to 32768.
+  const tokenLimit = maxTokens || (hasImages ? 8000 : responseJsonSchema ? 16384 : 4096);
 
   const completion = await groq.chat.completions.create({
     model: hasImages ? GROQ_VISION_MODEL : GROQ_TEXT_MODEL,

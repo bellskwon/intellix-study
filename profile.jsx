@@ -50,7 +50,7 @@ export default function Profile() {
   const best = graded.length ? Math.max(...graded.map(s => s.quiz_score)) : 0;
   const passed = visibleSubmissions.filter(s => s.quiz_passed).length;
 
-  const { level } = calcLevelInfo(submissions);
+  const { level } = calcLevelInfo(submissions, user?.xp_bonus || 0);
   const league = getLeague(level);
 
   const subjectMap = {};
@@ -241,7 +241,7 @@ export default function Profile() {
                   <Star className="w-3 h-3 text-yellow-300" /> {totalPoints} pts
                 </span>
               </div>
-              <LevelXPBar submissions={submissions} dark />
+              <LevelXPBar submissions={submissions} xpBonus={user?.xp_bonus || 0} dark />
             </div>
           </div>
 

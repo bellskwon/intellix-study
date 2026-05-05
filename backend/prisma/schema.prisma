@@ -30,6 +30,7 @@ model User {
   // ── Payments & Classrooms ────────────────────────────────────────────────
   stripe_customer_id String?
   is_teacher         Boolean @default(false)
+  xp_bonus           Int     @default(0)
 
   submissions          Submission[]
   study_cards          StudyCard[]

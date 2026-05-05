@@ -21,8 +21,8 @@ router.get('/', requireAuth, async (req, res) => {
   const where = {};
   if (created_by) where.created_by = created_by;
 
-  // Cap at 500 to prevent unbounded dumps
-  const take = limit ? Math.min(parseInt(limit), 500) : 500;
+  // Cap at 2000 to prevent unbounded dumps
+  const take = limit ? Math.min(parseInt(limit), 2000) : 2000;
 
   // When fetching another user's data (leaderboard/friends), strip private fields
   const isOwnData = created_by && created_by === req.user.email;

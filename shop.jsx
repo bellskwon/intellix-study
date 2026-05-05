@@ -291,7 +291,7 @@ export default function Shop() {
     enabled: !!user?.email,
   });
 
-  const { level } = calcLevelInfo(submissions);
+  const { level } = calcLevelInfo(submissions, user?.xp_bonus || 0);
   const league = getLeague(level);
   const totalPoints  = submissions.filter(s => s.status === 'approved').reduce((a, s) => a + (s.points_awarded || 0), 0);
   const spentPoints  = redemptions.reduce((a, r) => a + (r.points_spent || 0), 0);

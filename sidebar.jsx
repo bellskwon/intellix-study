@@ -43,7 +43,7 @@ export default function Sidebar({ open, onClose }) {
     enabled: !!user?.email,
   });
 
-  const { level } = calcLevelInfo(submissions);
+  const { level } = calcLevelInfo(submissions, user?.xp_bonus || 0);
   const STORE_UNLOCK_LEVEL = 50; // first shop tier opens at level 50
   const storeUnlocked = level >= STORE_UNLOCK_LEVEL;
 
@@ -115,7 +115,7 @@ export default function Sidebar({ open, onClose }) {
 
         {/* XP Progress + Dark Mode Toggle */}
         <div className="p-4 border-t border-border space-y-3">
-          <LevelXPBar submissions={submissions} />
+          <LevelXPBar submissions={submissions} xpBonus={user?.xp_bonus || 0} />
           <button
             onClick={toggleDark}
             className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-semibold text-muted-foreground hover:text-foreground hover:bg-secondary transition-all"

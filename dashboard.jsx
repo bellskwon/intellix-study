@@ -163,7 +163,7 @@ export default function Dashboard() {
     }).catch(() => {});
   }, [user?.email]);
 
-  const { level } = calcLevelInfo(submissions);
+  const { level } = calcLevelInfo(submissions, user?.xp_bonus || 0);
   const league = getLeague(level);
 
   const earned = submissions.filter(s => s.status === 'approved').reduce((a, s) => a + (s.points_awarded || 0), 0);
@@ -217,7 +217,7 @@ export default function Dashboard() {
             </div>
           </div>
           <div className="mt-4">
-            <LevelXPBar submissions={submissions} dark />
+            <LevelXPBar submissions={submissions} xpBonus={user?.xp_bonus || 0} dark />
           </div>
         </div>
       </motion.div>
