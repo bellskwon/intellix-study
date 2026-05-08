@@ -33,9 +33,9 @@ async function invokeLLM({ prompt, fileUrls = [], responseJsonSchema = null, max
     { role: 'user', content: userContent },
   ];
 
-  // Vision model (llama-3.2-11b-vision-preview) max output is 8192.
-  // Text model (llama-3.3-70b-versatile) supports up to 32768.
-  const tokenLimit = maxTokens || (hasImages ? 8000 : responseJsonSchema ? 16384 : 4096);
+  // Groq on-demand TPM limit is 12,000 tokens (input + output combined).
+  // Keep total well under that: vision 6k, JSON 6k, plain text 4k.
+  const tokenLimit = maxTokens || (hasImages ? 6000 : responseJsonSchema ? 6000 : 4096);
 
   const completion = await groq.chat.completions.create({
     model: hasImages ? GROQ_VISION_MODEL : GROQ_TEXT_MODEL,
