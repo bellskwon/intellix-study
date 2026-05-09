@@ -65,6 +65,7 @@ export default function Challenge() {
 
   const generate = async () => {
     if (!topic.trim() || !subject || !grade) { toast.error('Fill in all fields first!'); return; }
+    if (subject === 'math' && !specificTopic.trim()) { toast.error('Please specify the type of math (e.g. Algebra, Fractions).'); return; }
     setStep('generating');
     try {
     const topicDetail = specificTopic ? `Specifically about: ${specificTopic}.` : '';
@@ -279,17 +280,40 @@ function GeneratingStep() {
   );
 }
 
+const QUESTION_TIMER = 60;
+
 function QuizStep({ questions, currentQ, setCurrentQ, answers, setAnswers, onSubmit, submitting, showHints, setShowHints }) {
   const q = questions[currentQ];
   const progress = ((currentQ) / questions.length) * 100;
   const answered = answers[currentQ] !== undefined && answers[currentQ] !== '';
+
+  const [timeLeft, setTimeLeft] = useState(QUESTION_TIMER);
+
+  useEffect(() => {
+    setTimeLeft(QUESTION_TIMER);
+  }, [currentQ]);
+
+  useEffect(() => {
+    if (submitting) return;
+    if (timeLeft <= 0) {
+      if (currentQ < questions.length - 1) setCurrentQ(q => q + 1);
+      return;
+    }
+    const id = setInterval(() => setTimeLeft(t => t - 1), 1000);
+    return () => clearInterval(id);
+  }, [timeLeft, currentQ, questions.length, setCurrentQ, submitting]);
+
+  const timerColor = timeLeft <= 5 ? 'text-rose-500' : timeLeft <= 15 ? 'text-amber-500' : 'text-muted-foreground';
 
   return (
     <div className="max-w-xl mx-auto space-y-6">
       <div>
         <div className="flex items-center justify-between mb-2">
           <span className="text-sm font-bold text-muted-foreground">Question {currentQ + 1} of {questions.length}</span>
-          <span className="text-sm font-bold text-primary">{Math.round(progress)}%</span>
+          <div className="flex items-center gap-2">
+            <Timer className={`w-3.5 h-3.5 ${timerColor}`} />
+            <span className={`text-sm font-black tabular-nums ${timerColor}`}>{timeLeft}s</span>
+          </div>
         </div>
         <div className="h-2.5 rounded-full bg-secondary overflow-hidden">
           <motion.div className="h-full gradient-violet rounded-full" initial={{ width: 0 }} animate={{ width: `${progress}%` }} transition={{ duration: 0.4 }} />

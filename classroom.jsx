@@ -161,7 +161,7 @@ export default function Classroom() {
                     </div>
                   </div>
                   <div className="flex items-center gap-1">
-                    <button onClick={e => { e.stopPropagation(); if (window.confirm(`Delete "${cls.name}"?`)) deleteMutation.mutate(cls.id); }}
+                    <button onClick={e => { e.stopPropagation(); toast(`Delete "${cls.name}"?`, { action: { label: 'Delete', onClick: () => deleteMutation.mutate(cls.id) }, cancel: { label: 'Cancel' }, duration: 5000 }); }}
                       className="text-muted-foreground hover:text-rose-500 transition-colors p-1" title="Delete">
                       <Trash2 className="w-4 h-4" />
                     </button>
@@ -195,7 +195,7 @@ export default function Classroom() {
                   </p>
                 </div>
                 <div className="flex items-center gap-1">
-                  <button onClick={e => { e.stopPropagation(); if (window.confirm(`Leave "${cls.name}"?`)) removeMember.mutate({ id: cls.id, email: user?.email }); }}
+                  <button onClick={e => { e.stopPropagation(); toast(`Leave "${cls.name}"?`, { action: { label: 'Leave', onClick: () => removeMember.mutate({ id: cls.id, email: user?.email }) }, cancel: { label: 'Cancel' }, duration: 5000 }); }}
                     className="text-muted-foreground hover:text-rose-500 transition-colors p-1" title="Leave">
                     <LogOut className="w-4 h-4" />
                   </button>
@@ -647,7 +647,7 @@ correct_answer must be the full text of the correct option. Include a 1-sentence
                   onClick={() => { setSelectedAssignment(a); setView('results'); }}>
                   <Eye className="w-3.5 h-3.5" /> Results
                 </Button>
-                <button onClick={() => { if (window.confirm(`Delete "${a.title}"?`)) deleteMutation.mutate(a.id); }}
+                <button onClick={() => toast(`Delete "${a.title}"?`, { action: { label: 'Delete', onClick: () => deleteMutation.mutate(a.id) }, cancel: { label: 'Cancel' }, duration: 5000 })}
                   className="text-muted-foreground hover:text-rose-500 p-1.5 rounded-lg hover:bg-rose-50 transition-colors">
                   <Trash2 className="w-4 h-4" />
                 </button>
@@ -803,7 +803,7 @@ All cards must be unique.`,
             <p className="font-black text-foreground truncate">{d.deck_name}</p>
             <p className="text-xs text-muted-foreground">{d.subject || 'General'} · {d.cards.length} cards</p>
           </div>
-          <button onClick={() => { if (window.confirm(`Delete "${d.deck_name}"?`)) deleteMutation.mutate(d.id); }}
+          <button onClick={() => toast(`Delete "${d.deck_name}"?`, { action: { label: 'Delete', onClick: () => deleteMutation.mutate(d.id) }, cancel: { label: 'Cancel' }, duration: 5000 })}
             className="text-muted-foreground hover:text-rose-500 p-1.5 rounded-lg hover:bg-rose-50 transition-colors shrink-0">
             <Trash2 className="w-4 h-4" />
           </button>

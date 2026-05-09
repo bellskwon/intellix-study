@@ -143,9 +143,15 @@ export default function Dashboard() {
 
   const { data: allRecentSubs = [] } = useQuery({
     queryKey: ['allRecentSubs'],
-    queryFn: () => base44.entities.Submission.list('-created_date', 200),
+    queryFn: () => base44.entities.Submission.list('-created_date', 50),
     enabled: friendEmails.length > 0,
   });
+  const { data: allUsers = [] } = useQuery({
+    queryKey: ['allUsers'],
+    queryFn: () => base44.entities.User.list(),
+    enabled: friendEmails.length > 0,
+  });
+  const friendNameMap = Object.fromEntries(allUsers.map(u => [u.email, u.display_name || u.full_name || u.email.split('@')[0]]));
   const friendActivity = allRecentSubs
     .filter(s => friendEmails.includes(s.created_by) && s.quiz_score != null)
     .slice(0, 6);
@@ -174,6 +180,9 @@ export default function Dashboard() {
 
   const lastActivity = submissions[0]?.created_date || null;
   const streak = user?.streak_count ?? 0;
+  const today = new Date().toDateString();
+  const lastActivityDay = lastActivity ? new Date(lastActivity).toDateString() : null;
+  const streakAtRisk = streak > 0 && lastActivityDay !== today;
 
   const pendingQuizzes = submissions.filter(s => s.quiz_score == null && s.status !== 'rejected').length;
 
@@ -218,6 +227,29 @@ export default function Dashboard() {
           </div>
         </div>
       </motion.div>
+
+      {/* Streak at risk banner */}
+      {streakAtRisk && (
+        <motion.div
+          initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
+          className="bg-orange-50 border-2 border-orange-200 rounded-2xl px-5 py-4 flex items-center gap-4"
+        >
+          <div className="w-10 h-10 rounded-xl bg-orange-100 flex items-center justify-center shrink-0">
+            <Flame className="w-5 h-5 text-orange-500" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="font-black text-orange-800 text-sm">
+              Your {streak}-day streak is at risk!
+            </p>
+            <p className="text-orange-600 text-xs mt-0.5">Study something today to keep it alive.</p>
+          </div>
+          <Link to="/quiz">
+            <Button size="sm" className="bg-orange-500 hover:bg-orange-600 text-white rounded-xl font-bold shrink-0">
+              Study Now <ArrowRight className="w-3.5 h-3.5 ml-1" />
+            </Button>
+          </Link>
+        </motion.div>
+      )}
 
       {/* Pending quiz banner */}
       {pendingQuizzes > 0 && (
@@ -292,7 +324,7 @@ export default function Dashboard() {
                   {s.created_by[0].toUpperCase()}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-xs font-bold text-foreground truncate">{s.created_by.split('@')[0]}</p>
+                  <p className="text-xs font-bold text-foreground truncate">{friendNameMap[s.created_by] || s.created_by.split('@')[0]}</p>
                   <p className="text-[11px] text-muted-foreground flex items-center gap-1">
                     <SubjectIcon subject={s.subject} size="xs" />
                     <span className="capitalize">{s.subject?.replace(/_/g, ' ')}</span>

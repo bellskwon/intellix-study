@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { AnimatePresence, motion } from 'framer-motion';
 import { LayoutDashboard, Zap, BarChart3, Users, User, X, FlaskConical, ShoppingBag, Brain, Crown, Archive, UserPlus, Moon, Sun, GraduationCap } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useQuery } from '@tanstack/react-query';
@@ -49,11 +50,20 @@ export default function Sidebar({ open, onClose }) {
 
   return (
     <>
-      {open && (
-        <div className="fixed inset-0 bg-black/50 z-40 lg:hidden backdrop-blur-sm" onClick={onClose} />
-      )}
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="fixed inset-0 bg-black/50 z-40 lg:hidden backdrop-blur-sm"
+            onClick={onClose}
+          />
+        )}
+      </AnimatePresence>
       <aside className={cn(
-        "fixed top-0 left-0 z-50 h-full w-64 bg-background border-r border-border flex flex-col transition-transform duration-300 lg:translate-x-0 shadow-xl lg:shadow-none",
+        "fixed top-0 left-0 z-50 h-full w-64 bg-background border-r border-border flex flex-col transition-transform duration-200 ease-in-out lg:translate-x-0 shadow-xl lg:shadow-none",
         open ? "translate-x-0" : "-translate-x-full"
       )}>
         {/* Logo */}

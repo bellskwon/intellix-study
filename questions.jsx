@@ -42,7 +42,7 @@ export default function Questions() {
   const isPremium = user?.premium_plan && user.premium_plan !== 'free' &&
     (!user?.trial_end_date || new Date(user.trial_end_date) > new Date());
 
-  const maxQuestions = PREMIUM_QUESTIONS_LIMIT;
+  const maxQuestions = isPremium ? PREMIUM_QUESTIONS_LIMIT : FREE_QUESTIONS_LIMIT;
 
   const uploadAndGetContext = async () => {
     let context = notes;
@@ -231,7 +231,7 @@ IMPORTANT: If the notes contain no real study content, return an empty flashcard
       </div>
 
       {/* Premium upsell banner */}
-      {false && (
+      {!isPremium && activeTab === 'questions' && (
         <div className="flex items-center gap-3 bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-2xl px-4 py-3">
           <Crown className="w-5 h-5 text-amber-500 shrink-0" />
           <div className="flex-1 min-w-0">
@@ -316,6 +316,12 @@ IMPORTANT: If the notes contain no real study content, return an empty flashcard
                 onChange={e => setNumQuestions(Math.min(Number(e.target.value), maxQuestions))}
                 className="h-10 rounded-xl"
               />
+              {numQuestions > 10 && (
+                <p className="text-xs text-amber-600 mt-1 flex items-center gap-1">
+                  <AlertTriangle className="w-3 h-3 shrink-0" />
+                  {numQuestions} questions takes ~{Math.ceil(numQuestions * 3)}s to grade
+                </p>
+              )}
             </div>
             <div>
               <label className="text-xs font-bold text-muted-foreground mb-1 block">Difficulty</label>

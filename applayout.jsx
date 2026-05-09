@@ -67,8 +67,10 @@ export default function AppLayout() {
               <span className="text-sm font-bold font-space text-orange-600">{user?.streak_count ?? 0}</span>
               <span className="text-xs text-orange-400 font-nunito font-semibold hidden sm:block">streak</span>
             </div>
-            <div className="w-8 h-8 rounded-full gradient-violet flex items-center justify-center text-sm font-bold text-white shadow-md shadow-purple-500/25">
-              {user?.avatar_emoji || (user?.display_name?.[0] || user?.full_name?.[0] || '?')}
+            <div className="w-8 h-8 rounded-full gradient-violet flex items-center justify-center text-sm font-bold text-white shadow-md shadow-purple-500/25 overflow-hidden shrink-0">
+              {user?.avatar_image_url ? (
+                <img src={user.avatar_image_url} alt="" className="w-full h-full object-cover" />
+              ) : (user?.avatar_emoji || (user?.display_name?.[0] || user?.full_name?.[0] || '?'))}
             </div>
           </div>
         </header>

@@ -76,6 +76,8 @@
 /* ── Map hardcoded light-mode colours to their semantic dark equivalents ──── */
 /* bg-white is used throughout components instead of bg-card */
 .dark .bg-white { background-color: hsl(var(--card)) !important; }
+/* sticky header uses bg-white/70 (opacity modifier — separate Tailwind class) */
+.dark .bg-white\/70 { background-color: hsl(var(--card) / 0.85) !important; }
 /* light grey surface variants */
 .dark .bg-gray-50,
 .dark .bg-gray-100 { background-color: hsl(var(--muted)) !important; }

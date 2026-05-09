@@ -1,6 +1,7 @@
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
+import { Link } from 'react-router-dom';
 import { RadarChart, Radar, PolarGrid, PolarAngleAxis, ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts';
 import { TrendingUp, TrendingDown, Target, Award, Brain, AlertTriangle } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -19,7 +20,11 @@ export default function Progress() {
   const graded = submissions.filter(s => s.quiz_score != null);
   const avgScore = graded.length ? Math.round(graded.reduce((s, q) => s + q.quiz_score, 0) / graded.length) : 0;
   const best = graded.length ? Math.max(...graded.map(s => s.quiz_score)) : 0;
-  const trend = graded.length >= 2 ? graded[graded.length - 1].quiz_score - graded[graded.length - 2].quiz_score : 0;
+  const last5 = graded.slice(-5);
+  const prev5 = graded.slice(-10, -5);
+  const avgLast5 = last5.length ? Math.round(last5.reduce((s, q) => s + q.quiz_score, 0) / last5.length) : 0;
+  const avgPrev5 = prev5.length ? Math.round(prev5.reduce((s, q) => s + q.quiz_score, 0) / prev5.length) : 0;
+  const trend = graded.length >= 2 ? avgLast5 - avgPrev5 : 0;
   const passedCount = submissions.filter(s => s.quiz_passed).length;
 
   // Subject averages
@@ -87,10 +92,10 @@ export default function Progress() {
           <p className="text-sm text-muted-foreground max-w-xs mx-auto mb-5">
             Upload your notes and take your first quiz to start tracking your scores over time.
           </p>
-          <a href="/quiz"
+          <Link to="/quiz"
             className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-violet-500 to-purple-600 text-white text-sm font-bold shadow-md shadow-violet-200 hover:opacity-90 transition-opacity">
             Upload Notes →
-          </a>
+          </Link>
         </div>
       ) : (
         <>

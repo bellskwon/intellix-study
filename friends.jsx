@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { UserPlus, Check, X, Mail, Swords } from 'lucide-react';
+import { UserPlus, Check, X, Mail, Swords, UserMinus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { motion } from 'framer-motion';
@@ -100,7 +100,10 @@ export default function Friends() {
   // Accepted friends
   const myFriends = allFriendships.filter(f =>
     f.status === 'accepted' && (f.requester_email === user?.email || f.recipient_email === user?.email)
-  ).map(f => f.requester_email === user?.email ? f.recipient_email : f.requester_email);
+  ).map(f => ({
+    email: f.requester_email === user?.email ? f.recipient_email : f.requester_email,
+    friendshipId: f.id,
+  }));
 
   const sendRequest = useMutation({
     mutationFn: async (email) => {
@@ -121,11 +124,17 @@ export default function Friends() {
     onSuccess: (_, { status }) => { queryClient.invalidateQueries({ queryKey: ['friendships'] }); toast.success(status === 'accepted' ? 'Friend added!' : 'Request declined'); },
   });
 
+  const removeFriend = useMutation({
+    mutationFn: (id) => base44.entities.Friendship.delete(id),
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['friendships'] }); toast.success('Friend removed'); },
+    onError: () => toast.error('Could not remove friend'),
+  });
+
   const getFriendStats = (email) => {
     const subs = allSubmissions.filter(s => s.created_by === email);
     const approved = subs.filter(s => s.status === 'approved');
     const points = approved.reduce((a, b) => a + (b.points_awarded || 0), 0);
-    const { level } = calcLevelInfo(subs);
+    const { level } = calcLevelInfo(subs, userMap[email]?.xp_bonus || 0);
     const league = getLeague(level);
     return { points, level, league, quizCount: approved.length };
   };
@@ -206,7 +215,7 @@ export default function Friends() {
           </div>
         ) : (
           <div className="space-y-3">
-            {myFriends.map((email, i) => {
+            {myFriends.map(({ email, friendshipId }, i) => {
               const stats = getFriendStats(email);
               return (
                 <motion.div key={email} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}
@@ -223,6 +232,12 @@ export default function Friends() {
                     <p className="text-xs text-muted-foreground">{stats.league.name}</p>
                   </div>
                   <ChallengeButton friendEmail={email} />
+                  <button
+                    onClick={() => removeFriend.mutate(friendshipId)}
+                    title="Remove friend"
+                    className="p-1.5 rounded-lg text-muted-foreground hover:text-rose-500 hover:bg-rose-50 transition-colors">
+                    <UserMinus className="w-4 h-4" />
+                  </button>
                 </motion.div>
               );
             })}

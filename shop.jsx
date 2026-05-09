@@ -26,7 +26,7 @@ const SHOP_SECTIONS = [
         id: 'starbucks_gc',
         name: 'Starbucks Gift Card',
         desc: 'Your favorite drinks and snacks at Starbucks. Delivered digitally to your email.',
-        image: 'https://m.media-amazon.com/images/I/61WkK8hCKLL._AC_UF894,1000_QL80_.jpg',
+        image: 'https://assets.onme.com/static/category-imagery/merchants/logos/starbucks.webp',
         color: 'bg-emerald-50 border-emerald-200',
         // ── Edit point costs for each denomination ──────────────────────────
         tiers: [
@@ -34,6 +34,19 @@ const SHOP_SECTIONS = [
           { amount: '$10', points: 950  },
           { amount: '$15', points: 1350 },
           { amount: '$25', points: 2100 },
+        ],
+      },
+      {
+        id: '7eleven_gc',
+        name: '7-Eleven Gift Card',
+        desc: 'Slurpees, snacks, fuel, and everyday essentials at 7-Eleven. Digital code emailed to you.',
+        image: 'https://assets.onme.com/static/category-imagery/merchants/logos/7eleven.webp',
+        color: 'bg-green-50 border-green-200',
+        // ── Edit point costs for each denomination ──────────────────────────
+        tiers: [
+          { amount: '$5',  points: 450  },
+          { amount: '$10', points: 850  },
+          { amount: '$25', points: 1950 },
         ],
       },
     ],
@@ -47,7 +60,7 @@ const SHOP_SECTIONS = [
         id: 'amazon_gc',
         name: 'Amazon Gift Card',
         desc: 'Shop anything on Amazon. Works across all categories. Sent to your email instantly.',
-        image: 'https://m.media-amazon.com/images/I/71y5TQEQS4L._AC_UF894,1000_QL80_.jpg',
+        image: 'https://upload.wikimedia.org/wikipedia/commons/a/a9/Amazon_logo.svg',
         color: 'bg-violet-50 border-violet-200',
         // ── Edit point costs for each denomination ──────────────────────────
         tiers: [
@@ -73,14 +86,14 @@ const SHOP_SECTIONS = [
   },
   {
     unlockLevel: 150,
-    title: 'Level 150 — Beauty & Gaming',
+    title: 'Level 150 — Beauty',
     gradient: 'from-pink-500 to-rose-500',
     items: [
       {
         id: 'sephora_gc',
         name: 'Sephora Gift Card',
         desc: 'Makeup, skincare, and fragrance at Sephora. Digital delivery to your email.',
-        image: 'https://m.media-amazon.com/images/I/61E2MPWJNNL._AC_UF894,1000_QL80_.jpg',
+        image: 'https://assets.onme.com/static/category-imagery/merchants/logos/sephora.webp',
         color: 'bg-rose-50 border-rose-200',
         // ── Edit point costs for each denomination ──────────────────────────
         tiers: [
@@ -90,16 +103,16 @@ const SHOP_SECTIONS = [
         ],
       },
       {
-        id: 'roblox_gc',
-        name: 'Roblox Gift Card',
-        desc: 'Robux for passes, skins, and virtual items in Roblox. Emailed as a digital code.',
-        image: 'https://m.media-amazon.com/images/I/71SCmt-VjYL.jpg',
-        color: 'bg-slate-50 border-slate-200',
+        id: 'ulta_gc',
+        name: 'Ulta Beauty Gift Card',
+        desc: 'Makeup, skincare, hair care, and more at Ulta Beauty. Digital delivery to your email.',
+        image: 'https://media.ultainc.com/i/ulta/GS_GiftCard_WK4825_Hero_XL?w=600&fmt=auto',
+        color: 'bg-fuchsia-50 border-fuchsia-200',
         // ── Edit point costs for each denomination ──────────────────────────
         tiers: [
-          { amount: '$10', points: 1000 },
-          { amount: '$25', points: 2300 },
-          { amount: '$50', points: 4300 },
+          { amount: '$10', points: 1050 },
+          { amount: '$25', points: 2500 },
+          { amount: '$50', points: 4700 },
         ],
       },
     ],
@@ -113,7 +126,7 @@ const SHOP_SECTIONS = [
         id: 'visa_gc',
         name: 'Visa Gift Card',
         desc: 'Spend anywhere Visa is accepted. Fully digital — no physical card required.',
-        image: 'https://m.media-amazon.com/images/I/71Fo9kRCiNL._AC_UF894,1000_QL80_.jpg',
+        image: 'https://www.onevanilla.com/img/one-vanilla-card.png',
         color: 'bg-blue-50 border-blue-200',
         // ── Edit point costs for each denomination ──────────────────────────
         tiers: [
@@ -126,7 +139,7 @@ const SHOP_SECTIONS = [
         id: 'mastercard_gc',
         name: 'Mastercard Gift Card',
         desc: 'Use online or in-store anywhere Mastercard is accepted. Delivered digitally.',
-        image: 'https://m.media-amazon.com/images/I/71yjKYhBcDL._AC_UF894,1000_QL80_.jpg',
+        image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Mastercard-logo.svg/1280px-Mastercard-logo.svg.png',
         color: 'bg-orange-50 border-orange-200',
         // ── Edit point costs for each denomination ──────────────────────────
         tiers: [
@@ -139,27 +152,27 @@ const SHOP_SECTIONS = [
   },
   {
     unlockLevel: 250,
-    title: 'Level 250 — Food Delivery & Shopping',
+    title: 'Level 250 — Food Delivery',
     gradient: 'from-amber-400 to-orange-500',
     items: [
       {
-        id: 'target_gc',
-        name: 'Target Gift Card',
-        desc: 'Shop groceries, electronics, clothing, and more at Target. Digital delivery.',
-        image: 'https://m.media-amazon.com/images/I/81f7BXAFVWL._AC_UF894,1000_QL80_.jpg',
-        color: 'bg-red-50 border-red-200',
+        id: 'ubereats_gc',
+        name: 'Uber Eats Gift Card',
+        desc: 'Order food from thousands of restaurants near you on Uber Eats. Digital code emailed to you.',
+        image: 'https://assets.onme.com/static/category-imagery/merchants/logos/ubereats.webp',
+        color: 'bg-gray-50 border-gray-200',
         // ── Edit point costs for each denomination ──────────────────────────
         tiers: [
-          { amount: '$25', points: 2600 },
-          { amount: '$50', points: 4900 },
-          { amount: '$100', points: 9000 },
+          { amount: '$10', points: 1050 },
+          { amount: '$25', points: 2500 },
+          { amount: '$50', points: 4700 },
         ],
       },
       {
         id: 'doordash_gc',
         name: 'DoorDash Gift Card',
         desc: 'Order food from thousands of restaurants near you. Digital code sent to your email.',
-        image: 'https://m.media-amazon.com/images/I/71GmJ3oo4sL._AC_UF894,1000_QL80_.jpg',
+        image: 'https://assets.onme.com/static/category-imagery/merchants/logos/doordash.webp',
         color: 'bg-orange-50 border-orange-200',
         // ── Edit point costs for each denomination ──────────────────────────
         tiers: [
@@ -179,7 +192,7 @@ const SHOP_SECTIONS = [
         id: 'pacsun_gc',
         name: 'PacSun Gift Card',
         desc: 'Trendy streetwear and surf-inspired clothing at PacSun. Emailed to you.',
-        image: 'https://m.media-amazon.com/images/I/71LQ9m3T2nL._AC_UF894,1000_QL80_.jpg',
+        image: 'https://assets.onme.com/static/category-imagery/merchants/logos/pacsun.webp',
         color: 'bg-rose-50 border-rose-200',
         // ── Edit point costs for each denomination ──────────────────────────
         tiers: [
@@ -192,7 +205,7 @@ const SHOP_SECTIONS = [
         id: 'uniqlo_gc',
         name: 'UNIQLO Gift Card',
         desc: 'Clean, quality everyday clothing at UNIQLO. Digital code delivered by email.',
-        image: 'https://m.media-amazon.com/images/I/61uDmCewbnL._AC_UF894,1000_QL80_.jpg',
+        image: 'https://assets.onme.com/static/category-imagery/merchants/logos/uniqlo.webp',
         color: 'bg-pink-50 border-pink-200',
         // ── Edit point costs for each denomination ──────────────────────────
         tiers: [
@@ -205,15 +218,15 @@ const SHOP_SECTIONS = [
   },
   {
     unlockLevel: 350,
-    title: 'Level 350 — Sneakers & Athletic',
+    title: 'Level 350 — Retail & Gaming',
     gradient: 'from-lime-500 to-green-600',
     items: [
       {
-        id: 'adidas_gc',
-        name: 'Adidas Gift Card',
-        desc: 'Shoes, athletic gear, and streetwear from Adidas. Delivered as a digital code.',
-        image: 'https://m.media-amazon.com/images/I/71WCJlC4hsL._AC_UF894,1000_QL80_.jpg',
-        color: 'bg-green-50 border-green-200',
+        id: 'target_gc',
+        name: 'Target Gift Card',
+        desc: 'Shop groceries, electronics, clothing, and more at Target. Digital delivery.',
+        image: 'https://assets.onme.com/static/category-imagery/merchants/logos/target.webp',
+        color: 'bg-red-50 border-red-200',
         // ── Edit point costs for each denomination ──────────────────────────
         tiers: [
           { amount: '$25', points: 3300 },
@@ -222,16 +235,16 @@ const SHOP_SECTIONS = [
         ],
       },
       {
-        id: 'nike_gc',
-        name: 'Nike Gift Card',
-        desc: 'Sneakers, sports apparel, and gear from Nike. Digital gift card, emailed to you.',
-        image: 'https://m.media-amazon.com/images/I/71eGrpSaXGL._AC_UF894,1000_QL80_.jpg',
-        color: 'bg-cyan-50 border-cyan-200',
+        id: 'roblox_gc',
+        name: 'Roblox Gift Card',
+        desc: 'Robux for passes, skins, and virtual items in Roblox. Emailed as a digital code.',
+        image: 'https://assets.onme.com/static/category-imagery/merchants/logos/roblox.webp',
+        color: 'bg-slate-50 border-slate-200',
         // ── Edit point costs for each denomination ──────────────────────────
         tiers: [
-          { amount: '$25', points: 3100 },
-          { amount: '$50', points: 5800 },
-          { amount: '$100', points: 10500 },
+          { amount: '$10', points: 1000 },
+          { amount: '$25', points: 2300 },
+          { amount: '$50', points: 4300 },
         ],
       },
     ],
@@ -258,7 +271,7 @@ const SHOP_SECTIONS = [
         id: 'chickfila_gc',
         name: 'Chick-fil-A Gift Card',
         desc: 'Nuggets, sandwiches, and waffle fries at Chick-fil-A. Digital delivery by email.',
-        image: 'https://m.media-amazon.com/images/I/71suxFpnUSL._AC_UF894,1000_QL80_.jpg',
+        image: 'https://assets.onme.com/static/category-imagery/merchants/logos/chickfila.webp',
         color: 'bg-rose-50 border-rose-200',
         // ── Edit point costs for each denomination ──────────────────────────
         tiers: [

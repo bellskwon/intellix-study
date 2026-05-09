@@ -458,6 +458,7 @@ export default function Profile() {
           <p className="text-xs text-muted-foreground">Loading...</p>
         )}
         <p className="text-[11px] text-muted-foreground mt-2">This link only shows your public stats — no personal details or account access.</p>
+        <p className="text-[11px] text-muted-foreground mt-1">Note: this uses the same code as your referral link but opens a separate read-only dashboard — it cannot be used to earn referral bonuses.</p>
       </div>
 
       {/* Quiz History */}

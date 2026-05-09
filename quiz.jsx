@@ -561,7 +561,7 @@ Reply with ONLY one word: "correct" or "incorrect". Do not add any explanation.`
           <p className="text-sm text-muted-foreground max-w-xs mx-auto mb-5">
             Upload your class notes above and get a quiz in seconds. Score 80%+ to earn points.
           </p>
-          <button onClick={() => setView('submit')}
+          <button onClick={() => setShowUploadForm(true)}
             className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-pink-500 to-violet-600 text-white text-sm font-bold shadow-md shadow-pink-200 hover:opacity-90 transition-opacity">
             Upload Your First Notes →
           </button>

@@ -14,7 +14,7 @@ const TABS = [
 const RANK_STYLES = [
   { bg: 'from-amber-400 to-yellow-500', text: 'text-amber-600', badge: 'bg-amber-100', label: '1st', size: 'w-16 h-16', podiumH: 120 },
   { bg: 'from-slate-300 to-slate-400', text: 'text-slate-600', badge: 'bg-slate-100', label: '2nd', size: 'w-14 h-14', podiumH: 90 },
-  { bg: 'from-amber-600 to-orange-700', text: 'text-amber-800', badge: 'bg-amber-50', label: '3rd', size: 'w-13 h-13', podiumH: 70 },
+  { bg: 'from-amber-600 to-orange-700', text: 'text-amber-800', badge: 'bg-amber-50', label: '3rd', size: 'w-12 h-12', podiumH: 70 },
   { bg: 'from-violet-400 to-purple-500', text: 'text-violet-600', badge: 'bg-violet-50', label: '4th', size: 'w-12 h-12', podiumH: 0 },
   { bg: 'from-cyan-400 to-teal-500', text: 'text-cyan-600', badge: 'bg-cyan-50', label: '5th', size: 'w-12 h-12', podiumH: 0 },
 ];
@@ -51,7 +51,8 @@ export default function Leaderboard() {
     // Use display_name if available, fallback to full_name
     const displayName = u.display_name || u.full_name || 'Anonymous';
     const avatarLetter = displayName[0]?.toUpperCase() || '?';
-    return { ...u, displayName, avatarLetter, points, correctAnswers, level, league, quizCount: approvedSubs.length };
+    const avatarImg = u.avatar_image_url || null;
+    return { ...u, displayName, avatarLetter, avatarImg, points, correctAnswers, level, league, quizCount: approvedSubs.length };
   }).filter(u => u.quizCount > 0 || u.email === me?.email);
 
   const sorted = [...board].sort((a, b) =>
@@ -61,7 +62,6 @@ export default function Leaderboard() {
   );
 
   const top5 = sorted.slice(0, 5);
-  const rest = sorted.slice(5);
   const myRank = sorted.findIndex(u => u.email === me?.email) + 1;
   const myData = sorted.find(u => u.email === me?.email);
   const topPct = myRank > 0 && sorted.length > 0 ? Math.max(1, Math.round((myRank / sorted.length) * 100)) : null;
@@ -138,8 +138,10 @@ export default function Leaderboard() {
                     transition={{ delay: (rank - 1) * 0.12 }}
                     className="flex flex-col items-center gap-2">
                     {rank === 1 && <Crown className="w-6 h-6 text-amber-500" />}
-                    <div className={`${style.size} rounded-2xl bg-gradient-to-br ${style.bg} flex items-center justify-center text-white font-black text-xl shadow-lg ${isMe ? 'ring-4 ring-white ring-offset-2' : ''}`}>
-                      {user?.avatar_emoji || user?.avatarLetter || '?'}
+                    <div className={`${style.size} rounded-2xl bg-gradient-to-br ${style.bg} flex items-center justify-center text-white font-black text-xl shadow-lg overflow-hidden ${isMe ? 'ring-4 ring-white ring-offset-2' : ''}`}>
+                      {user?.avatarImg ? (
+                        <img src={user.avatarImg} alt={user.displayName} className="w-full h-full object-cover" />
+                      ) : (user?.avatar_emoji || user?.avatarLetter || '?')}
                     </div>
                     <p className="text-xs font-black text-foreground text-center max-w-[72px] truncate">
                       {user?.displayName?.split(' ')[0] || user?.full_name?.split(' ')[0]}
@@ -168,8 +170,10 @@ export default function Leaderboard() {
                   <motion.div key={user?.id} initial={{ opacity: 0, x: i === 0 ? -20 : 20 }} animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: 0.4 + i * 0.1 }}
                     className={`flex-1 bg-white rounded-2xl border-2 p-3 flex items-center gap-3 ${isMe ? 'border-primary/40 bg-primary/5' : 'border-border'}`}>
-                    <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${style.bg} flex items-center justify-center text-white font-black text-sm shrink-0`}>
-                      {user?.avatar_emoji || user?.avatarLetter || '?'}
+                    <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${style.bg} flex items-center justify-center text-white font-black text-sm shrink-0 overflow-hidden`}>
+                      {user?.avatarImg ? (
+                        <img src={user.avatarImg} alt={user.displayName} className="w-full h-full object-cover" />
+                      ) : (user?.avatar_emoji || user?.avatarLetter || '?')}
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-black truncate">{user?.displayName?.split(' ')[0] || user?.full_name?.split(' ')[0]}</p>
@@ -189,8 +193,10 @@ export default function Leaderboard() {
         <div className="bg-gradient-to-r from-violet-50 to-purple-50 border-2 border-primary/20 rounded-2xl px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl gradient-violet flex items-center justify-center text-white font-black shadow-md">
-                {me?.avatar_emoji || me?.display_name?.[0] || me?.full_name?.[0] || '?'}
+              <div className="w-10 h-10 rounded-xl gradient-violet flex items-center justify-center text-white font-black shadow-md overflow-hidden">
+                {myData?.avatarImg ? (
+                  <img src={myData.avatarImg} alt={myData.displayName} className="w-full h-full object-cover" />
+                ) : (me?.avatar_emoji || me?.display_name?.[0] || me?.full_name?.[0] || '?')}
               </div>
               <div>
                 <p className="text-sm font-black text-foreground">Your Rank: <span className="text-primary">#{myRank}</span></p>
@@ -252,10 +258,12 @@ export default function Leaderboard() {
                     )}
                   </div>
                   {/* Avatar */}
-                  <div className={`w-9 h-9 rounded-xl flex items-center justify-center text-sm font-bold shrink-0 ${
+                  <div className={`w-9 h-9 rounded-xl flex items-center justify-center text-sm font-bold shrink-0 overflow-hidden ${
                     style ? `bg-gradient-to-br ${style.bg} text-white` : isMe ? 'gradient-violet text-white' : 'bg-secondary text-foreground'
                   }`}>
-                    {student.avatar_emoji || student.avatarLetter || '?'}
+                    {student.avatarImg ? (
+                      <img src={student.avatarImg} alt={student.displayName} className="w-full h-full object-cover" />
+                    ) : (student.avatar_emoji || student.avatarLetter || '?')}
                   </div>
                   {/* Info */}
                   <div className="flex-1 min-w-0">
