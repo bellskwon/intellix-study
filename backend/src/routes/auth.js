@@ -8,7 +8,7 @@ const router = express.Router();
 
 // ─── EDIT THIS to change how many points a user earns when someone signs up ──
 // using their referral link. Set to 0 to disable referral bonuses entirely.
-const REFERRAL_BONUS_POINTS = 200;
+const REFERRAL_BONUS_POINTS = 100;
 // ─────────────────────────────────────────────────────────────────────────────
 
 const oauthClient = new OAuth2Client(
