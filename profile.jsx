@@ -42,7 +42,8 @@ export default function Profile() {
   const savedImageUrl = user?.avatar_image_url || null;
   const displayName = user?.display_name || user?.full_name || 'Student';
 
-  const visibleSubmissions = submissions.filter(s => s.type !== 'xp_boost');
+  const NON_QUIZ_TYPES = new Set(['xp_boost', 'referral', 'points_pack', 'comeback_bonus']);
+  const visibleSubmissions = submissions.filter(s => !NON_QUIZ_TYPES.has(s.type));
   const graded = visibleSubmissions.filter(s => s.quiz_score != null);
   const approved = visibleSubmissions.filter(s => s.status === 'approved');
   const totalPoints = approved.reduce((a, b) => a + (b.points_awarded || 0), 0);

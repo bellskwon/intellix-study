@@ -66,10 +66,11 @@ export default function Quiz() {
     enabled: !!user?.email,
   });
 
-  // Submissions that haven't been quizzed yet (exclude admin xp boosts)
-  const pending = submissions.filter(s => s.type !== 'xp_boost' && s.quiz_score == null && s.status !== 'rejected');
-  // Submissions that have been quizzed (exclude admin xp boosts)
-  const completed = submissions.filter(s => s.type !== 'xp_boost' && s.quiz_score != null);
+  const NON_QUIZ_TYPES = new Set(['xp_boost', 'referral', 'points_pack', 'comeback_bonus']);
+  // Submissions that haven't been quizzed yet (exclude non-content types)
+  const pending = submissions.filter(s => !NON_QUIZ_TYPES.has(s.type) && s.quiz_score == null && s.status !== 'rejected');
+  // Submissions that have been quizzed (exclude non-content types)
+  const completed = submissions.filter(s => !NON_QUIZ_TYPES.has(s.type) && s.quiz_score != null);
 
   // ── Generate quiz from a submission's notes ──────────────────────────────
   const startQuiz = async (submission, count = numQuestions) => {
