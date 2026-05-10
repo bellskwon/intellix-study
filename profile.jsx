@@ -394,8 +394,10 @@ export default function Profile() {
               <div className="grid grid-cols-4 gap-2">
                 {group.badges.map(b => (
                   <div key={b.label} className={`rounded-xl p-2.5 text-center transition-all border ${
-                    b.earned ? 'bg-violet-50 border-violet-200' : 'bg-muted/20 border-dashed border-muted/50 opacity-40 grayscale'}`}>
-                    <div className={`w-8 h-8 rounded-lg ${b.earned ? b.bg : 'bg-muted'} flex items-center justify-center mx-auto mb-1.5`}>
+                    b.earned
+                      ? 'bg-gradient-to-br from-violet-50 to-purple-50/60 border-violet-200 shadow-sm hover:shadow-md hover:-translate-y-0.5 cursor-default'
+                      : 'bg-muted/20 border-dashed border-muted/50 opacity-35 grayscale'}`}>
+                    <div className={`w-9 h-9 rounded-xl ${b.earned ? b.bg + ' shadow-sm' : 'bg-muted'} flex items-center justify-center mx-auto mb-1.5`}>
                       <b.Icon className={`w-4 h-4 ${b.earned ? b.color : 'text-muted-foreground'}`} />
                     </div>
                     <p className="text-[10px] font-black text-foreground leading-tight">{b.label}</p>

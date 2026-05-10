@@ -232,16 +232,16 @@ export default function Dashboard() {
       {streakAtRisk && (
         <motion.div
           initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
-          className="bg-orange-50 border-2 border-orange-200 rounded-2xl px-5 py-4 flex items-center gap-4"
+          className="bg-orange-50 dark:bg-orange-950/30 border-2 border-orange-200 dark:border-orange-800/40 rounded-2xl px-5 py-4 flex items-center gap-4"
         >
-          <div className="w-10 h-10 rounded-xl bg-orange-100 flex items-center justify-center shrink-0">
+          <div className="w-10 h-10 rounded-xl bg-orange-100 dark:bg-orange-900/50 flex items-center justify-center shrink-0">
             <Flame className="w-5 h-5 text-orange-500" />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="font-black text-orange-800 text-sm">
+            <p className="font-black text-orange-800 dark:text-orange-200 text-sm">
               Your {streak}-day streak is at risk!
             </p>
-            <p className="text-orange-600 text-xs mt-0.5">Study something today to keep it alive.</p>
+            <p className="text-orange-600 dark:text-orange-400 text-xs mt-0.5">Study something today to keep it alive.</p>
           </div>
           <Link to="/quiz">
             <Button size="sm" className="bg-orange-500 hover:bg-orange-600 text-white rounded-xl font-bold shrink-0">
@@ -255,16 +255,16 @@ export default function Dashboard() {
       {pendingQuizzes > 0 && (
         <motion.div
           initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
-          className="bg-amber-50 border-2 border-amber-200 rounded-2xl px-5 py-4 flex items-center gap-4"
+          className="bg-amber-50 dark:bg-amber-950/30 border-2 border-amber-200 dark:border-amber-800/40 rounded-2xl px-5 py-4 flex items-center gap-4"
         >
-          <div className="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center shrink-0">
+          <div className="w-10 h-10 rounded-xl bg-amber-100 dark:bg-amber-900/50 flex items-center justify-center shrink-0">
             <Trophy className="w-5 h-5 text-amber-600" />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="font-black text-amber-800 text-sm">
+            <p className="font-black text-amber-800 dark:text-amber-200 text-sm">
               {pendingQuizzes} quiz{pendingQuizzes > 1 ? 'zes' : ''} ready to take!
             </p>
-            <p className="text-amber-600 text-xs mt-0.5">Take them to earn points and track your progress.</p>
+            <p className="text-amber-600 dark:text-amber-400 text-xs mt-0.5">Take them to earn points and track your progress.</p>
           </div>
           <Link to="/quiz">
             <Button size="sm" className="bg-amber-500 hover:bg-amber-600 text-white rounded-xl font-bold shrink-0">
@@ -300,8 +300,9 @@ export default function Dashboard() {
               transition={{ delay: i * 0.06 }}
             >
               <Link to={action.to}
-                className="block bg-white rounded-2xl border border-border p-4 hover:shadow-md hover:-translate-y-0.5 transition-all group">
-                <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${action.gradient} flex items-center justify-center mb-3 shadow-md ${action.shadow}`}>
+                className="block bg-white rounded-2xl border border-border p-4 hover:shadow-lg hover:-translate-y-1 transition-all duration-200 group overflow-hidden relative">
+                <div className={`absolute inset-0 bg-gradient-to-br ${action.gradient} opacity-0 group-hover:opacity-[0.04] transition-opacity duration-200 pointer-events-none`} />
+                <div className={`w-11 h-11 rounded-xl bg-gradient-to-br ${action.gradient} flex items-center justify-center mb-3 shadow-lg ${action.shadow} group-hover:scale-110 transition-transform duration-200`}>
                   <action.icon className="w-5 h-5 text-white" />
                 </div>
                 <p className="font-black text-sm text-foreground group-hover:text-primary transition-colors">{action.label}</p>

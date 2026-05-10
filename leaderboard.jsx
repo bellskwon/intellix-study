@@ -124,7 +124,7 @@ export default function Leaderboard() {
 
       {/* Top 5 Podium */}
       {top5.length > 0 && (
-        <div className="bg-gradient-to-br from-purple-50 via-pink-50 to-amber-50 rounded-3xl p-6 border border-purple-100">
+        <div className="bg-gradient-to-br from-purple-50 via-pink-50 to-amber-50 dark:from-purple-950/20 dark:via-pink-950/10 dark:to-amber-950/20 rounded-3xl p-6 border border-purple-100 dark:border-purple-900/40">
           <p className="text-center text-xs font-black text-muted-foreground uppercase tracking-widest mb-6">Top 5</p>
 
           {/* Top 3 podium */}
@@ -137,7 +137,7 @@ export default function Leaderboard() {
                   <motion.div key={user?.id} initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: (rank - 1) * 0.12 }}
                     className="flex flex-col items-center gap-2">
-                    {rank === 1 && <Crown className="w-6 h-6 text-amber-500" />}
+                    {rank === 1 && <Crown className="w-6 h-6 text-amber-500 animate-bounce" />}
                     <div className={`${style.size} rounded-2xl bg-gradient-to-br ${style.bg} flex items-center justify-center text-white font-black text-xl shadow-lg overflow-hidden ${isMe ? 'ring-4 ring-white ring-offset-2' : ''}`}>
                       {user?.avatarImg ? (
                         <img src={user.avatarImg} alt={user.displayName} className="w-full h-full object-cover" />
@@ -151,7 +151,7 @@ export default function Leaderboard() {
                     </span>
                     <p className="text-xs font-semibold text-muted-foreground">{getValue(user)}</p>
                     {/* Podium bar */}
-                    <div className={`bg-gradient-to-b ${style.bg} rounded-t-lg opacity-30 w-16`}
+                    <div className={`bg-gradient-to-b ${style.bg} rounded-t-xl w-16 shadow-md`}
                       style={{ height: style.podiumH }} />
                   </motion.div>
                 );

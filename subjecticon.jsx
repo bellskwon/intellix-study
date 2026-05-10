@@ -66,16 +66,16 @@ const icons = {
 };
 
 const colors = {
-  math:             { bg: 'bg-blue-100',   icon: 'text-blue-600'   },
-  science:          { bg: 'bg-emerald-100', icon: 'text-emerald-600' },
-  history:          { bg: 'bg-amber-100',  icon: 'text-amber-600'  },
-  geography:        { bg: 'bg-teal-100',   icon: 'text-teal-600'   },
-  english:          { bg: 'bg-violet-100', icon: 'text-violet-600' },
-  foreign_language: { bg: 'bg-pink-100',   icon: 'text-pink-600'   },
-  computer_science: { bg: 'bg-indigo-100', icon: 'text-indigo-600' },
-  art:              { bg: 'bg-rose-100',   icon: 'text-rose-600'   },
-  music:            { bg: 'bg-purple-100', icon: 'text-purple-600' },
-  other:            { bg: 'bg-slate-100',  icon: 'text-slate-500'  },
+  math:             { bg: 'bg-blue-100 dark:bg-blue-950/60',     icon: 'text-blue-600 dark:text-blue-400'     },
+  science:          { bg: 'bg-emerald-100 dark:bg-emerald-950/60', icon: 'text-emerald-600 dark:text-emerald-400' },
+  history:          { bg: 'bg-amber-100 dark:bg-amber-950/60',   icon: 'text-amber-600 dark:text-amber-400'   },
+  geography:        { bg: 'bg-teal-100 dark:bg-teal-950/60',     icon: 'text-teal-600 dark:text-teal-400'     },
+  english:          { bg: 'bg-violet-100 dark:bg-violet-950/60', icon: 'text-violet-600 dark:text-violet-400' },
+  foreign_language: { bg: 'bg-pink-100 dark:bg-pink-950/60',     icon: 'text-pink-600 dark:text-pink-400'     },
+  computer_science: { bg: 'bg-indigo-100 dark:bg-indigo-950/60', icon: 'text-indigo-600 dark:text-indigo-400' },
+  art:              { bg: 'bg-rose-100 dark:bg-rose-950/60',     icon: 'text-rose-600 dark:text-rose-400'     },
+  music:            { bg: 'bg-purple-100 dark:bg-purple-950/60', icon: 'text-purple-600 dark:text-purple-400' },
+  other:            { bg: 'bg-slate-100 dark:bg-slate-800/60',   icon: 'text-slate-500 dark:text-slate-400'   },
 };
 
 const sizes = {
