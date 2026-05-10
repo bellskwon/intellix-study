@@ -39,7 +39,14 @@ export default function RecentSubmissions({ submissions = [] }) {
                   {sub.subject?.replace('_', ' ')} · {format(new Date(sub.created_date), 'MMM d')}
                 </p>
               </div>
-              <div className="flex items-center gap-3 shrink-0">
+              <div className="flex items-center gap-2 shrink-0">
+                {sub.quiz_score != null && (
+                  <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
+                    sub.quiz_score >= 80 ? 'bg-emerald-50 text-emerald-600' :
+                    sub.quiz_score >= 60 ? 'bg-amber-50 text-amber-600' :
+                    'bg-rose-50 text-rose-600'
+                  }`}>{sub.quiz_score}%</span>
+                )}
                 {sub.points_awarded > 0 && (
                   <span className="text-sm font-semibold text-accent">+{sub.points_awarded}</span>
                 )}

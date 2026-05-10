@@ -86,45 +86,49 @@ function GenerateFromNotes({ onGenerated }) {
     }
 
     setLoading(true);
+    try {
+      const { file_url } = await base44.integrations.Core.UploadFile({ file });
 
-    const { file_url } = await base44.integrations.Core.UploadFile({ file });
-
-    const result = await base44.integrations.Core.InvokeLLM({
-      prompt: `Analyze these study notes and generate 15 flashcards. Subject: ${subject}. 
-      Create a mix of term/definition pairs and question/answer pairs. 
+      const result = await base44.integrations.Core.InvokeLLM({
+        prompt: `Analyze these study notes and generate 15 flashcards. Subject: ${subject}.
+      Create a mix of term/definition pairs and question/answer pairs.
       Make them helpful for studying and memorization.`,
-      file_urls: [file_url],
-      response_json_schema: {
-        type: "object",
-        properties: {
-          cards: {
-            type: "array",
-            items: {
-              type: "object",
-              properties: {
-                front: { type: "string" },
-                back: { type: "string" },
+        file_urls: [file_url],
+        response_json_schema: {
+          type: "object",
+          properties: {
+            cards: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  front: { type: "string" },
+                  back: { type: "string" },
+                }
               }
             }
           }
         }
-      }
-    });
+      });
 
-    await base44.entities.StudyCard.bulkCreate(
-      result.cards.map(c => ({
-        deck_name: deckName,
-        subject,
-        front: c.front,
-        back: c.back,
-      }))
-    );
+      await base44.entities.StudyCard.bulkCreate(
+        result.cards.map(c => ({
+          deck_name: deckName,
+          subject,
+          front: c.front,
+          back: c.back,
+        }))
+      );
 
-    toast.success(`Generated ${result.cards.length} flashcards!`);
-    setLoading(false);
-    setFile(null);
-    setDeckName('');
-    onGenerated();
+      toast.success(`Generated ${result.cards.length} flashcards!`);
+      setFile(null);
+      setDeckName('');
+      onGenerated();
+    } catch (e) {
+      toast.error(e.message || 'Failed to generate flashcards. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

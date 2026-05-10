@@ -2,7 +2,7 @@ import React from 'react';
 import { Trophy, Flame, BookOpen, Star } from 'lucide-react';
 
 const stats = [
-  { label: 'Total Points', key: 'points', icon: Star, color: 'text-accent', bg: 'bg-accent/10' },
+  { label: 'Points Earned', key: 'points', icon: Star, color: 'text-accent', bg: 'bg-accent/10' },
   { label: 'Submissions', key: 'submissions', icon: BookOpen, color: 'text-primary', bg: 'bg-primary/10' },
   { label: 'Quizzes Passed', key: 'quizzes', icon: Trophy, color: 'text-chart-3', bg: 'bg-chart-3/10' },
   { label: 'Day Streak', key: 'streak', icon: Flame, color: 'text-chart-5', bg: 'bg-chart-5/10' },
@@ -15,7 +15,7 @@ export default function StatsRow({ submissions = [], streak = 0 }) {
 
   const values = {
     points: totalPoints,
-    submissions: submissions.length,
+    submissions: submissions.filter(s => s.type !== 'xp_boost').length,
     quizzes: quizzesPassed,
     streak,
   };

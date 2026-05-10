@@ -126,7 +126,7 @@ const SHOP_SECTIONS = [
         id: 'visa_gc',
         name: 'Visa Gift Card',
         desc: 'Spend anywhere Visa is accepted. Fully digital — no physical card required.',
-        image: 'https://www.onevanilla.com/img/one-vanilla-card.png',
+        image: 'https://logodownload.org/wp-content/uploads/2016/10/visa-logo-2.png',
         color: 'bg-blue-50 border-blue-200',
         // ── Edit point costs for each denomination ──────────────────────────
         tiers: [

@@ -19,7 +19,11 @@ export default function Progress() {
   // avgScore includes ALL graded quizzes (same as dashboard)
   const avgScore = graded.length ? Math.round(graded.reduce((s, q) => s + q.quiz_score, 0) / graded.length) : 0;
   const best = graded.length ? Math.max(...graded.map(s => s.quiz_score)) : 0;
-  const trend = graded.length >= 2 ? graded[graded.length - 1].quiz_score - graded[graded.length - 2].quiz_score : 0;
+  const last5 = graded.slice(-5);
+  const prev5 = graded.slice(-10, -5);
+  const avgLast5 = last5.length ? Math.round(last5.reduce((s, q) => s + q.quiz_score, 0) / last5.length) : 0;
+  const avgPrev5 = prev5.length ? Math.round(prev5.reduce((s, q) => s + q.quiz_score, 0) / prev5.length) : 0;
+  const trend = graded.length >= 2 ? avgLast5 - avgPrev5 : 0;
   const passedCount = graded.filter(s => s.quiz_score >= 80).length;
 
   // Subject averages

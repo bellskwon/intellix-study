@@ -45,6 +45,17 @@ export default function Challenge() {
 
   const { data: user } = useQuery({ queryKey: ['currentUser'], queryFn: () => base44.auth.me() });
 
+  const { data: challengeHistory = [] } = useQuery({
+    queryKey: ['challengeHistory', user?.email],
+    queryFn: () => base44.entities.Submission.filter({ created_by: user?.email, type: 'video' }, '-created_date', 30),
+    enabled: !!user?.email,
+  });
+
+  const todayStr = new Date().toDateString();
+  const alreadyPassedToday = challengeHistory.some(s =>
+    s.quiz_passed && new Date(s.created_date).toDateString() === todayStr
+  );
+
   // Pre-select subject from a challenge link: /challenge?subject=math&challenger=friend@email.com
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -78,7 +89,9 @@ Topic: "${topic}" (subject: ${subject}). ${topicDetail}${mathNote}
 RULES:
 - Only include questions whose answers are factually certain and verifiable (no opinion, no ambiguity).
 - Use standard academic consensus — no niche interpretations or regional variations.
+- CRITICAL: Before finalising each question, verify the correct_answer is accurate. If you are not certain, omit the question.
 - For math: write out the full worked answer in correct_answer (e.g. "3x + 6 = 15 → 3x = 9 → x = 3"). This lets the grader verify your arithmetic.
+- For multiple_choice questions: correct_answer MUST be an exact copy of one of the strings in the options array — same words, same capitalisation. Double-check this before returning.
 - Calibrate difficulty exactly to ${grade} grade. Do not include content beyond that level.
 - Mix types: 2-3 short answer, 1-2 fill-in-the-blank, 1 multiple choice (exactly 4 options).
 - If the topic is blank, nonsensical, or not a real school subject, return an empty questions array.`,
@@ -107,7 +120,18 @@ RULES:
       setStep('setup');
       return;
     }
-    setQuestions(res.questions);
+
+    // Validate MC questions: correct_answer must match an option exactly
+    const validated = res.questions.map(q => {
+      if (q.question_type !== 'multiple_choice' || !q.options?.length) return q;
+      const match = q.options.find(o => o.trim().toLowerCase() === q.correct_answer?.trim().toLowerCase());
+      if (match) return { ...q, correct_answer: match };
+      // No exact match — demote to short_answer so the AI grader handles it
+      const { options: _o, ...rest } = q;
+      return { ...rest, question_type: 'short_answer' };
+    });
+
+    setQuestions(validated);
     setAnswers({});
     setCurrentQ(0);
     setStep('quiz');
@@ -125,6 +149,11 @@ RULES:
       const graded = [];
       for (const [i, q] of questions.entries()) {
         const ans = answers[i] || '';
+        // Blank answers are always incorrect — don't waste an AI call
+        if (!ans.trim()) {
+          graded.push({ ...q, studentAnswer: ans, isCorrect: false });
+          continue;
+        }
         if (q.question_type === 'multiple_choice') {
           const isCorrect = ans.trim().toLowerCase() === q.correct_answer.trim().toLowerCase();
           if (isCorrect) correct++;
@@ -138,27 +167,28 @@ Correct answer: "${q.correct_answer}"
 Student answer: "${ans}"
 Reply with only "correct" or "incorrect".`
         });
-        const isCorrect = check.toLowerCase().includes('correct') && !check.toLowerCase().includes('incorrect');
+        const isCorrect = (typeof check === 'string' ? check : JSON.stringify(check)).toLowerCase().trim().startsWith('correct');
         if (isCorrect) correct++;
         graded.push({ ...q, studentAnswer: ans, isCorrect });
       }
 
       const score = Math.round((correct / questions.length) * 100);
+      const passed = score >= PASS_THRESHOLD;
 
-      // 1 point per completed daily challenge (only if score ≥ 80%)
+      // 1 point per daily challenge pass — zero if they already passed one today
       await base44.entities.Submission.create({
         title: topic,
         subject,
         grade_level: grade,
         type: 'video',
-        status: score >= PASS_THRESHOLD ? 'approved' : 'rejected',
+        status: passed ? 'approved' : 'rejected',
         quiz_score: score,
-        quiz_passed: score >= PASS_THRESHOLD,
-        points_awarded: score >= PASS_THRESHOLD ? 1 : 0,
+        quiz_passed: passed,
+        points_awarded: passed && !alreadyPassedToday ? 1 : 0,
         ai_difficulty_score: 5,
       });
 
-      setResults({ score, correct, total: questions.length, graded });
+      setResults({ score, correct, total: questions.length, graded, passed });
       setStep('results');
       setShowSaveModal(true);
       queryClient.invalidateQueries({ queryKey: ['mySubmissions'] });
@@ -169,13 +199,13 @@ Reply with only "correct" or "incorrect".`
     }
   };
 
-  if (step === 'setup') return <SetupStep topic={topic} setTopic={setTopic} subject={subject} setSubject={setSubject} grade={grade} setGrade={setGrade} specificTopic={specificTopic} setSpecificTopic={setSpecificTopic} onStart={generate} />;
+  if (step === 'setup') return <SetupStep topic={topic} setTopic={setTopic} subject={subject} setSubject={setSubject} grade={grade} setGrade={setGrade} specificTopic={specificTopic} setSpecificTopic={setSpecificTopic} onStart={generate} alreadyPassedToday={alreadyPassedToday} />;
   if (step === 'generating') return <GeneratingStep />;
   if (step === 'quiz') return <QuizStep questions={questions} currentQ={currentQ} setCurrentQ={setCurrentQ} answers={answers} setAnswers={setAnswers} onSubmit={submitQuiz} submitting={submitting} showHints={showHints} setShowHints={setShowHints} />;
   if (step === 'results') return <ResultsStep results={results} topic={topic} subject={subject} grade={grade} onRetry={() => { setStep('setup'); setResults(null); }} showSaveModal={showSaveModal} setShowSaveModal={setShowSaveModal} />;
 }
 
-function SetupStep({ topic, setTopic, subject, setSubject, grade, setGrade, specificTopic, setSpecificTopic, onStart }) {
+function SetupStep({ topic, setTopic, subject, setSubject, grade, setGrade, specificTopic, setSpecificTopic, onStart, alreadyPassedToday }) {
   const isMath = subject === 'math';
   return (
     <div className="max-w-xl mx-auto">
@@ -188,6 +218,15 @@ function SetupStep({ topic, setTopic, subject, setSubject, grade, setGrade, spec
 
           <p className="text-muted-foreground text-sm mt-1.5">Enter a topic and get a 5-question challenge instantly</p>
         </div>
+
+        {alreadyPassedToday && (
+          <div className="flex items-start gap-3 bg-emerald-50 border border-emerald-200 rounded-2xl px-4 py-3">
+            <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" />
+            <p className="text-sm text-emerald-800">
+              <span className="font-bold">Daily point already earned!</span> You passed today's challenge — extra attempts are great for practice but won't award more points until tomorrow.
+            </p>
+          </div>
+        )}
 
         <div className="bg-white rounded-2xl border border-border p-6 space-y-4 shadow-sm">
           <div>

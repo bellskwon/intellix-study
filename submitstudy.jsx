@@ -206,6 +206,10 @@ export default function SubmitStudy({ onSuccess }) {
       toast.error('Please enter your notes text');
       return;
     }
+    if (inputMode === 'text' && form.notes_text.trim().length < 50) {
+      toast.error('Notes must be at least 50 characters — add more content for a meaningful quiz.');
+      return;
+    }
     createMutation.mutate(form);
   };
 
@@ -455,14 +459,14 @@ export default function SubmitStudy({ onSuccess }) {
 
               <div className="px-6 py-5 space-y-4">
                 {/* Reason */}
-                <div className="bg-slate-50 rounded-2xl p-4">
-                  <p className="text-xs font-bold text-slate-500 uppercase tracking-wide mb-1">Why this was flagged</p>
-                  <p className="text-sm text-slate-700 leading-relaxed">{modResult.reason}</p>
+                <div className="bg-secondary rounded-2xl p-4">
+                  <p className="text-xs font-bold text-muted-foreground uppercase tracking-wide mb-1">Why this was flagged</p>
+                  <p className="text-sm text-foreground leading-relaxed">{modResult.reason}</p>
                 </div>
 
                 {/* Account paused extra message */}
                 {modResult.accountPaused && (
-                  <p className="text-xs text-slate-500 leading-relaxed">
+                  <p className="text-xs text-muted-foreground leading-relaxed">
                     Your account has been paused due to repeated guideline violations. You can still view the app, but you cannot submit new content. If you believe this was a mistake, use the appeal button below.
                   </p>
                 )}
@@ -471,18 +475,18 @@ export default function SubmitStudy({ onSuccess }) {
                 {!appealSent ? (
                   showAppeal ? (
                     <div className="space-y-3">
-                      <p className="text-xs font-bold text-slate-600">Your message to us (optional)</p>
+                      <p className="text-xs font-bold text-foreground">Your message to us (optional)</p>
                       <textarea
                         value={appealMessage}
                         onChange={e => setAppealMessage(e.target.value)}
                         rows={3}
                         placeholder="Explain why you think this content is appropriate..."
-                        className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-violet-300"
+                        className="w-full rounded-xl border border-border px-3 py-2 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-violet-300"
                       />
                       <div className="flex gap-2">
                         <button
                           onClick={() => setShowAppeal(false)}
-                          className="flex-1 py-2.5 rounded-xl border border-slate-200 text-sm text-slate-600 hover:bg-slate-50 transition-colors"
+                          className="flex-1 py-2.5 rounded-xl border border-border text-sm text-muted-foreground hover:bg-secondary transition-colors"
                         >
                           Cancel
                         </button>
@@ -514,7 +518,7 @@ export default function SubmitStudy({ onSuccess }) {
                 {!modResult.accountPaused && (
                   <button
                     onClick={dismissModeration}
-                    className="w-full py-3 rounded-2xl bg-slate-900 text-white text-sm font-semibold hover:bg-slate-700 transition-colors"
+                    className="w-full py-3 rounded-2xl bg-foreground text-background text-sm font-semibold hover:opacity-80 transition-opacity"
                   >
                     I Understand
                   </button>
@@ -522,7 +526,7 @@ export default function SubmitStudy({ onSuccess }) {
                 {modResult.accountPaused && appealSent && (
                   <button
                     onClick={dismissModeration}
-                    className="w-full py-3 rounded-2xl border border-slate-200 text-slate-600 text-sm hover:bg-slate-50 transition-colors"
+                    className="w-full py-3 rounded-2xl border border-border text-muted-foreground text-sm hover:bg-secondary transition-colors"
                   >
                     Close
                   </button>

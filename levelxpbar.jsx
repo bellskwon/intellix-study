@@ -57,9 +57,12 @@ export default function LevelXPBar({ submissions = [], xpBonus = 0, className = 
           transition={{ duration: 1.1, ease: 'easeOut', delay: 0.2 }}
         />
       </div>
-      {nextUnlock && level < 50 && (
+      {nextUnlock && (
         <p className={`text-[11px] ${dark ? 'text-white/50' : 'text-muted-foreground'}`}>
-          Store unlocks at Level 50 (Level 35 for paid plans) · {50 - level} levels away
+          {level < 50
+            ? `Shop unlocks at Level 50 (Level 35 for paid plans) · ${50 - level} levels away`
+            : `Next shop tier at Level ${nextUnlock} · ${nextUnlock - level} level${nextUnlock - level !== 1 ? 's' : ''} away`
+          }
         </p>
       )}
     </div>

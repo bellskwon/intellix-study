@@ -49,8 +49,8 @@ function AccountPausedScreen({ user }) {
       <div className="bg-white rounded-3xl w-full max-w-sm shadow-2xl p-8 text-center space-y-5">
         <div className="w-16 h-16 rounded-2xl bg-red-100 flex items-center justify-center mx-auto text-3xl">🚫</div>
         <div>
-          <h2 className="font-sora text-xl font-bold text-slate-900">Account Paused</h2>
-          <p className="text-slate-500 text-sm mt-2 leading-relaxed">
+          <h2 className="font-sora text-xl font-bold text-foreground">Account Paused</h2>
+          <p className="text-muted-foreground text-sm mt-2 leading-relaxed">
             Your account has been paused due to repeated community guideline violations. You cannot submit new content at this time.
           </p>
         </div>
@@ -58,17 +58,17 @@ function AccountPausedScreen({ user }) {
         {!sent ? (
           showAppeal ? (
             <div className="space-y-3 text-left">
-              <p className="text-xs font-bold text-slate-600">Tell us why you think this is a mistake</p>
+              <p className="text-xs font-bold text-foreground">Tell us why you think this is a mistake</p>
               <textarea
                 value={message}
                 onChange={e => setMessage(e.target.value)}
                 rows={4}
                 placeholder="Explain your situation..."
-                className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-violet-300"
+                className="w-full rounded-xl border border-border px-3 py-2 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-violet-300"
               />
               <div className="flex gap-2">
                 <button onClick={() => setShowAppeal(false)}
-                  className="flex-1 py-2.5 rounded-xl border border-slate-200 text-sm text-slate-600 hover:bg-slate-50">
+                  className="flex-1 py-2.5 rounded-xl border border-border text-sm text-muted-foreground hover:bg-secondary">
                   Cancel
                 </button>
                 <button onClick={sendAppeal} disabled={sending}
@@ -90,7 +90,7 @@ function AccountPausedScreen({ user }) {
           </div>
         )}
 
-        <p className="text-xs text-slate-400">Signed in as {user?.email}</p>
+        <p className="text-xs text-muted-foreground">Signed in as {user?.email}</p>
       </div>
     </div>
   );

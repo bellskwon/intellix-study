@@ -51,9 +51,11 @@ export default function ParentDashboard() {
       {/* Header band */}
       <div className="w-full py-10 px-4 text-white text-center"
         style={{ background: 'linear-gradient(135deg, #7c3aed 0%, #a855f7 60%, #ec4899 100%)' }}>
-        <div className="w-20 h-20 rounded-2xl mx-auto mb-4 flex items-center justify-center text-4xl shadow-xl"
+        <div className="w-20 h-20 rounded-2xl mx-auto mb-4 flex items-center justify-center text-4xl shadow-xl overflow-hidden"
           style={{ background: data.avatar_color || '#7c3aed' }}>
-          {data.avatar_emoji || '🎓'}
+          {data.avatar_image_url
+            ? <img src={data.avatar_image_url} alt="" className="w-full h-full object-cover" />
+            : (data.avatar_emoji || '🎓')}
         </div>
         <h1 className="font-sora text-2xl font-bold">{data.display_name}'s Study Progress</h1>
         <p className="text-purple-200 text-sm mt-1">

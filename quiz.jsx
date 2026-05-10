@@ -4,7 +4,7 @@ import { base44 } from '@/api/base44Client';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   FlaskConical, Upload, CheckCircle2, XCircle, Trophy,
-  RotateCcw, Loader2, ArrowRight, BookOpen, Star, Flag, ChevronDown, ChevronUp, AlertTriangle, Sparkles,
+  RotateCcw, Loader2, ArrowRight, BookOpen, Star, Flag, ChevronDown, ChevronUp, AlertTriangle, Sparkles, Share2,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -33,6 +33,7 @@ export default function Quiz() {
   const [showSaveModal, setShowSaveModal] = useState(false);
   const [showHints, setShowHints] = useState({});
   const [numQuestions, setNumQuestions] = useState(5);
+  const [showAllCompleted, setShowAllCompleted] = useState(false);
 
   const reportQuestion = async (q, i) => {
     try {
@@ -56,6 +57,8 @@ export default function Quiz() {
   };
 
   const { data: user } = useQuery({ queryKey: ['currentUser'], queryFn: () => base44.auth.me() });
+  const isPremium = user?.premium_plan && user.premium_plan !== 'free';
+  const maxQuestions = isPremium ? 50 : 5;
 
   const { data: submissions = [], isLoading } = useQuery({
     queryKey: ['mySubmissions'],
@@ -91,6 +94,7 @@ RULES:
 - For each question, include a brief source_quote (the exact phrase from the notes that supports the answer).
 - For each question, include a 1-2 sentence explanation of WHY the correct answer is right (used to teach the student after the quiz).
 - Mix question types across the set. If count > 5, include multiple choice questions (exactly 4 options each).
+- For multiple_choice questions: correct_answer MUST be an exact copy of one of the strings in the options array — same words, same capitalisation. Double-check this before returning.
 - If no valid content is found, return an empty questions array.
 
 Notes:
@@ -133,7 +137,17 @@ ${submission.notes_text || '(see attached file)'}`,
         return true;
       });
 
-      setQuestions(unique);
+      // Validate MC: correct_answer must match an option exactly (normalise case)
+      const validated = unique.map(q => {
+        if (q.question_type !== 'multiple_choice' || !q.options?.length) return q;
+        const match = q.options.find(o => o.trim().toLowerCase() === q.correct_answer?.trim().toLowerCase());
+        if (match) return { ...q, correct_answer: match };
+        // No exact match — fall back to short_answer so AI grader handles it
+        const { options: _o, ...rest } = q;
+        return { ...rest, question_type: 'short_answer' };
+      });
+
+      setQuestions(validated);
       setAnswers({});
       setCurrentQ(0);
     } catch (err) {
@@ -151,6 +165,11 @@ ${submission.notes_text || '(see attached file)'}`,
       const graded = [];
       for (const [i, q] of questions.entries()) {
         const ans = answers[i] || '';
+        // Blank answers are always incorrect — skip AI grading call
+        if (!ans.trim()) {
+          graded.push({ ...q, studentAnswer: ans, isCorrect: false });
+          continue;
+        }
         if (q.question_type === 'multiple_choice') {
           const isCorrect = ans.trim().toLowerCase() === q.correct_answer.trim().toLowerCase();
           if (isCorrect) correct++;
@@ -407,7 +426,7 @@ Reply with ONLY one word: "correct" or "incorrect". Do not add any explanation.`
                           {showExp ? 'Hide explanation' : 'Why is this the answer?'}
                         </button>
                         {showExp && (
-                          <p className="mt-1.5 text-xs text-slate-600 bg-violet-50 border border-violet-100 rounded-lg px-3 py-2 leading-relaxed">
+                          <p className="mt-1.5 text-xs text-foreground bg-violet-50 border border-violet-100 rounded-lg px-3 py-2 leading-relaxed">
                             {q.explanation}
                           </p>
                         )}
@@ -433,6 +452,14 @@ Reply with ONLY one word: "correct" or "incorrect". Do not add any explanation.`
         <div className="flex gap-3">
           <Button onClick={reset} className="flex-1 h-12 rounded-xl font-bold bg-gradient-to-r from-violet-600 to-purple-700 text-white border-0 shadow-lg hover:opacity-90">
             <RotateCcw className="w-4 h-4 mr-2" /> Back to Quizzes
+          </Button>
+          <Button variant="outline" className="flex-1 h-12 rounded-xl font-bold border-border"
+            onClick={() => {
+              const url = `${window.location.origin}/challenge?subject=${activeSubmission?.subject || ''}`;
+              navigator.clipboard.writeText(url);
+              toast.success('Challenge link copied! Send it to a friend.');
+            }}>
+            <Share2 className="w-4 h-4 mr-2" /> Challenge Friend
           </Button>
         </div>
 
@@ -486,9 +513,9 @@ Reply with ONLY one word: "correct" or "incorrect". Do not add any explanation.`
               <input
                 type="number"
                 min={1}
-                max={50}
+                max={maxQuestions}
                 value={numQuestions}
-                onChange={e => setNumQuestions(Math.min(50, Math.max(1, parseInt(e.target.value) || 1)))}
+                onChange={e => setNumQuestions(Math.min(maxQuestions, Math.max(1, parseInt(e.target.value) || 1)))}
                 className="w-16 text-center text-sm font-bold border border-border rounded-lg px-2 py-1 bg-white focus:outline-none focus:ring-2 focus:ring-violet-400"
               />
             </div>
@@ -520,7 +547,7 @@ Reply with ONLY one word: "correct" or "incorrect". Do not add any explanation.`
         <div>
           <h2 className="font-semibold text-sm text-muted-foreground mb-3">Completed ({completed.length})</h2>
           <div className="space-y-2">
-            {completed.slice(0, 10).map(sub => (
+            {(showAllCompleted ? completed : completed.slice(0, 10)).map(sub => (
               <div key={sub.id} className="bg-white rounded-xl border border-border px-4 py-3 flex items-center gap-3">
                 <SubjectIcon subject={sub.subject} size="sm" />
                 <div className="flex-1 min-w-0">
@@ -538,6 +565,12 @@ Reply with ONLY one word: "correct" or "incorrect". Do not add any explanation.`
               </div>
             ))}
           </div>
+          {completed.length > 10 && (
+            <button onClick={() => setShowAllCompleted(s => !s)}
+              className="mt-2 w-full py-2 text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors">
+              {showAllCompleted ? 'Show less' : `Show ${completed.length - 10} more`}
+            </button>
+          )}
         </div>
       )}
 

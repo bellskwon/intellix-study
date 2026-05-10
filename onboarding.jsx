@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
 
 const TUTORIAL_KEY = 'intellix_tutorial_seen';
 
@@ -119,10 +120,10 @@ function StepHowItWorks() {
 
 function StepRewards() {
   const cards = [
-    { name: 'Starbucks', img: 'https://m.media-amazon.com/images/I/61WkK8hCKLL._AC_UF894,1000_QL80_.jpg', from: '500 pts' },
-    { name: 'Amazon', img: 'https://m.media-amazon.com/images/I/71y5TQEQS4L._AC_UF894,1000_QL80_.jpg', from: '500 pts' },
-    { name: 'Nike', img: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTdnBSUatFGWtnndGAB3bidVOuhPCAoB8FMaQ&s', from: '1,500 pts' },
-    { name: 'Visa', img: 'https://productimages.nimbledeals.com/nimblebuy/visa-gift-card-133-62711-regular.jpg', from: '3,500 pts' },
+    { name: 'Starbucks', img: 'https://assets.onme.com/static/category-imagery/merchants/logos/starbucks.webp', from: '500 pts' },
+    { name: 'Amazon', img: 'https://upload.wikimedia.org/wikipedia/commons/a/a9/Amazon_logo.svg', from: '500 pts' },
+    { name: 'Nike', img: 'https://assets.onme.com/static/category-imagery/merchants/logos/nike.webp', from: '1,500 pts' },
+    { name: 'Visa', img: 'https://logodownload.org/wp-content/uploads/2016/10/visa-logo-2.png', from: '3,500 pts' },
   ];
 
   return (
@@ -352,8 +353,18 @@ export default function Onboarding({ onCreateAccount }) {
         </div>
 
         {/* Step content */}
-        <div className="flex-1 overflow-y-auto max-h-[60vh]">
-          {renderStep()}
+        <div className="flex-1 overflow-y-auto max-h-[60vh] relative">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={step}
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              transition={{ duration: 0.2, ease: 'easeInOut' }}
+            >
+              {renderStep()}
+            </motion.div>
+          </AnimatePresence>
         </div>
 
         {/* Navigation — hidden on last step which has its own CTAs */}

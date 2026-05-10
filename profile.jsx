@@ -440,7 +440,7 @@ export default function Profile() {
           Generate a read-only link your parent or guardian can bookmark to see your scores, subjects, and activity — without needing an account.
         </p>
         {user?.referral_code ? (
-          <div className="flex items-center gap-2 bg-slate-50 rounded-xl border border-border px-3 py-2">
+          <div className="flex items-center gap-2 bg-secondary rounded-xl border border-border px-3 py-2">
             <span className="flex-1 text-xs font-mono text-foreground truncate select-all">
               {`${window.location.origin}/shared/${user.referral_code}`}
             </span>

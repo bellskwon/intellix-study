@@ -314,7 +314,6 @@ export default function Premium() {
               className="flex-1 h-11 rounded-xl border border-input bg-white px-3 text-sm font-semibold text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30">
               <option value="pro">Pro</option>
               <option value="elite">Elite</option>
-              <option value="school">School</option>
             </select>
             <select
               value={giftBilling}

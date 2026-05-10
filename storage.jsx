@@ -166,7 +166,7 @@ export default function Storage() {
                       <div className="flex items-center gap-2">
                         <FolderOpen className={`w-4 h-4 shrink-0 ${snapshot.isDraggingOver ? 'text-primary' : 'text-amber-500'}`} />
                         <span className="flex-1 text-sm font-semibold text-foreground truncate">{folder.name}</span>
-                        <button onClick={() => deleteFolder(folder.id)} className="opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive">
+                        <button onClick={() => toast(`Delete "${folder.name}"?`, { action: { label: 'Delete', onClick: () => deleteFolder(folder.id) }, cancel: { label: 'Cancel' }, duration: 5000 })} className="opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive">
                           <X className="w-3.5 h-3.5" />
                         </button>
                       </div>
@@ -262,7 +262,7 @@ export default function Storage() {
                                     <button onClick={() => startEdit(card)} className="p-1.5 rounded-lg hover:bg-white transition-colors text-muted-foreground hover:text-primary">
                                       <Edit2 className="w-3 h-3" />
                                     </button>
-                                    <button onClick={() => deleteCard.mutate(card.id)} className="p-1.5 rounded-lg hover:bg-white transition-colors text-muted-foreground hover:text-destructive">
+                                    <button onClick={() => toast('Delete this flashcard?', { action: { label: 'Delete', onClick: () => deleteCard.mutate(card.id) }, cancel: { label: 'Cancel' }, duration: 5000 })} className="p-1.5 rounded-lg hover:bg-white transition-colors text-muted-foreground hover:text-destructive">
                                       <Trash2 className="w-3 h-3" />
                                     </button>
                                   </div>

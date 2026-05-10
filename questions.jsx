@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
@@ -37,6 +38,7 @@ export default function Questions() {
   const [result, setResult] = useState(null);
   const [expandedHints, setExpandedHints] = useState({});
   const [showSaveModal, setShowSaveModal] = useState(false);
+  const navigate = useNavigate();
 
   const { data: user } = useQuery({ queryKey: ['currentUser'], queryFn: () => base44.auth.me() });
   const isPremium = user?.premium_plan && user.premium_plan !== 'free' &&
@@ -238,7 +240,7 @@ IMPORTANT: If the notes contain no real study content, return an empty flashcard
             <p className="text-sm font-black text-amber-800">Free plan: up to {FREE_QUESTIONS_LIMIT} questions</p>
             <p className="text-xs text-amber-600">Upgrade to Premium for up to {PREMIUM_QUESTIONS_LIMIT} questions + unlimited uploads</p>
           </div>
-          <Button size="sm" className="bg-amber-500 hover:bg-amber-600 text-white rounded-xl font-bold shrink-0" onClick={() => window.location.href = '/premium'}>
+          <Button size="sm" className="bg-amber-500 hover:bg-amber-600 text-white rounded-xl font-bold shrink-0" onClick={() => navigate('/premium')}>
             Upgrade
           </Button>
         </div>
