@@ -418,7 +418,11 @@ export default function Profile() {
         {referralLink ? (
           <div className="flex items-center gap-2 bg-white rounded-xl border border-violet-200 px-3 py-2 mb-2">
             <span className="flex-1 text-xs font-mono text-foreground truncate select-all">{referralLink}</span>
-            <button onClick={() => { navigator.clipboard.writeText(referralLink); toast.success('Referral link copied!'); }}
+            <button onClick={() => {
+              navigator.clipboard.writeText(referralLink);
+              try { localStorage.setItem('intellix_shared_referral', 'true'); } catch {}
+              toast.success('Referral link copied!');
+            }}
               className="shrink-0 flex items-center gap-1 text-xs font-bold text-violet-600 hover:text-violet-800 transition-colors">
               <Copy className="w-3.5 h-3.5" /> Copy
             </button>

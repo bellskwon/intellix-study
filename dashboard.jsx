@@ -53,7 +53,8 @@ function GettingStarted({ user, submissions, onDismiss }) {
   const hasAvatar = !!(user?.avatar_emoji || user?.avatar_image_url);
   const hasSubmitted = submissions.length > 0;
   const hasTakenQuiz = submissions.some(s => s.quiz_score != null);
-  const hasShared = (() => { try { return !!localStorage.getItem('intellix_shared_referral'); } catch { return false; } })();
+  const hasShared = submissions.some(s => s.type === 'referral') ||
+    (() => { try { return !!localStorage.getItem('intellix_shared_referral'); } catch { return false; } })();
 
   const tasks = [
     { label: 'Set your avatar', done: hasAvatar, to: '/profile', cta: 'Go to Profile' },
