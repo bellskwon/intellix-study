@@ -138,8 +138,7 @@ export default function Premium() {
     return { display: `$${plan.monthlyPrice}`, period: '/month' };
   };
 
-  const referralCode = user?.email?.split('@')[0]?.replace(/[^a-z0-9]/gi, '') || 'user';
-  const referralLink = `https://intellix.app/join?ref=${referralCode}`;
+  const referralLink = `https://intellix.app/join?ref=${user?.referral_code || ''}`;
 
   return (
     <div className="max-w-4xl mx-auto space-y-8">

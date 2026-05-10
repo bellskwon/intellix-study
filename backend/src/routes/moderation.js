@@ -6,9 +6,8 @@ const { requireAuth } = require('../middleware/auth');
 
 const router = express.Router();
 
-// ─── EDIT THIS to set where moderation/appeal emails are sent ────────────────
-const ADMIN_MODERATION_EMAIL = '';
-// ─────────────────────────────────────────────────────────────────────────────
+// Set ADMIN_MODERATION_EMAIL in your .env / Vercel environment variables.
+const ADMIN_MODERATION_EMAIL = process.env.ADMIN_MODERATION_EMAIL || '';
 
 // Pause account after this many violations (1-indexed)
 // e.g. 4 = three warnings, final ultimatum, then paused on 4th
@@ -37,6 +36,18 @@ async function sendEmail({ to, subject, html }) {
 // Body: { title, text, file_url, subject }
 // Returns: { flagged, reason, warnings, isFinal, accountPaused, logId }
 router.post('/check', requireAuth, async (req, res) => {
+  // Paused accounts are already blocked at the app level, but guard here too
+  // so the LLM isn't called and warning counts don't keep incrementing.
+  if (req.user.account_paused) {
+    return res.json({
+      flagged: true,
+      accountPaused: true,
+      reason: 'Your account is currently paused due to repeated guideline violations.',
+      warnings: req.user.moderation_warnings,
+      isFinal: false,
+    });
+  }
+
   const { title = '', text = '', file_url, subject = '' } = req.body;
 
   // Build the content string for analysis
@@ -191,14 +202,26 @@ router.post('/appeal', async (req, res) => {
   if (!user) return res.status(401).json({ message: 'User not found' });
 
   const { logId, message = '' } = req.body;
-  if (!logId) return res.status(400).json({ message: 'logId is required' });
 
-  const log = await prisma.moderationLog.findUnique({ where: { id: logId } });
-  if (!log || log.user_email !== user.email) {
-    return res.status(404).json({ message: 'Log entry not found' });
+  // logId may be a specific entry ID, 'account-paused' (from AccountPausedScreen), or null.
+  // In all non-specific cases, fall back to the user's most recent log entry.
+  let log = null;
+  const isSpecific = logId && logId !== 'account-paused';
+  if (isSpecific) {
+    log = await prisma.moderationLog.findUnique({ where: { id: logId } });
+    if (!log || log.user_email !== user.email) {
+      return res.status(404).json({ message: 'Log entry not found' });
+    }
+  } else {
+    log = await prisma.moderationLog.findFirst({
+      where: { user_email: user.email },
+      orderBy: { created_date: 'desc' },
+    });
   }
 
-  await prisma.moderationLog.update({ where: { id: logId }, data: { appealed: true } });
+  if (log) {
+    await prisma.moderationLog.update({ where: { id: log.id }, data: { appealed: true } });
+  }
 
   await sendEmail({
     to: ADMIN_MODERATION_EMAIL,
@@ -210,8 +233,9 @@ router.post('/appeal', async (req, res) => {
         <tr><td style="padding:4px 10px;font-weight:bold">User</td><td style="padding:4px 10px">${user.full_name || 'N/A'}</td></tr>
         <tr><td style="padding:4px 10px;font-weight:bold">Email</td><td style="padding:4px 10px">${user.email}</td></tr>
         <tr><td style="padding:4px 10px;font-weight:bold">Account paused?</td><td style="padding:4px 10px">${user.account_paused ? 'Yes' : 'No'}</td></tr>
-        <tr><td style="padding:4px 10px;font-weight:bold">Warning #</td><td style="padding:4px 10px">${log.warning_number}</td></tr>
+        <tr><td style="padding:4px 10px;font-weight:bold">Warning #</td><td style="padding:4px 10px">${log?.warning_number ?? '—'}</td></tr>
       </table>
+      ${log ? `
       <h3 style="color:#374151">Flagged Content</h3>
       <table style="border-collapse:collapse;width:100%;font-size:13px;margin-bottom:16px">
         <tr><td style="padding:4px 10px;font-weight:bold">Title</td><td style="padding:4px 10px">${log.content_title || '—'}</td></tr>
@@ -219,7 +243,7 @@ router.post('/appeal', async (req, res) => {
         <tr><td style="padding:4px 10px;font-weight:bold">Reason flagged</td><td style="padding:4px 10px">${log.reason}</td></tr>
         ${log.file_url ? `<tr><td style="padding:4px 10px;font-weight:bold">File</td><td style="padding:4px 10px"><a href="${log.file_url}">View uploaded file</a></td></tr>` : ''}
         ${log.content_text ? `<tr><td style="padding:4px 10px;font-weight:bold;vertical-align:top">Content</td><td style="padding:4px 10px;white-space:pre-wrap;font-family:monospace;font-size:12px">${log.content_text.slice(0, 1000)}</td></tr>` : ''}
-      </table>
+      </table>` : '<p style="color:#6b7280;font-size:13px">(No specific content log — account-level appeal)</p>'}
       <h3 style="color:#374151">User's Message</h3>
       <p style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:12px;font-family:monospace;font-size:13px;white-space:pre-wrap">${message || '(No message provided)'}</p>
       ${user.account_paused ? `
@@ -242,7 +266,10 @@ router.get('/reinstate', async (req, res) => {
   const { token, email } = req.query;
   const adminSecret = process.env.ADMIN_SECRET;
 
-  if (!adminSecret || token !== adminSecret) {
+  if (!adminSecret) {
+    return res.status(500).send('ADMIN_SECRET is not configured on this server.');
+  }
+  if (token !== adminSecret) {
     return res.status(403).send('Invalid reinstate token.');
   }
   if (!email) return res.status(400).send('Missing email.');

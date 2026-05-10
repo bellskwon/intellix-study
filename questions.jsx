@@ -547,15 +547,3 @@ function Crown({ className }) {
   return <svg className={className} fill="currentColor" viewBox="0 0 24 24"><path d="M5 16L3 7l5.5 5L12 4l3.5 8L21 7l-2 9H5zm0 2h14v2H5v-2z"/></svg>;
 }
 
-function ContactFooter() {
-  return (
-    <div className="text-center py-4 border-t border-border mt-8">
-      <p className="text-sm text-muted-foreground">
-        Any questions?{' '}
-        <a href="mailto:intellixapp.team@gmail.com" className="text-primary font-semibold hover:underline">
-          intellixapp.team@gmail.com
-        </a>
-      </p>
-    </div>
-  );
-}

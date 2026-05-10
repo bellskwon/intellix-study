@@ -77,4 +77,18 @@ router.put('/:id', requireAuth, async (req, res) => {
   res.json(updated);
 });
 
+// ─── DELETE /api/friendships/:id ─────────────────────────────────────────────
+router.delete('/:id', requireAuth, async (req, res) => {
+  const friendship = await prisma.friendship.findUnique({ where: { id: req.params.id } });
+  if (!friendship) return res.status(404).json({ message: 'Not found' });
+
+  const email = req.user.email;
+  if (friendship.requester_email !== email && friendship.recipient_email !== email) {
+    return res.status(403).json({ message: 'Forbidden' });
+  }
+
+  await prisma.friendship.delete({ where: { id: req.params.id } });
+  res.json({ ok: true });
+});
+
 module.exports = router;

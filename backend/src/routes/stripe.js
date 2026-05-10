@@ -206,6 +206,33 @@ router.post('/webhook', async (req, res) => {
     }
   }
 
+  // ── customer.subscription.updated (plan change via portal) ───────────────────
+  if (event.type === 'customer.subscription.updated') {
+    const subscription = event.data.object;
+    const { userEmail } = subscription.metadata || {};
+    if (userEmail && subscription.items?.data?.length) {
+      const priceId = subscription.items.data[0].price.id;
+      // Reverse-map priceId → plan name using env vars
+      const plans = ['standard', 'premium'];
+      const billings = ['monthly', 'annual'];
+      let matchedPlan = null;
+      for (const plan of plans) {
+        for (const billing of billings) {
+          if (process.env[`STRIPE_PRICE_${plan.toUpperCase()}_${billing.toUpperCase()}`] === priceId) {
+            matchedPlan = plan;
+          }
+        }
+      }
+      if (matchedPlan) {
+        await prisma.user.update({
+          where: { email: userEmail },
+          data: { premium_plan: matchedPlan },
+        });
+        console.log(`[Stripe] Subscription updated: ${userEmail} → ${matchedPlan}`);
+      }
+    }
+  }
+
   // ── customer.subscription.deleted (cancellation) ───────────────────────────
   if (event.type === 'customer.subscription.deleted') {
     const subscription = event.data.object;

@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { Upload, Loader2, CheckCircle2, Camera, ClipboardPaste, X, SwitchCamera } from 'lucide-react';
+import { Upload, Loader2, CheckCircle2, Camera, ClipboardPaste, X, SwitchCamera, FileImage } from 'lucide-react';
 import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -313,7 +313,7 @@ export default function SubmitStudy({ onSuccess }) {
               <Select value={form.grade_level} onValueChange={v => setForm(f => ({ ...f, grade_level: v }))}>
                 <SelectTrigger className="mt-1.5 rounded-xl h-11"><SelectValue placeholder="Grade" /></SelectTrigger>
                 <SelectContent>
-                  {grades.map(g => <SelectItem key={g} value={g}>{g} Grade</SelectItem>)}
+                  {grades.map(g => <SelectItem key={g} value={g}>{g === 'college' ? 'College' : `${g} Grade`}</SelectItem>)}
                 </SelectContent>
               </Select>
             </div>
@@ -523,7 +523,7 @@ export default function SubmitStudy({ onSuccess }) {
                     I Understand
                   </button>
                 )}
-                {modResult.accountPaused && appealSent && (
+                {modResult.accountPaused && (
                   <button
                     onClick={dismissModeration}
                     className="w-full py-3 rounded-2xl border border-border text-muted-foreground text-sm hover:bg-secondary transition-colors"

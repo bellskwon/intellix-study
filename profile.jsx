@@ -482,7 +482,7 @@ export default function Profile() {
                 </div>
                 <div className="flex items-center gap-1.5 shrink-0">
                   <span className="text-xs font-bold text-violet-600 bg-violet-50 px-2 py-1 rounded-full">
-                    +{s.quiz_passed ? 60 : 40} XP
+                    +{s.points_awarded ?? (s.quiz_passed ? 60 : 40)} XP
                   </span>
                   {s.quiz_score != null ? (
                     <span className={`text-xs font-black px-2.5 py-1 rounded-full ${

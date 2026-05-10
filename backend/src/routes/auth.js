@@ -193,7 +193,7 @@ router.get('/shared/:shareCode', async (req, res) => {
     where: { referral_code: req.params.shareCode },
     select: {
       display_name: true, full_name: true,
-      avatar_emoji: true, avatar_color: true,
+      avatar_emoji: true, avatar_color: true, avatar_image_url: true,
       created_date: true,
       submissions: {
         select: { quiz_score: true, quiz_passed: true, points_awarded: true, subject: true, created_date: true, status: true },
@@ -213,6 +213,7 @@ router.get('/shared/:shareCode', async (req, res) => {
     display_name: user.display_name || user.full_name || 'Student',
     avatar_emoji: user.avatar_emoji || '🎓',
     avatar_color: user.avatar_color || '#7c3aed',
+    avatar_image_url: user.avatar_image_url || null,
     member_since: user.created_date,
     total_quizzes: graded.length,
     passed_quizzes: passed.length,

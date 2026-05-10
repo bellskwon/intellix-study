@@ -978,7 +978,7 @@ function StudentAssignments({ classroom, user }) {
             className="bg-white rounded-2xl border border-border p-6 shadow-sm">
             <p className="text-base font-bold text-foreground mb-5 leading-relaxed">{q.question_text}</p>
             <div className="space-y-2">
-              {q.options.map((opt, i) => (
+              {(q.options ?? []).map((opt, i) => (
                 <button key={i} onClick={() => setAnswers(a => ({ ...a, [currentQ]: opt }))}
                   className={`w-full text-left px-4 py-3 rounded-xl border-2 text-sm font-semibold transition-all ${answers[currentQ] === opt ? 'border-primary bg-primary/5 text-primary' : 'border-border hover:border-primary/40 text-foreground hover:bg-secondary/50'}`}>
                   {opt}

@@ -70,9 +70,7 @@ export default function Challenge() {
       window.history.replaceState({}, '', '/challenge');
     }
   }, []);
-  // Premium if plan is non-free AND either (a) no trial date = paid subscriber, or (b) trial still active
-  const isPremium = user?.premium_plan && user.premium_plan !== 'free' &&
-    (!user?.trial_end_date || new Date(user.trial_end_date) > new Date());
+
 
   const generate = async () => {
     if (!topic.trim() || !subject || !grade) { toast.error('Fill in all fields first!'); return; }
@@ -335,7 +333,11 @@ function QuizStep({ questions, currentQ, setCurrentQ, answers, setAnswers, onSub
   useEffect(() => {
     if (submitting) return;
     if (timeLeft <= 0) {
-      if (currentQ < questions.length - 1) setCurrentQ(q => q + 1);
+      if (currentQ < questions.length - 1) {
+        setCurrentQ(q => q + 1);
+      } else {
+        onSubmit();
+      }
       return;
     }
     const id = setInterval(() => setTimeLeft(t => t - 1), 1000);
