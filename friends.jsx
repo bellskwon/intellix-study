@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
 import { calcLevelInfo, getLeague } from '@/components/shared/LevelXPBar';
+import UserProfileModal from '@/pages/UserProfileModal';
 
 const CHALLENGE_SUBJECTS = [
   { value: 'math', label: 'Math', emoji: '🔢' },
@@ -67,6 +68,7 @@ function ChallengeButton({ friendEmail }) {
 export default function Friends() {
   const queryClient = useQueryClient();
   const [emailInput, setEmailInput] = useState('');
+  const [selectedEmail, setSelectedEmail] = useState(null);
 
   const { data: user } = useQuery({ queryKey: ['currentUser'], queryFn: () => base44.auth.me() });
 
@@ -130,6 +132,26 @@ export default function Friends() {
     onError: () => toast.error('Could not remove friend'),
   });
 
+  const buildProfileData = (email) => {
+    const u = userMap[email];
+    const friendship = allFriendships.find(f =>
+      (f.requester_email === user?.email && f.recipient_email === email) ||
+      (f.requester_email === email && f.recipient_email === user?.email)
+    ) || null;
+    return {
+      targetUser: {
+        email,
+        displayName: u?.display_name || u?.full_name || email.split('@')[0],
+        avatar_emoji: u?.avatar_emoji,
+        avatar_color: u?.avatar_color,
+        avatar_image_url: u?.avatar_image_url,
+        xp_bonus: u?.xp_bonus,
+      },
+      submissions: allSubmissions.filter(s => s.created_by === email),
+      friendship,
+    };
+  };
+
   const getFriendStats = (email) => {
     const subs = allSubmissions.filter(s => s.created_by === email);
     const approved = subs.filter(s => s.status === 'approved');
@@ -174,18 +196,19 @@ export default function Friends() {
           <h2 className="font-semibold text-sm text-muted-foreground mb-3">Friend Requests ({receivedRequests.length})</h2>
           <div className="space-y-2">
             {receivedRequests.map(req => (
-              <div key={req.id} className="bg-white rounded-xl border border-border px-4 py-3 flex items-center gap-3">
+              <div key={req.id} className="bg-white rounded-xl border border-border px-4 py-3 flex items-center gap-3 cursor-pointer hover:bg-secondary/20 transition-colors"
+                onClick={() => setSelectedEmail(req.requester_email)}>
                 <div className="w-9 h-9 rounded-xl gradient-violet flex items-center justify-center text-white font-black text-sm shrink-0">
                   {getInitial(req.requester_email)}
                 </div>
                 <p className="flex-1 text-sm font-semibold text-foreground truncate">{getName(req.requester_email)}</p>
                 <div className="flex gap-2 shrink-0">
                   <Button size="sm" className="rounded-lg h-8 font-bold bg-emerald-500 hover:bg-emerald-600 text-white"
-                    onClick={() => respondRequest.mutate({ id: req.id, status: 'accepted' })}>
+                    onClick={(e) => { e.stopPropagation(); respondRequest.mutate({ id: req.id, status: 'accepted' }); }}>
                     <Check className="w-3.5 h-3.5" />
                   </Button>
                   <Button size="sm" variant="outline" className="rounded-lg h-8"
-                    onClick={() => respondRequest.mutate({ id: req.id, status: 'declined' })}>
+                    onClick={(e) => { e.stopPropagation(); respondRequest.mutate({ id: req.id, status: 'declined' }); }}>
                     <X className="w-3.5 h-3.5" />
                   </Button>
                 </div>
@@ -219,7 +242,8 @@ export default function Friends() {
               const stats = getFriendStats(email);
               return (
                 <motion.div key={email} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}
-                  className="flex items-center gap-3 bg-secondary/30 rounded-xl px-4 py-3">
+                  onClick={() => setSelectedEmail(email)}
+                  className="flex items-center gap-3 bg-secondary/30 rounded-xl px-4 py-3 cursor-pointer hover:bg-secondary/50 transition-colors">
                   <div className="w-10 h-10 rounded-xl gradient-violet flex items-center justify-center text-white font-black text-sm shrink-0">
                     {getInitial(email)}
                   </div>
@@ -233,7 +257,7 @@ export default function Friends() {
                   </div>
                   <ChallengeButton friendEmail={email} />
                   <button
-                    onClick={() => removeFriend.mutate(friendshipId)}
+                    onClick={(e) => { e.stopPropagation(); removeFriend.mutate(friendshipId); }}
                     title="Remove friend"
                     className="p-1.5 rounded-lg text-muted-foreground hover:text-rose-500 hover:bg-rose-50 transition-colors">
                     <UserMinus className="w-4 h-4" />
@@ -264,6 +288,16 @@ export default function Friends() {
       <div className="text-center py-4 border-t border-border">
         <p className="text-sm text-muted-foreground">Any questions? <a href="mailto:intellixapp.team@gmail.com" className="text-primary font-semibold hover:underline">intellixapp.team@gmail.com</a></p>
       </div>
+
+      {selectedEmail && (
+        <UserProfileModal
+          {...buildProfileData(selectedEmail)}
+          currentUserEmail={user?.email}
+          onAddFriend={(email) => sendRequest.mutate(email)}
+          onRemoveFriend={(id) => removeFriend.mutate(id)}
+          onClose={() => setSelectedEmail(null)}
+        />
+      )}
     </div>
   );
 }

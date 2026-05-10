@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Trophy, Crown, TrendingUp, Star, Zap } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { calcLevelInfo, getLeague } from '@/components/shared/LevelXPBar';
+import UserProfileModal from '@/pages/UserProfileModal';
+import { toast } from 'sonner';
 
 const TABS = [
   { key: 'points', label: 'Points', icon: Star },
@@ -21,6 +23,8 @@ const RANK_STYLES = [
 
 export default function Leaderboard() {
   const [tab, setTab] = useState('points');
+  const [selectedEmail, setSelectedEmail] = useState(null);
+  const queryClient = useQueryClient();
 
   const { data: users = [] } = useQuery({
     queryKey: ['allUsers'],
@@ -34,6 +38,43 @@ export default function Leaderboard() {
     queryKey: ['currentUser'],
     queryFn: () => base44.auth.me(),
   });
+  const { data: allFriendships = [] } = useQuery({
+    queryKey: ['friendships'],
+    queryFn: () => base44.entities.Friendship.list('-created_date', 100),
+    enabled: !!me?.email,
+  });
+
+  const sendRequest = useMutation({
+    mutationFn: (email) => base44.entities.Friendship.create({ requester_email: me.email, recipient_email: email, status: 'pending' }),
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['friendships'] }); toast.success('Friend request sent!'); },
+    onError: (e) => toast.error(e.message || 'Could not send request'),
+  });
+
+  const removeFriend = useMutation({
+    mutationFn: (id) => base44.entities.Friendship.delete(id),
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['friendships'] }); toast.success('Friend removed'); },
+  });
+
+  const userMap = Object.fromEntries(users.map(u => [u.email, u]));
+
+  const buildProfileData = (email) => {
+    const u = userMap[email];
+    return {
+      targetUser: {
+        email,
+        displayName: u?.display_name || u?.full_name || email.split('@')[0],
+        avatar_emoji: u?.avatar_emoji,
+        avatar_color: u?.avatar_color,
+        avatar_image_url: u?.avatar_image_url,
+        xp_bonus: u?.xp_bonus,
+      },
+      submissions: submissions.filter(s => s.created_by === email),
+      friendship: allFriendships.find(f =>
+        (f.requester_email === me?.email && f.recipient_email === email) ||
+        (f.requester_email === email && f.recipient_email === me?.email)
+      ) || null,
+    };
+  };
 
   const board = users.map(u => {
     const subs = submissions.filter(s => s.created_by === u.email);
@@ -136,7 +177,8 @@ export default function Leaderboard() {
                 return (
                   <motion.div key={user?.id} initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: (rank - 1) * 0.12 }}
-                    className="flex flex-col items-center gap-2">
+                    onClick={() => user?.email && setSelectedEmail(user.email)}
+                    className="flex flex-col items-center gap-2 cursor-pointer group">
                     {rank === 1 && <Crown className="w-6 h-6 text-amber-500 animate-bounce" />}
                     <div className={`${style.size} rounded-2xl bg-gradient-to-br ${style.bg} flex items-center justify-center text-white font-black text-xl shadow-lg overflow-hidden ${isMe ? 'ring-4 ring-white ring-offset-2' : ''}`}>
                       {user?.avatarImg ? (
@@ -169,7 +211,8 @@ export default function Leaderboard() {
                 return (
                   <motion.div key={user?.id} initial={{ opacity: 0, x: i === 0 ? -20 : 20 }} animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: 0.4 + i * 0.1 }}
-                    className={`flex-1 bg-white rounded-2xl border-2 p-3 flex items-center gap-3 ${isMe ? 'border-primary/40 bg-primary/5' : 'border-border'}`}>
+                    onClick={() => user?.email && setSelectedEmail(user.email)}
+                    className={`flex-1 bg-white rounded-2xl border-2 p-3 flex items-center gap-3 cursor-pointer hover:border-primary/30 transition-colors ${isMe ? 'border-primary/40 bg-primary/5' : 'border-border'}`}>
                     <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${style.bg} flex items-center justify-center text-white font-black text-sm shrink-0 overflow-hidden`}>
                       {user?.avatarImg ? (
                         <img src={user.avatarImg} alt={user.displayName} className="w-full h-full object-cover" />
@@ -248,7 +291,8 @@ export default function Leaderboard() {
               return (
                 <motion.div key={student.id || student.email}
                   initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: Math.min(i * 0.02, 0.4) }}
-                  className={`px-5 py-3.5 flex items-center gap-4 transition-colors ${isMe ? 'bg-primary/5' : 'hover:bg-secondary/20'}`}>
+                  onClick={() => setSelectedEmail(student.email)}
+                  className={`px-5 py-3.5 flex items-center gap-4 transition-colors cursor-pointer ${isMe ? 'bg-primary/5' : 'hover:bg-secondary/30'}`}>
                   {/* Rank */}
                   <div className="w-8 text-center shrink-0">
                     {style ? (
@@ -301,6 +345,16 @@ export default function Leaderboard() {
           </a>
         </p>
       </div>
+
+      {selectedEmail && (
+        <UserProfileModal
+          {...buildProfileData(selectedEmail)}
+          currentUserEmail={me?.email}
+          onAddFriend={(email) => sendRequest.mutate(email)}
+          onRemoveFriend={(id) => removeFriend.mutate(id)}
+          onClose={() => setSelectedEmail(null)}
+        />
+      )}
     </div>
   );
 }
