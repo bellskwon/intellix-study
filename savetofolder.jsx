@@ -32,19 +32,35 @@ function setSavedItems(items) {
   localStorage.setItem('intellix_saved_items', JSON.stringify(items));
 }
 
+function getRawSavedIds() {
+  try { return JSON.parse(localStorage.getItem('intellix_saved_submission_ids') || '[]'); } catch { return []; }
+}
+
+export function getSavedSubmissionIds() {
+  return new Set(getRawSavedIds());
+}
+
 /**
  * Call this to save an item to a folder.
  * Returns the saved item id.
  */
-export function saveItemToFolder({ folderId, type, title, subject, grade, data }) {
+export function saveItemToFolder({ folderId, type, title, subject, grade, data, submissionId }) {
   const id = `${type}_${Date.now()}`;
   const items = getSavedItems();
-  items.unshift({ id, type, title, subject, grade, folderId, date: new Date().toISOString(), data });
+  items.unshift({ id, type, title, subject, grade, folderId, date: new Date().toISOString(), data, submissionId });
   setSavedItems(items);
 
   const contents = getFolderContents();
   contents[folderId] = [id, ...(contents[folderId] || [])];
   saveFolderContents(contents);
+
+  if (submissionId) {
+    const existing = getRawSavedIds();
+    if (!existing.includes(submissionId)) {
+      localStorage.setItem('intellix_saved_submission_ids', JSON.stringify([...existing, submissionId]));
+    }
+  }
+
   return id;
 }
 
@@ -64,7 +80,7 @@ export function getSavedItemsForFolder(folderId) {
  *   grade       — string (optional)
  *   data        — any (the result payload to save)
  */
-export default function SaveToFolderModal({ open, onClose, type, title, subject, grade, data }) {
+export default function SaveToFolderModal({ open, onClose, type, title, subject, grade, data, submissionId, onSaved }) {
   const [selectedId, setSelectedId] = useState(null);
   const [showNewFolder, setShowNewFolder] = useState(false);
   const [newFolderName, setNewFolderName] = useState('');
@@ -80,8 +96,9 @@ export default function SaveToFolderModal({ open, onClose, type, title, subject,
 
   const handleSave = () => {
     const folderId = selectedId || defaultFolderId;
-    saveItemToFolder({ folderId, type, title, subject, grade, data });
+    saveItemToFolder({ folderId, type, title, subject, grade, data, submissionId });
     toast.success('Saved to folder!');
+    onSaved?.();
     onClose();
   };
 

@@ -14,7 +14,7 @@ import SubmitStudy from '@/pages/SubmitStudy';
 import { PASS_THRESHOLD } from '@/components/shared/LevelXPBar';
 import SubjectIcon from '@/pages/SubjectIcon';
 import { renderWithSubscripts } from '@/lib/utils';
-import SaveToFolderModal from '@/pages/SaveToFolder';
+import SaveToFolderModal, { getSavedSubmissionIds } from '@/pages/SaveToFolder';
 
 export default function Quiz() {
   const queryClient = useQueryClient();
@@ -34,6 +34,7 @@ export default function Quiz() {
   const [showHints, setShowHints] = useState({});
   const [numQuestions, setNumQuestions] = useState(5);
   const [showAllCompleted, setShowAllCompleted] = useState(false);
+  const [savedIds, setSavedIds] = useState(() => getSavedSubmissionIds());
 
   const reportQuestion = async (q, i) => {
     try {
@@ -69,8 +70,8 @@ export default function Quiz() {
   const NON_QUIZ_TYPES = new Set(['xp_boost', 'referral', 'points_pack', 'comeback_bonus', 'video']);
   // Submissions that haven't been quizzed yet (exclude non-content types)
   const pending = submissions.filter(s => !NON_QUIZ_TYPES.has(s.type) && s.quiz_score == null && s.status !== 'rejected');
-  // Submissions that have been quizzed (exclude non-content types)
-  const completed = submissions.filter(s => !NON_QUIZ_TYPES.has(s.type) && s.quiz_score != null);
+  // Submissions that have been quizzed (exclude non-content types and already-saved ones)
+  const completed = submissions.filter(s => !NON_QUIZ_TYPES.has(s.type) && s.quiz_score != null && !savedIds.has(s.id));
 
   // ── Generate quiz from a submission's notes ──────────────────────────────
   const startQuiz = async (submission, count = numQuestions) => {
@@ -464,6 +465,8 @@ Reply with ONLY one word: "correct" or "incorrect". Do not add any explanation.`
           subject={activeSubmission?.subject}
           grade={activeSubmission?.grade_level}
           data={results}
+          submissionId={activeSubmission?.id}
+          onSaved={() => setSavedIds(getSavedSubmissionIds())}
         />
       </div>
     );

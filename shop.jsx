@@ -475,11 +475,11 @@ function ShopCard({ item, section, unlocked, availablePoints, onOrder, ordering 
       ${!unlocked ? 'opacity-50' : ''}`}>
 
       {/* ── Gift card image ──────────────────────────────────────────────── */}
-      <div className="w-full h-44 bg-muted overflow-hidden shrink-0">
+      <div className="w-full h-44 bg-muted overflow-hidden shrink-0 flex items-center justify-center p-6">
         <img
           src={item.image}
           alt={item.name}
-          className="w-full h-full object-cover object-center"
+          className="w-full h-full object-contain"
           loading="lazy"
           onError={e => { e.currentTarget.style.display = 'none'; e.currentTarget.nextSibling.style.display = 'flex'; }}
         />

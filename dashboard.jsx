@@ -180,7 +180,9 @@ export default function Dashboard() {
 
   const displayName = user?.display_name?.split(' ')[0] || user?.full_name?.split(' ')[0] || 'Student';
 
-  const lastActivity = submissions[0]?.created_date || null;
+  const NON_STREAK_TYPES = new Set(['xp_boost', 'referral', 'points_pack', 'comeback_bonus']);
+  const studySubmissions = submissions.filter(s => !NON_STREAK_TYPES.has(s.type));
+  const lastActivity = studySubmissions[0]?.created_date || null;
   const streak = user?.streak_count ?? 0;
   const today = new Date().toDateString();
   const lastActivityDay = lastActivity ? new Date(lastActivity).toDateString() : null;

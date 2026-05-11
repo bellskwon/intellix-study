@@ -262,6 +262,9 @@ function TeacherOverview({ classroom }) {
     queryKey: ['classProgress', classroom.id],
     queryFn: () => base44.classroom.getProgress(classroom.id),
   });
+  const { data: allUsers = [] } = useQuery({ queryKey: ['allUsers'], queryFn: () => base44.entities.User.list() });
+  const userMap = Object.fromEntries(allUsers.map(u => [u.email, u]));
+  const getName = (email) => { const u = userMap[email]; return u?.display_name || u?.full_name || email.split('@')[0]; };
 
   if (isLoading) return <LoadingSpinner />;
 
@@ -316,10 +319,10 @@ function TeacherOverview({ classroom }) {
             {studentStats.map(s => (
               <div key={s.email} className="flex items-center gap-4 px-5 py-3">
                 <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-xs font-black text-primary shrink-0">
-                  {s.email[0].toUpperCase()}
+                  {getName(s.email)[0].toUpperCase()}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold text-foreground truncate">{s.email}</p>
+                  <p className="text-sm font-semibold text-foreground truncate">{getName(s.email)}</p>
                   <p className="text-xs text-muted-foreground">{s.completed}/{s.total} assignments done</p>
                 </div>
                 <div className="text-right shrink-0">
@@ -369,6 +372,9 @@ const blankQuestion = () => ({ question_text: '', options: ['', '', '', ''], cor
 
 function TeacherAssignments({ classroom }) {
   const queryClient = useQueryClient();
+  const { data: allUsers = [] } = useQuery({ queryKey: ['allUsers'], queryFn: () => base44.entities.User.list() });
+  const userMap = Object.fromEntries(allUsers.map(u => [u.email, u]));
+  const getName = (email) => { const u = userMap[email]; return u?.display_name || u?.full_name || email.split('@')[0]; };
   const [view, setView] = useState('list'); // list | create | results
   const [selectedAssignment, setSelectedAssignment] = useState(null);
   const [title, setTitle] = useState('');
@@ -476,9 +482,9 @@ correct_answer must be the full text of the correct option. Include a 1-sentence
             {results.map(r => (
               <div key={r.id} className="bg-white rounded-xl border border-border px-4 py-3 flex items-center gap-3">
                 <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-xs font-black text-primary shrink-0">
-                  {r.student_email[0].toUpperCase()}
+                  {getName(r.student_email)[0].toUpperCase()}
                 </div>
-                <p className="flex-1 text-sm font-semibold text-foreground truncate">{r.student_email}</p>
+                <p className="flex-1 text-sm font-semibold text-foreground truncate">{getName(r.student_email)}</p>
                 <span className={`text-sm font-black shrink-0 ${r.score >= PASS_SCORE ? 'text-emerald-600' : 'text-rose-500'}`}>{r.score}%</span>
                 {r.passed ? <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" /> : <XCircle className="w-4 h-4 text-rose-400 shrink-0" />}
               </div>
@@ -816,6 +822,9 @@ All cards must be unique.`,
 // ── Teacher: Students ─────────────────────────────────────────────────────────
 function TeacherStudents({ classroom }) {
   const queryClient = useQueryClient();
+  const { data: allUsers = [] } = useQuery({ queryKey: ['allUsers'], queryFn: () => base44.entities.User.list() });
+  const userMap = Object.fromEntries(allUsers.map(u => [u.email, u]));
+  const getName = (email) => { const u = userMap[email]; return u?.display_name || u?.full_name || email.split('@')[0]; };
   const removeMember = useMutation({
     mutationFn: ({ id, email }) => base44.classroom.removeMember(id, email),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['classrooms'] }),
@@ -832,9 +841,9 @@ function TeacherStudents({ classroom }) {
           {classroom.members.map(m => (
             <div key={m.id} className="flex items-center gap-3 px-4 py-3">
               <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-xs font-black text-primary shrink-0">
-                {m.student_email[0].toUpperCase()}
+                {getName(m.student_email)[0].toUpperCase()}
               </div>
-              <p className="flex-1 text-sm font-semibold text-foreground truncate">{m.student_email}</p>
+              <p className="flex-1 text-sm font-semibold text-foreground truncate">{getName(m.student_email)}</p>
               <button onClick={() => removeMember.mutate({ id: classroom.id, email: m.student_email })}
                 className="text-muted-foreground hover:text-rose-500 transition-colors" title="Remove student">
                 <X className="w-4 h-4" />

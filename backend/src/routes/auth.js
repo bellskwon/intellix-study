@@ -124,9 +124,12 @@ router.get('/callback', async (req, res) => {
 
 // ─── GET /api/auth/me ────────────────────────────────────────────────────────
 router.get('/me', requireAuth, async (req, res) => {
-  // Compute streak: count consecutive days (ending today) that have a submission
+  // Compute streak: count consecutive days with actual study activity (exclude bonus/reward types)
   const submissions = await prisma.submission.findMany({
-    where: { created_by: req.user.email },
+    where: {
+      created_by: req.user.email,
+      type: { notIn: ['xp_boost', 'referral', 'points_pack', 'comeback_bonus'] },
+    },
     select: { created_date: true },
     orderBy: { created_date: 'desc' },
   });
