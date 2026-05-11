@@ -16,18 +16,18 @@ const transporter = nodemailer.createTransport({
 const emailConfigured = () => !!(process.env.SMTP_USER && process.env.SMTP_PASS);
 
 // ─── GET /api/notifications/comeback-check ────────────────────────────────────
-// Called when the dashboard loads. If the user has been away for 3+ days and
-// hasn't received a comeback bonus in the last 7 days, award 15 bonus points.
+// Called when the dashboard loads. If the user has been away for 7+ days and
+// hasn't received a comeback bonus in the last 30 days, award 15 bonus points.
 router.get('/comeback-check', requireAuth, async (req, res) => {
   const email = req.user.email;
 
   const now = new Date();
-  const threeDaysAgo = new Date(now); threeDaysAgo.setDate(now.getDate() - 3);
-  const sevenDaysAgo = new Date(now); sevenDaysAgo.setDate(now.getDate() - 7);
+  const sevenDaysAgo  = new Date(now); sevenDaysAgo.setDate(now.getDate() - 7);
+  const thirtyDaysAgo = new Date(now); thirtyDaysAgo.setDate(now.getDate() - 30);
 
-  // Check for a recent comeback bonus (avoid double-awarding)
+  // Check for a recent comeback bonus (avoid double-awarding within 30 days)
   const recentBonus = await prisma.submission.findFirst({
-    where: { created_by: email, type: 'comeback_bonus', created_date: { gte: sevenDaysAgo } },
+    where: { created_by: email, type: 'comeback_bonus', created_date: { gte: thirtyDaysAgo } },
   });
   if (recentBonus) return res.json({ bonus: false });
 
@@ -43,7 +43,7 @@ router.get('/comeback-check', requireAuth, async (req, res) => {
   if (!lastReal) return res.json({ bonus: false });
 
   const lastDate = new Date(lastReal.created_date);
-  if (lastDate >= threeDaysAgo) return res.json({ bonus: false });
+  if (lastDate >= sevenDaysAgo) return res.json({ bonus: false });
 
   // Award the bonus
   await prisma.submission.create({
