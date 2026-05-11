@@ -30,19 +30,6 @@ const PLANS = [
     trialDays: 0,
   },
   {
-    id: 'pro',
-    name: 'Pro',
-    monthlyPrice: 4.99,
-    yearlyPrice: 41.99,
-    badge: '3-day free trial',
-    gradient: 'from-violet-600 to-purple-700',
-    features: ['Up to 50 questions per session','20 uploads per day','Advanced key point analysis','Difficulty-filtered questions','Priority grading','Unlock shop early (Lv.35)','2x Referral XP bonus','Streak Shield (monthly)'],
-    cta: 'Start Free Trial',
-    ctaDisabled: false,
-    highlight: true,
-    trialDays: 3,
-  },
-  {
     id: 'elite',
     name: 'Elite',
     monthlyPrice: 9.99,
@@ -52,7 +39,20 @@ const PLANS = [
     features: ['Unlimited questions & uploads','All Pro features','Full shop unlocked at Level 350','Shop unlocked early at Lv.35','3x XP from all activities','5x Referral XP bonus','Priority support','Early access to new features'],
     cta: 'Start Free Trial',
     ctaDisabled: false,
+    highlight: true,
     trialDays: 1,
+  },
+  {
+    id: 'pro',
+    name: 'Pro',
+    monthlyPrice: 4.99,
+    yearlyPrice: 41.99,
+    badge: '3-day free trial',
+    gradient: 'from-violet-600 to-purple-700',
+    features: ['Up to 50 questions per session','20 uploads per day','Advanced key point analysis','Difficulty-filtered questions','Priority grading','Unlock shop early (Lv.35)','2x Referral XP bonus','Streak Shield (monthly)'],
+    cta: 'Start Free Trial',
+    ctaDisabled: false,
+    trialDays: 3,
   },
 ];
 
@@ -189,7 +189,7 @@ export default function Premium() {
           const isActive = activePlan === plan.id;
           return (
             <motion.div key={plan.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }}
-              className={`rounded-3xl overflow-hidden ${plan.highlight ? 'ring-2 ring-primary shadow-2xl shadow-primary/20 scale-105' : 'border border-border'}`}>
+              className={`rounded-3xl overflow-hidden ${plan.highlight ? 'ring-2 ring-amber-500 shadow-2xl shadow-amber-200 scale-105' : 'border border-border'}`}>
               {plan.badge && (
                 <div className={`text-center py-2 text-xs font-black ${plan.id === 'pro' ? 'bg-primary text-white' : 'bg-amber-500 text-white'}`}>
                   {plan.badge}
@@ -225,8 +225,8 @@ export default function Premium() {
                   disabled={plan.ctaDisabled || isActive}
                   className={`w-full rounded-xl font-bold h-11 ${
                     isActive ? 'bg-emerald-100 text-emerald-700 cursor-default' :
-                    plan.highlight ? 'bg-primary text-white hover:bg-primary/90' :
                     plan.id === 'elite' ? 'bg-amber-500 text-white hover:bg-amber-600' :
+                    plan.id === 'pro' ? 'bg-primary text-white hover:bg-primary/90' :
                     'bg-secondary text-foreground hover:bg-secondary/80'
                   }`}>
                   {isActive ? (trialExpired ? 'Trial Ended' : 'Active Plan') : plan.cta}
