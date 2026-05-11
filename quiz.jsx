@@ -4,7 +4,7 @@ import { base44 } from '@/api/base44Client';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   FlaskConical, Upload, CheckCircle2, XCircle, Trophy,
-  RotateCcw, Loader2, ArrowRight, BookOpen, Star, Flag, ChevronDown, ChevronUp, AlertTriangle, Sparkles, Share2,
+  RotateCcw, Loader2, ArrowRight, BookOpen, Star, Flag, ChevronDown, ChevronUp, AlertTriangle, Sparkles,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -453,14 +453,6 @@ Reply with ONLY one word: "correct" or "incorrect". Do not add any explanation.`
         <div className="flex gap-3">
           <Button onClick={reset} className="flex-1 h-12 rounded-xl font-bold bg-gradient-to-r from-violet-600 to-purple-700 text-white border-0 shadow-lg hover:opacity-90">
             <RotateCcw className="w-4 h-4 mr-2" /> Back to Quizzes
-          </Button>
-          <Button variant="outline" className="flex-1 h-12 rounded-xl font-bold border-border"
-            onClick={() => {
-              const url = `${window.location.origin}/challenge?subject=${activeSubmission?.subject || ''}`;
-              navigator.clipboard.writeText(url);
-              toast.success('Challenge link copied! Send it to a friend.');
-            }}>
-            <Share2 className="w-4 h-4 mr-2" /> Challenge Friend
           </Button>
         </div>
 
