@@ -342,11 +342,10 @@ export default function Premium() {
           <div className="flex-1">
             <h3 className="font-black text-foreground text-lg">Referral Rewards</h3>
             <p className="text-sm text-muted-foreground mt-1 mb-4">Invite friends — earn XP when they join and study!</p>
-            <div className="grid sm:grid-cols-3 gap-3">
+            <div className="grid sm:grid-cols-2 gap-3">
               {[
                 { Icon: Users, label: 'Friend Signs Up', xp: '+50 XP', color: 'text-emerald-600' },
                 { Icon: Zap, label: 'Friend Takes Quiz', xp: '+100 XP', color: 'text-violet-600' },
-                { Icon: Crown, label: 'Friend Goes Premium', xp: '+500 XP', color: 'text-amber-600' },
               ].map(r => (
                 <div key={r.label} className="bg-white rounded-xl border border-emerald-100 p-3 text-center">
                   <div className="w-8 h-8 rounded-lg bg-emerald-50 flex items-center justify-center mx-auto mb-1.5">
