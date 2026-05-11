@@ -113,6 +113,7 @@ export default function SubmitStudy({ onSuccess }) {
   const [appealSending, setAppealSending] = useState(false);
 
   const [showCamera, setShowCamera] = useState(false);
+  const [formError, setFormError] = useState(null);
   const fileInputRef = useRef();
   const queryClient = useQueryClient();
 
@@ -188,26 +189,27 @@ export default function SubmitStudy({ onSuccess }) {
     },
     onError: () => {
       setUploading(false);
-      toast.error('Upload failed. Please try again.');
+      setFormError('Upload failed. Please check your connection and try again.');
     },
   });
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    setFormError(null);
     if (!form.title || !form.subject || !form.grade_level) {
-      toast.error('Please fill in the title, subject, and grade level');
+      setFormError('Please fill in the title, subject, and grade level.');
       return;
     }
     if ((inputMode === 'file' || inputMode === 'camera') && !file) {
-      toast.error(inputMode === 'camera' ? 'Please take a photo first' : 'Please upload a file');
+      setFormError(inputMode === 'camera' ? 'Please take a photo first.' : 'Please upload a file.');
       return;
     }
     if (inputMode === 'text' && !form.notes_text?.trim()) {
-      toast.error('Please enter your notes text');
+      setFormError('Please enter your notes text.');
       return;
     }
     if (inputMode === 'text' && form.notes_text.trim().length < 50) {
-      toast.error('Notes must be at least 50 characters — add more content for a meaningful quiz.');
+      setFormError('Notes must be at least 50 characters — add more content for a meaningful quiz.');
       return;
     }
     createMutation.mutate(form);
@@ -412,6 +414,13 @@ export default function SubmitStudy({ onSuccess }) {
             {inputMode === 'file' && ' PDF or image files work best — keep file size under 10MB.'}
           </p>
         </div>
+
+        {formError && (
+          <div className="flex items-start gap-2 bg-rose-50 border border-rose-200 text-rose-700 text-sm font-semibold rounded-xl px-4 py-3">
+            <span className="shrink-0 mt-0.5">⚠️</span>
+            <span>{formError}</span>
+          </div>
+        )}
 
         <Button type="submit" className="w-full h-13 text-base font-black rounded-xl shadow-lg shadow-purple-500/20 bg-gradient-to-r from-violet-600 to-purple-700 hover:from-violet-700 hover:to-purple-800" disabled={uploading}>
           {uploading
