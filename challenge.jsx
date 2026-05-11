@@ -80,8 +80,13 @@ export default function Challenge() {
     const topicDetail = specificTopic ? `Specifically about: ${specificTopic}.` : '';
 
     const mathNote = subject === 'math' ? ' IMPORTANT: Verify ALL math calculations are correct before including. Double-check arithmetic using a step-by-step approach. Never include a wrong answer.' : '';
-    const res = await base44.integrations.Core.InvokeLLM({
-      prompt: `You are an expert curriculum writer creating a quiz for a ${grade} grade student.
+
+    const timeoutPromise = new Promise((_, reject) =>
+      setTimeout(() => reject(new Error('Generation timed out — the AI took too long. Please try again.')), 30000)
+    );
+    const res = await Promise.race([
+      base44.integrations.Core.InvokeLLM({
+        prompt: `You are an expert curriculum writer creating a quiz for a ${grade} grade student.
 Topic: "${topic}" (subject: ${subject}). ${topicDetail}${mathNote}
 
 RULES:
@@ -93,25 +98,27 @@ RULES:
 - Calibrate difficulty exactly to ${grade} grade. Do not include content beyond that level.
 - Mix types: 2-3 short answer, 1-2 fill-in-the-blank, 1 multiple choice (exactly 4 options).
 - If the topic is blank, nonsensical, or not a real school subject, return an empty questions array.`,
-      response_json_schema: {
-        type: "object",
-        properties: {
-          questions: {
-            type: "array",
-            items: {
-              type: "object",
-              properties: {
-                question_text: { type: "string" },
-                question_type: { type: "string", enum: ["short_answer","fill_blank","multiple_choice"] },
-                options: { type: "array", items: { type: "string" } },
-                correct_answer: { type: "string" },
-                hint: { type: "string" }
+        response_json_schema: {
+          type: "object",
+          properties: {
+            questions: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  question_text: { type: "string" },
+                  question_type: { type: "string", enum: ["short_answer","fill_blank","multiple_choice"] },
+                  options: { type: "array", items: { type: "string" } },
+                  correct_answer: { type: "string" },
+                  hint: { type: "string" }
+                }
               }
             }
           }
         }
-      }
-    });
+      }),
+      timeoutPromise,
+    ]);
 
     if (!res.questions || res.questions.length === 0) {
       toast.error("We couldn't generate questions for that topic. Please enter a real study subject!");
@@ -198,7 +205,7 @@ Reply with only "correct" or "incorrect".`
   };
 
   if (step === 'setup') return <SetupStep topic={topic} setTopic={setTopic} subject={subject} setSubject={setSubject} grade={grade} setGrade={setGrade} specificTopic={specificTopic} setSpecificTopic={setSpecificTopic} onStart={generate} alreadyPassedToday={alreadyPassedToday} />;
-  if (step === 'generating') return <GeneratingStep />;
+  if (step === 'generating') return <GeneratingStep onCancel={() => setStep('setup')} />;
   if (step === 'quiz') return <QuizStep questions={questions} currentQ={currentQ} setCurrentQ={setCurrentQ} answers={answers} setAnswers={setAnswers} onSubmit={submitQuiz} submitting={submitting} showHints={showHints} setShowHints={setShowHints} />;
   if (step === 'results') return <ResultsStep results={results} topic={topic} subject={subject} grade={grade} onRetry={() => { setStep('setup'); setResults(null); }} showSaveModal={showSaveModal} setShowSaveModal={setShowSaveModal} />;
 }
@@ -295,7 +302,7 @@ function SetupStep({ topic, setTopic, subject, setSubject, grade, setGrade, spec
   );
 }
 
-function GeneratingStep() {
+function GeneratingStep({ onCancel }) {
   return (
     <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
       <motion.div
@@ -306,13 +313,17 @@ function GeneratingStep() {
         <Zap className="w-7 h-7 text-white" />
       </motion.div>
       <h2 className="text-lg font-black text-foreground">Building your challenge...</h2>
-      <p className="text-sm text-muted-foreground">Building your personalized questions...</p>
+      <p className="text-sm text-muted-foreground">Generating your personalized questions...</p>
       <div className="flex gap-1 mt-2">
         {[0, 1, 2].map(i => (
           <motion.div key={i} className="w-2 h-2 rounded-full bg-primary"
             animate={{ y: [0, -8, 0] }} transition={{ duration: 0.6, repeat: Infinity, delay: i * 0.2 }} />
         ))}
       </div>
+      <button onClick={onCancel}
+        className="mt-4 text-xs text-muted-foreground hover:text-foreground underline-offset-2 hover:underline transition-colors">
+        Cancel
+      </button>
     </div>
   );
 }

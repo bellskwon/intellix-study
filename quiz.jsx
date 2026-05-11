@@ -66,7 +66,7 @@ export default function Quiz() {
     enabled: !!user?.email,
   });
 
-  const NON_QUIZ_TYPES = new Set(['xp_boost', 'referral', 'points_pack', 'comeback_bonus']);
+  const NON_QUIZ_TYPES = new Set(['xp_boost', 'referral', 'points_pack', 'comeback_bonus', 'video']);
   // Submissions that haven't been quizzed yet (exclude non-content types)
   const pending = submissions.filter(s => !NON_QUIZ_TYPES.has(s.type) && s.quiz_score == null && s.status !== 'rejected');
   // Submissions that have been quizzed (exclude non-content types)
