@@ -43,6 +43,7 @@ export default function UserProfileModal({
   if (!targetUser) return null;
 
   const isMe = targetUser.email === currentUserEmail;
+  const showStats = isMe || targetUser.share_stats !== false;
   const { level } = calcLevelInfo(submissions, targetUser.xp_bonus || 0);
   const league = getLeague(level);
 
@@ -101,21 +102,27 @@ export default function UserProfileModal({
           </div>
 
           {/* Stats */}
-          <div className="grid grid-cols-3 divide-x divide-border border-y border-border">
-            {[
-              { label: 'Points', value: points.toLocaleString() },
-              { label: 'Passed', value: passed },
-              { label: 'Subjects', value: subjects.length },
-            ].map(s => (
-              <div key={s.label} className="py-4 text-center">
-                <p className="text-xl font-black text-foreground">{s.value}</p>
-                <p className="text-[11px] text-muted-foreground mt-0.5">{s.label}</p>
-              </div>
-            ))}
-          </div>
+          {showStats ? (
+            <div className="grid grid-cols-3 divide-x divide-border border-y border-border">
+              {[
+                { label: 'Points', value: points.toLocaleString() },
+                { label: 'Passed', value: passed },
+                { label: 'Subjects', value: subjects.length },
+              ].map(s => (
+                <div key={s.label} className="py-4 text-center">
+                  <p className="text-xl font-black text-foreground">{s.value}</p>
+                  <p className="text-[11px] text-muted-foreground mt-0.5">{s.label}</p>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="border-y border-border py-4 px-6 text-center">
+              <p className="text-xs text-muted-foreground">This user keeps their stats private.</p>
+            </div>
+          )}
 
           {/* Subjects */}
-          {subjects.length > 0 && (
+          {showStats && subjects.length > 0 && (
             <div className="px-6 py-4 border-b border-border">
               <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-2">
                 Subjects studied

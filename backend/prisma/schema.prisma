@@ -27,6 +27,9 @@ model User {
   moderation_warnings Int     @default(0)
   account_paused      Boolean @default(false)
 
+  // ── Privacy ──────────────────────────────────────────────────────────────
+  share_stats        Boolean @default(true)
+
   // ── Payments & Classrooms ────────────────────────────────────────────────
   stripe_customer_id String?
   is_teacher         Boolean @default(false)

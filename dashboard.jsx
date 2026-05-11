@@ -153,6 +153,7 @@ export default function Dashboard() {
     enabled: friendEmails.length > 0,
   });
   const friendNameMap = Object.fromEntries(allUsers.map(u => [u.email, u.display_name || u.full_name || u.email.split('@')[0]]));
+  const friendShareMap = Object.fromEntries(allUsers.map(u => [u.email, u.share_stats !== false]));
   const friendActivity = allRecentSubs
     .filter(s => friendEmails.includes(s.created_by) && s.quiz_score != null)
     .slice(0, 6);
@@ -334,12 +335,18 @@ export default function Dashboard() {
                     <span>{formatDistanceToNow(new Date(s.created_date), { addSuffix: true })}</span>
                   </p>
                 </div>
-                <span className={`text-sm font-black shrink-0 px-2 py-0.5 rounded-full ${
-                  s.quiz_score >= 80 ? 'bg-emerald-50 text-emerald-600' :
-                  s.quiz_score >= 60 ? 'bg-amber-50 text-amber-600' :
-                  'bg-rose-50 text-rose-500'}`}>
-                  {s.quiz_score}%
-                </span>
+                {friendShareMap[s.created_by] ? (
+                  <span className={`text-sm font-black shrink-0 px-2 py-0.5 rounded-full ${
+                    s.quiz_score >= 80 ? 'bg-emerald-50 text-emerald-600' :
+                    s.quiz_score >= 60 ? 'bg-amber-50 text-amber-600' :
+                    'bg-rose-50 text-rose-500'}`}>
+                    {s.quiz_score}%
+                  </span>
+                ) : (
+                  <span className="text-xs font-semibold shrink-0 px-2 py-0.5 rounded-full bg-secondary text-muted-foreground">
+                    Studied
+                  </span>
+                )}
               </motion.div>
             ))}
           </div>

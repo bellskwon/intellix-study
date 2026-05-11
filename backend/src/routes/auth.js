@@ -160,7 +160,7 @@ router.get('/me', requireAuth, async (req, res) => {
 router.put('/me', requireAuth, async (req, res) => {
   const allowed = [
     'display_name', 'avatar_emoji', 'avatar_color', 'avatar_image_url',
-    'premium_plan', 'trial_end_date',
+    'premium_plan', 'trial_end_date', 'share_stats',
   ];
   const data = {};
   for (const key of allowed) {

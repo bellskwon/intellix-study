@@ -146,6 +146,7 @@ export default function Friends() {
         avatar_color: u?.avatar_color,
         avatar_image_url: u?.avatar_image_url,
         xp_bonus: u?.xp_bonus,
+        share_stats: u?.share_stats,
       },
       submissions: allSubmissions.filter(s => s.created_by === email),
       friendship,

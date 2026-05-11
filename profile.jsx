@@ -468,6 +468,36 @@ export default function Profile() {
         <p className="text-[11px] text-muted-foreground mt-1">Note: this uses the same code as your referral link but opens a separate read-only dashboard — it cannot be used to earn referral bonuses.</p>
       </div>
 
+      {/* Privacy Settings */}
+      <div className="bg-white rounded-2xl border border-border p-5">
+        <h2 className="font-bold text-sm text-foreground mb-1">Privacy Settings</h2>
+        <p className="text-xs text-muted-foreground mb-4">Control what your friends can see about your activity.</p>
+        <div className="flex items-center justify-between gap-4">
+          <div>
+            <p className="text-sm font-semibold text-foreground">Share quiz scores with friends</p>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              {user?.share_stats !== false
+                ? 'Friends can see your individual quiz scores in their dashboard.'
+                : 'Friends only see that you studied — not your scores.'}
+            </p>
+          </div>
+          <button
+            onClick={async () => {
+              const next = user?.share_stats === false ? true : false;
+              await base44.auth.updateMe({ share_stats: next });
+              queryClient.invalidateQueries({ queryKey: ['currentUser'] });
+              toast.success(next ? 'Quiz scores are now visible to friends.' : 'Quiz scores hidden from friends.');
+            }}
+            className={`relative shrink-0 w-12 h-6 rounded-full transition-colors duration-200 focus:outline-none ${
+              user?.share_stats !== false ? 'bg-violet-600' : 'bg-muted'
+            }`}>
+            <span className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform duration-200 ${
+              user?.share_stats !== false ? 'translate-x-6' : 'translate-x-0'
+            }`} />
+          </button>
+        </div>
+      </div>
+
       {/* Quiz History */}
       {visibleSubmissions.length > 0 && (
         <div className="bg-white rounded-2xl border border-border overflow-hidden">
