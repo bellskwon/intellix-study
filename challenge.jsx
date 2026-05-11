@@ -30,6 +30,7 @@ const PASS_THRESHOLD = 80;
 
 export default function Challenge() {
   const [step, setStep] = useState('setup'); // setup | generating | quiz | results
+  const [generateError, setGenerateError] = useState(null);
   const [topic, setTopic] = useState('');
   const [subject, setSubject] = useState('');
   const [grade, setGrade] = useState('');
@@ -75,6 +76,7 @@ export default function Challenge() {
   const generate = async () => {
     if (!topic.trim() || !subject || !grade) { toast.error('Fill in all fields first!'); return; }
     if (subject === 'math' && !specificTopic.trim()) { toast.error('Please specify the type of math (e.g. Algebra, Fractions).'); return; }
+    setGenerateError(null);
     setStep('generating');
     try {
     const topicDetail = specificTopic ? `Specifically about: ${specificTopic}.` : '';
@@ -121,8 +123,7 @@ RULES:
     ]);
 
     if (!res.questions || res.questions.length === 0) {
-      toast.error("We couldn't generate questions for that topic. Please enter a real study subject!");
-      setStep('setup');
+      setGenerateError("That doesn't look like a real study topic. Please enter something you're actually studying (e.g. Photosynthesis, World War II, Algebra).");
       return;
     }
 
@@ -141,8 +142,7 @@ RULES:
     setCurrentQ(0);
     setStep('quiz');
     } catch (err) {
-      toast.error(`Generation failed: ${err?.message || 'Unknown error'}`);
-      setStep('setup');
+      setGenerateError(err?.message || 'Something went wrong generating your challenge. Please try again.');
     }
   };
 
@@ -205,7 +205,7 @@ Reply with only "correct" or "incorrect".`
   };
 
   if (step === 'setup') return <SetupStep topic={topic} setTopic={setTopic} subject={subject} setSubject={setSubject} grade={grade} setGrade={setGrade} specificTopic={specificTopic} setSpecificTopic={setSpecificTopic} onStart={generate} alreadyPassedToday={alreadyPassedToday} />;
-  if (step === 'generating') return <GeneratingStep onCancel={() => setStep('setup')} />;
+  if (step === 'generating') return <GeneratingStep error={generateError} onCancel={() => { setStep('setup'); setGenerateError(null); }} />;
   if (step === 'quiz') return <QuizStep questions={questions} currentQ={currentQ} setCurrentQ={setCurrentQ} answers={answers} setAnswers={setAnswers} onSubmit={submitQuiz} submitting={submitting} showHints={showHints} setShowHints={setShowHints} />;
   if (step === 'results') return <ResultsStep results={results} topic={topic} subject={subject} grade={grade} onRetry={() => { setStep('setup'); setResults(null); }} showSaveModal={showSaveModal} setShowSaveModal={setShowSaveModal} />;
 }
@@ -302,7 +302,24 @@ function SetupStep({ topic, setTopic, subject, setSubject, grade, setGrade, spec
   );
 }
 
-function GeneratingStep({ onCancel }) {
+function GeneratingStep({ error, onCancel }) {
+  if (error) {
+    return (
+      <div className="max-w-md mx-auto flex flex-col items-center justify-center min-h-[60vh] gap-5 text-center px-4">
+        <div className="w-16 h-16 rounded-full bg-rose-100 flex items-center justify-center">
+          <XCircle className="w-8 h-8 text-rose-500" />
+        </div>
+        <div>
+          <h2 className="text-lg font-black text-foreground">Couldn't build your challenge</h2>
+          <p className="text-sm text-muted-foreground mt-2 leading-relaxed">{error}</p>
+        </div>
+        <Button onClick={onCancel} className="rounded-xl font-bold bg-gradient-to-r from-violet-500 to-purple-600 border-0 text-white px-8">
+          <RotateCcw className="w-4 h-4 mr-2" /> Try Again
+        </Button>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
       <motion.div
