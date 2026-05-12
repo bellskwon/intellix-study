@@ -188,7 +188,8 @@ export default function Dashboard() {
   const lastActivityDay = lastActivity ? new Date(lastActivity).toDateString() : null;
   const streakAtRisk = streak > 0 && lastActivityDay !== today;
 
-  const pendingQuizzes = submissions.filter(s => s.quiz_score == null && s.status !== 'rejected').length;
+  const NON_QUIZ_TYPES = new Set(['xp_boost', 'referral', 'points_pack', 'comeback_bonus', 'video']);
+  const pendingQuizzes = submissions.filter(s => !NON_QUIZ_TYPES.has(s.type) && s.quiz_score == null && s.status !== 'rejected').length;
 
   return (
     <div className="max-w-4xl mx-auto space-y-6 pb-8">

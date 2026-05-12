@@ -114,6 +114,7 @@ export const base44 = {
     CalendarEvent: makeEntity('calendar-events'),
     QuizQuestion:  makeEntity('quiz-questions'),
     User:          makeEntity('users'),
+    Folder:        makeEntity('folders'),
   },
 
   // ── Orders ────────────────────────────────────────────────────────────────

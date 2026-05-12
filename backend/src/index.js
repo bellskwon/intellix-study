@@ -22,6 +22,7 @@ const moderationRoutes = require('./routes/moderation');
 const stripeRoutes = require('./routes/stripe');
 const classroomRoutes = require('./routes/classroom');
 const notificationRoutes = require('./routes/notifications');
+const folderRoutes = require('./routes/folders');
 
 const app = express();
 
@@ -79,6 +80,7 @@ app.use('/api/moderation', moderationRoutes);
 app.use('/api/stripe', stripeRoutes);
 app.use('/api/classroom', classroomRoutes);
 app.use('/api/notifications', notificationRoutes);
+app.use('/api/folders', folderRoutes);
 
 // ─── Health check ─────────────────────────────────────────────────────────────
 app.get('/api/health', (req, res) => res.json({ status: 'ok', app: 'intellix-backend' }));

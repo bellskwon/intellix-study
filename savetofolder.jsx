@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { base44 } from '@/api/base44Client';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Folder, FolderOpen, Plus, X, Check, FlaskConical, Zap, Brain, BookOpen } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -13,12 +15,6 @@ const SYSTEM_FOLDERS = [
   { id: 'sys_flashcards', name: 'Saved Flashcard Sets',   Icon: BookOpen,     color: 'text-violet-500', bg: 'bg-violet-50', border: 'border-violet-200' },
 ];
 
-function getFolders() {
-  try { return JSON.parse(localStorage.getItem('intellix_folders') || '[]'); } catch { return []; }
-}
-function saveFolders(folders) {
-  localStorage.setItem('intellix_folders', JSON.stringify(folders));
-}
 function getFolderContents() {
   try { return JSON.parse(localStorage.getItem('intellix_folder_contents') || '{}'); } catch { return {}; }
 }
@@ -81,10 +77,16 @@ export function getSavedItemsForFolder(folderId) {
  *   data        — any (the result payload to save)
  */
 export default function SaveToFolderModal({ open, onClose, type, title, subject, grade, data, submissionId, onSaved }) {
+  const queryClient = useQueryClient();
   const [selectedId, setSelectedId] = useState(null);
   const [showNewFolder, setShowNewFolder] = useState(false);
   const [newFolderName, setNewFolderName] = useState('');
-  const [customFolders, setCustomFolders] = useState(getFolders);
+
+  const { data: customFolders = [] } = useQuery({
+    queryKey: ['myFolders'],
+    queryFn: () => base44.entities.Folder.filter({}, 'created_date', 200),
+    enabled: open,
+  });
 
   if (!open) return null;
 
@@ -102,12 +104,10 @@ export default function SaveToFolderModal({ open, onClose, type, title, subject,
     onClose();
   };
 
-  const handleAddFolder = () => {
+  const handleAddFolder = async () => {
     if (!newFolderName.trim()) return;
-    const newF = { id: Date.now().toString(), name: newFolderName.trim() };
-    const updated = [newF, ...customFolders];
-    setCustomFolders(updated);
-    saveFolders(updated);
+    const newF = await base44.entities.Folder.create({ name: newFolderName.trim() });
+    queryClient.invalidateQueries({ queryKey: ['myFolders'] });
     setSelectedId(newF.id);
     setNewFolderName('');
     setShowNewFolder(false);

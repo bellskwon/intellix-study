@@ -10,6 +10,8 @@ import { toast } from 'sonner';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import { format } from 'date-fns';
 
+const parseIds = (raw) => { try { return JSON.parse(raw || '[]'); } catch { return []; } };
+
 const SUBJECTS = ['math','science','history','geography','english','foreign_language','computer_science','art','music','other'];
 const subjectColors = {
   math: 'from-blue-400 to-blue-600',
@@ -32,9 +34,6 @@ export default function Storage() {
   const [editBack, setEditBack] = useState('');
   const [newFolder, setNewFolder] = useState('');
   const [showFolderInput, setShowFolderInput] = useState(false);
-  const [folders, setFolders] = useState(() => {
-    try { return JSON.parse(localStorage.getItem('intellix_folders') || '[]'); } catch { return []; }
-  });
 
   const { data: user } = useQuery({ queryKey: ['currentUser'], queryFn: () => base44.auth.me() });
 
@@ -70,48 +69,55 @@ export default function Storage() {
     return acc;
   }, {});
 
-  const [folderContents, setFolderContents] = useState(() => {
-    try { return JSON.parse(localStorage.getItem('intellix_folder_contents') || '{}'); } catch { return {}; }
+  const { data: folders = [] } = useQuery({
+    queryKey: ['myFolders'],
+    queryFn: () => base44.entities.Folder.filter({}, 'created_date', 200),
+    enabled: !!user?.email,
   });
 
-  const saveFolderContents = (updated) => {
-    setFolderContents(updated);
-    localStorage.setItem('intellix_folder_contents', JSON.stringify(updated));
-  };
+  const createFolder = useMutation({
+    mutationFn: (name) => base44.entities.Folder.create({ name }),
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['myFolders'] }); toast.success('Folder created!'); },
+  });
+
+  const updateFolder = useMutation({
+    mutationFn: ({ id, item_ids }) => base44.entities.Folder.update(id, { item_ids }),
+  });
+
+  const deleteFolderMutation = useMutation({
+    mutationFn: (id) => base44.entities.Folder.delete(id),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['myFolders'] }),
+  });
 
   const onDragEnd = (result) => {
     const { destination, source, draggableId } = result;
-    if (!destination) return; // dropped outside — stays in place
-    if (destination.droppableId === source.droppableId) return; // no change
+    if (!destination) return;
+    if (destination.droppableId === source.droppableId) return;
     if (destination.droppableId.startsWith('folder-')) {
       const folderId = destination.droppableId.replace('folder-', '');
-      const existing = folderContents[folderId] || [];
+      const folder = folders.find(f => f.id === folderId);
+      if (!folder) return;
+      const existing = parseIds(folder.item_ids);
       if (!existing.includes(draggableId)) {
-        saveFolderContents({ ...folderContents, [folderId]: [...existing, draggableId] });
+        const newIds = [...existing, draggableId];
+        updateFolder.mutate({ id: folderId, item_ids: newIds });
+        queryClient.setQueryData(['myFolders'], (old = []) =>
+          old.map(f => f.id === folderId ? { ...f, item_ids: JSON.stringify(newIds) } : f)
+        );
         toast.success('Moved to folder!');
       }
     }
   };
 
-  const saveFolders = (updated) => {
-    setFolders(updated);
-    localStorage.setItem('intellix_folders', JSON.stringify(updated));
-  };
-
   const addFolder = () => {
     if (!newFolder.trim()) return;
-    saveFolders([...folders, { id: Date.now().toString(), name: newFolder.trim() }]);
+    createFolder.mutate(newFolder.trim());
     setNewFolder('');
     setShowFolderInput(false);
-    toast.success('Folder created!');
   };
 
   const deleteFolder = (id) => {
-    saveFolders(folders.filter(f => f.id !== id));
-    // Clean up folder contents so localStorage doesn't accumulate orphaned entries
-    const updated = { ...folderContents };
-    delete updated[id];
-    saveFolderContents(updated);
+    deleteFolderMutation.mutate(id);
   };
 
   const startEdit = (card) => {
@@ -157,7 +163,7 @@ export default function Storage() {
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
             {folders.map(folder => {
-              const contents = folderContents[folder.id] || [];
+              const contents = parseIds(folder.item_ids);
               return (
                 <Droppable key={folder.id} droppableId={`folder-${folder.id}`}>
                   {(provided, snapshot) => (

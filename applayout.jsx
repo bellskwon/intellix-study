@@ -56,7 +56,7 @@ export default function AppLayout() {
 
           <div className="flex-1 lg:flex-none">
             <p className="text-sm font-bold text-foreground hidden lg:block">
-              Hey, {user?.display_name?.split(' ')[0] || user?.full_name?.split(' ')[0] || 'Student'} 👋
+              Hey, {user?.display_name?.split(' ')[0] || user?.full_name?.split(' ')[0] || 'Student'}
             </p>
           </div>
 

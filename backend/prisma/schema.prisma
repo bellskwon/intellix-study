@@ -45,6 +45,7 @@ model User {
   owned_classrooms     Classroom[]     @relation("ClassroomOwner")
   class_memberships    ClassMembership[]
   assignment_results   ClassroomAssignmentResult[]
+  folders              Folder[]
 }
 
 model Submission {
@@ -202,6 +203,16 @@ model ClassroomSharedDeck {
   created_date DateTime @default(now())
 
   classroom Classroom @relation(fields: [classroom_id], references: [id], onDelete: Cascade)
+}
+
+model Folder {
+  id           String   @id @default(cuid())
+  name         String
+  item_ids     String   @default("[]")
+  created_by   String
+  created_date DateTime @default(now())
+
+  user User @relation(fields: [created_by], references: [email])
 }
 
 model ModerationLog {
