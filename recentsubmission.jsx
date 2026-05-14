@@ -1,4 +1,5 @@
 import React from 'react';
+import { toTitleCase } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import { Clock, CheckCircle2, XCircle, AlertTriangle, FlaskConical } from 'lucide-react';
 import { format } from 'date-fns';
@@ -34,7 +35,7 @@ export default function RecentSubmissions({ submissions = [] }) {
           return (
             <div key={sub.id} className="px-5 py-4 flex items-center justify-between gap-4">
               <div className="min-w-0">
-                <p className="font-medium text-sm text-foreground truncate">{sub.title}</p>
+                <p className="font-medium text-sm text-foreground truncate">{toTitleCase(sub.title)}</p>
                 <p className="text-xs text-muted-foreground mt-0.5">
                   {sub.subject?.replace('_', ' ')} · {format(new Date(sub.created_date), 'MMM d')}
                 </p>

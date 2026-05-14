@@ -9,6 +9,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import { format } from 'date-fns';
+import { toTitleCase } from '@/lib/utils';
 
 const parseIds = (raw) => { try { return JSON.parse(raw || '[]'); } catch { return []; } };
 
@@ -230,7 +231,7 @@ export default function Storage() {
               {folderQuizzes.map(sub => (
                 <div key={sub.id} className="flex items-center gap-3 bg-secondary/30 rounded-xl px-4 py-3">
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-bold text-foreground truncate">{sub.title}</p>
+                    <p className="text-sm font-bold text-foreground truncate">{toTitleCase(sub.title)}</p>
                     <p className="text-xs text-muted-foreground capitalize">{sub.subject?.replace(/_/g,' ')} · {format(new Date(sub.created_date), 'MMM d, yyyy')}</p>
                   </div>
                   <span className={`text-xs font-black px-2.5 py-1 rounded-full shrink-0 ${
@@ -373,7 +374,7 @@ export default function Storage() {
                               <GripVertical className="w-4 h-4" />
                             </div>
                             <div className="flex-1 min-w-0">
-                              <p className="text-sm font-semibold text-foreground truncate">{sub.title}</p>
+                              <p className="text-sm font-semibold text-foreground truncate">{toTitleCase(sub.title)}</p>
                               <p className="text-xs text-muted-foreground capitalize">
                                 {sub.subject?.replace(/_/g,' ')} · {format(new Date(sub.created_date), 'MMM d, yyyy')}
                               </p>

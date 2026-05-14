@@ -9,6 +9,17 @@ export function cn(...inputs) {
 
 export const isIframe = window.self !== window.top;
 
+const MINOR_WORDS = new Set(['a','an','the','and','but','or','for','nor','on','at','to','by','in','of','up','as','is']);
+export function toTitleCase(str) {
+  if (!str) return str;
+  return str.replace(/\w\S*/g, (word, offset) => {
+    const lower = word.toLowerCase();
+    return (offset === 0 || !MINOR_WORDS.has(lower))
+      ? lower.charAt(0).toUpperCase() + lower.slice(1)
+      : lower;
+  });
+}
+
 export function renderWithSubscripts(text) {
   if (!text) return text;
   const regex = /([A-Za-z)])(\d+)/g;

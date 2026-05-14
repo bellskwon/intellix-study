@@ -9,6 +9,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { format } from 'date-fns';
 import LevelXPBar, { calcLevelInfo, getLeague, PASS_THRESHOLD } from '@/components/shared/LevelXPBar';
 import { toast } from 'sonner';
+import { toTitleCase } from '@/lib/utils';
 import SubjectIcon from '@/pages/SubjectIcon';
 
 const AVATARS = ['🐯','🦊','🐼','🦁','🐺','🦋','🐉','🦄','🐸','🤖','👾','🎭','🐨','🐧','🦅','🐬'];
@@ -511,7 +512,7 @@ export default function Profile() {
                 <div className="flex items-center gap-3 min-w-0">
                   <SubjectIcon subject={s.subject} size="xs" />
                   <div className="min-w-0">
-                    <p className="text-sm font-semibold truncate text-foreground">{s.title}</p>
+                    <p className="text-sm font-semibold truncate text-foreground">{toTitleCase(s.title)}</p>
                     <p className="text-xs text-muted-foreground capitalize mt-0.5">{s.subject?.replace(/_/g, ' ')} · {format(new Date(s.created_date), 'MMM d')}</p>
                   </div>
                 </div>

@@ -13,7 +13,7 @@ import { format } from 'date-fns';
 import SubmitStudy from '@/pages/SubmitStudy';
 import { PASS_THRESHOLD } from '@/components/shared/LevelXPBar';
 import SubjectIcon from '@/pages/SubjectIcon';
-import { renderWithSubscripts } from '@/lib/utils';
+import { renderWithSubscripts, toTitleCase } from '@/lib/utils';
 import SaveToFolderModal, { getSavedSubmissionIds } from '@/pages/SaveToFolder';
 
 export default function Quiz() {
@@ -254,7 +254,7 @@ Reply with ONLY one word: "correct" or "incorrect". Do not add any explanation.`
         <div>
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm font-bold text-muted-foreground">
-              Question {currentQ + 1} of {questions.length} · {activeSubmission?.title}
+              Question {currentQ + 1} of {questions.length} · {toTitleCase(activeSubmission?.title)}
             </span>
             <span className="text-sm font-bold text-primary">{Math.round(progress)}%</span>
           </div>
@@ -379,7 +379,7 @@ Reply with ONLY one word: "correct" or "incorrect". Do not add any explanation.`
           </motion.div>
           <h2 className="text-2xl font-black font-sora">{passed ? 'Crushed it!' : 'Keep grinding!'}</h2>
           <p className="text-6xl font-black font-space mt-2">{score}%</p>
-          <p className="opacity-75 mt-1 text-sm">{correct} of {total} correct · {activeSubmission?.title}</p>
+          <p className="opacity-75 mt-1 text-sm">{correct} of {total} correct · {toTitleCase(activeSubmission?.title)}</p>
           {passed && pointsAwarded > 0 && (
             <div className="mt-3 inline-flex items-center gap-1.5 bg-white/20 rounded-full px-4 py-1.5">
               <Star className="w-4 h-4 text-yellow-300 fill-yellow-300" />
@@ -523,7 +523,7 @@ Reply with ONLY one word: "correct" or "incorrect". Do not add any explanation.`
                 className="bg-white rounded-2xl border border-border p-4 flex items-center gap-4">
                 <SubjectIcon subject={sub.subject} size="md" />
                 <div className="flex-1 min-w-0">
-                  <p className="font-bold text-sm text-foreground truncate">{sub.title}</p>
+                  <p className="font-bold text-sm text-foreground truncate">{toTitleCase(sub.title)}</p>
                   <p className="text-xs text-muted-foreground capitalize">
                     {sub.subject?.replace(/_/g, ' ')} · {sub.grade_level} · {format(new Date(sub.created_date), 'MMM d')}
                   </p>
@@ -547,7 +547,7 @@ Reply with ONLY one word: "correct" or "incorrect". Do not add any explanation.`
               <div key={sub.id} className="bg-white rounded-xl border border-border px-4 py-3 flex items-center gap-3">
                 <SubjectIcon subject={sub.subject} size="sm" />
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold text-foreground truncate">{sub.title}</p>
+                  <p className="text-sm font-semibold text-foreground truncate">{toTitleCase(sub.title)}</p>
                   <p className="text-xs text-muted-foreground capitalize">
                     {sub.subject?.replace(/_/g, ' ')} · {format(new Date(sub.created_date), 'MMM d')}
                   </p>
