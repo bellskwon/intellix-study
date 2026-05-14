@@ -111,17 +111,22 @@ export default function MiniCalendar({ userEmail }) {
           const dayEvents = getEventsForDay(day);
           const selected = selectedDay && isSameDay(day, selectedDay);
           const today = isToday(day);
+          const shown = dayEvents.slice(0, 2);
+          const extra = dayEvents.length - shown.length;
           return (
             <button key={day.toISOString()} onClick={() => setSelectedDay(selected ? null : day)}
-              className={`relative aspect-square rounded-lg flex flex-col items-center justify-start pt-1 transition-all text-xs font-bold
+              className={`relative rounded-lg flex flex-col items-stretch p-1 gap-0.5 transition-all text-xs font-bold min-h-[36px]
                 ${today ? 'bg-primary text-white' : selected ? 'bg-primary/10 text-primary' : 'hover:bg-secondary text-foreground'}`}>
-              {format(day, 'd')}
-              {dayEvents.length > 0 && (
-                <div className="flex gap-0.5 mt-0.5 flex-wrap justify-center">
-                  {dayEvents.slice(0, 3).map((e, i) => (
-                    <div key={i} className={`w-1.5 h-1.5 rounded-full ${today ? 'bg-white' : EVENT_COLORS[e.type] || 'bg-primary'}`} />
-                  ))}
+              <span className="text-center leading-none mb-0.5">{format(day, 'd')}</span>
+              {shown.map((e, i) => (
+                <div key={i} className={`rounded px-1 text-white text-[8px] font-bold leading-[11px] truncate ${EVENT_COLORS[e.type] || 'bg-primary'}`}>
+                  {e.title}
                 </div>
+              ))}
+              {extra > 0 && (
+                <span className={`text-[8px] font-bold text-center leading-none ${today ? 'text-white/70' : 'text-muted-foreground'}`}>
+                  +{extra} more
+                </span>
               )}
             </button>
           );
