@@ -18,6 +18,22 @@ const CHALLENGE_SUBJECTS = [
   { value: 'geography', label: 'Geography', emoji: '🌍' },
 ];
 
+function FriendAvatar({ email, userMap, size = 'md' }) {
+  const u = userMap[email];
+  const name = u?.display_name || u?.full_name || email.split('@')[0];
+  const initial = name[0]?.toUpperCase() || '?';
+  const dim = size === 'sm' ? 'w-9 h-9 text-sm' : 'w-10 h-10 text-sm';
+  const radius = size === 'sm' ? 'rounded-xl' : 'rounded-xl';
+  if (u?.avatar_image_url) {
+    return <img src={u.avatar_image_url} alt={name} className={`${dim} ${radius} object-cover shrink-0`} />;
+  }
+  return (
+    <div className={`${dim} ${radius} gradient-violet flex items-center justify-center text-white font-black shrink-0`}>
+      {u?.avatar_emoji || initial}
+    </div>
+  );
+}
+
 function ChallengeButton({ friendEmail }) {
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
@@ -93,8 +109,6 @@ export default function Friends() {
     const u = userMap[email];
     return u?.display_name || u?.full_name || email.split('@')[0];
   };
-  const getInitial = (email) => getName(email)[0]?.toUpperCase() || '?';
-
   // My sent requests
   const sentRequests = allFriendships.filter(f => f.requester_email === user?.email);
   // Requests I received
@@ -199,9 +213,7 @@ export default function Friends() {
             {receivedRequests.map(req => (
               <div key={req.id} className="bg-white rounded-xl border border-border px-4 py-3 flex items-center gap-3 cursor-pointer hover:bg-secondary/20 transition-colors"
                 onClick={() => setSelectedEmail(req.requester_email)}>
-                <div className="w-9 h-9 rounded-xl gradient-violet flex items-center justify-center text-white font-black text-sm shrink-0">
-                  {getInitial(req.requester_email)}
-                </div>
+                <FriendAvatar email={req.requester_email} userMap={userMap} size="sm" />
                 <p className="flex-1 text-sm font-semibold text-foreground truncate">{getName(req.requester_email)}</p>
                 <div className="flex gap-2 shrink-0">
                   <Button size="sm" className="rounded-lg h-8 font-bold bg-emerald-500 hover:bg-emerald-600 text-white"
@@ -245,9 +257,7 @@ export default function Friends() {
                 <motion.div key={email} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}
                   onClick={() => setSelectedEmail(email)}
                   className="flex items-center gap-3 bg-secondary/30 rounded-xl px-4 py-3 cursor-pointer hover:bg-secondary/50 transition-colors">
-                  <div className="w-10 h-10 rounded-xl gradient-violet flex items-center justify-center text-white font-black text-sm shrink-0">
-                    {getInitial(email)}
-                  </div>
+                  <FriendAvatar email={email} userMap={userMap} />
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-bold text-foreground truncate">{getName(email)}</p>
                     <p className="text-xs text-muted-foreground">{stats.league.emoji} Lv.{stats.level} · {stats.quizCount} quizzes</p>

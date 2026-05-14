@@ -13,6 +13,7 @@ import LevelUpModal from '@/components/shared/LevelUpModal';
 import { toast } from 'sonner';
 import { formatDistanceToNow } from 'date-fns';
 import SubjectIcon from '@/pages/SubjectIcon';
+import MiniCalendar from '@/pages/MiniCalendar';
 
 const quickActions = [
   {
@@ -317,6 +318,9 @@ export default function Dashboard() {
           ))}
         </div>
       </div>
+
+      {/* Mini Calendar */}
+      <MiniCalendar userEmail={user?.email} />
 
       {/* Friends Activity Feed */}
       {friendActivity.length > 0 && (

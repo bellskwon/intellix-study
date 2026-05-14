@@ -34,6 +34,7 @@ export default function Storage() {
   const [editBack, setEditBack] = useState('');
   const [newFolder, setNewFolder] = useState('');
   const [showFolderInput, setShowFolderInput] = useState(false);
+  const [openFolderId, setOpenFolderId] = useState(null);
 
   const { data: user } = useQuery({ queryKey: ['currentUser'], queryFn: () => base44.auth.me() });
 
@@ -164,20 +165,30 @@ export default function Storage() {
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
             {folders.map(folder => {
               const contents = parseIds(folder.item_ids);
+              const isOpen = openFolderId === folder.id;
               return (
                 <Droppable key={folder.id} droppableId={`folder-${folder.id}`}>
                   {(provided, snapshot) => (
                     <div ref={provided.innerRef} {...provided.droppableProps}
-                      className={`group flex flex-col gap-1 border rounded-xl px-3 py-2.5 transition-all min-h-[56px] ${snapshot.isDraggingOver ? 'border-primary bg-primary/5 border-solid' : 'bg-amber-50 border-amber-200 hover:bg-amber-100'}`}>
+                      onClick={() => setOpenFolderId(isOpen ? null : folder.id)}
+                      className={`group flex flex-col gap-1 border rounded-xl px-3 py-2.5 transition-all min-h-[56px] cursor-pointer ${
+                        isOpen ? 'border-amber-400 bg-amber-100 ring-2 ring-amber-300'
+                        : snapshot.isDraggingOver ? 'border-primary bg-primary/5 border-solid'
+                        : 'bg-amber-50 border-amber-200 hover:bg-amber-100'}`}>
                       <div className="flex items-center gap-2">
-                        <FolderOpen className={`w-4 h-4 shrink-0 ${snapshot.isDraggingOver ? 'text-primary' : 'text-amber-500'}`} />
+                        <FolderOpen className={`w-4 h-4 shrink-0 ${isOpen || snapshot.isDraggingOver ? 'text-primary' : 'text-amber-500'}`} />
                         <span className="flex-1 text-sm font-semibold text-foreground truncate">{folder.name}</span>
-                        <button onClick={() => toast(`Delete "${folder.name}"?`, { action: { label: 'Delete', onClick: () => deleteFolder(folder.id) }, cancel: { label: 'Cancel' }, duration: 5000 })} className="opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive">
+                        <button
+                          onClick={(e) => { e.stopPropagation(); toast(`Delete "${folder.name}"?`, { action: { label: 'Delete', onClick: () => deleteFolder(folder.id) }, cancel: { label: 'Cancel' }, duration: 5000 }); }}
+                          className="opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive">
                           <X className="w-3.5 h-3.5" />
                         </button>
                       </div>
                       {contents.length > 0 && (
-                        <p className="text-[10px] text-muted-foreground">{contents.length} item{contents.length !== 1 ? 's' : ''}</p>
+                        <p className="text-[10px] text-muted-foreground">{contents.length} item{contents.length !== 1 ? 's' : ''} · click to view</p>
+                      )}
+                      {contents.length === 0 && !snapshot.isDraggingOver && (
+                        <p className="text-[10px] text-muted-foreground">Empty · drag items here</p>
                       )}
                       {snapshot.isDraggingOver && <p className="text-[10px] text-primary font-bold">Drop here</p>}
                       {provided.placeholder}
@@ -188,6 +199,50 @@ export default function Storage() {
             })}
           </div>
         )}
+
+        {/* Open folder contents */}
+        {openFolderId && (() => {
+          const folder = folders.find(f => f.id === openFolderId);
+          if (!folder) return null;
+          const ids = parseIds(folder.item_ids);
+          const folderDecks = ids.filter(id => id.startsWith('deck-')).map(id => id.replace('deck-', '')).filter(name => decks[name]);
+          const folderQuizzes = ids.filter(id => id.startsWith('quiz-')).map(id => id.replace('quiz-', '')).map(qid => submissions.find(s => s.id === qid)).filter(Boolean);
+          const hasContent = folderDecks.length > 0 || folderQuizzes.length > 0;
+          return (
+            <div className="mt-3 border border-amber-200 rounded-xl bg-white p-4 space-y-3">
+              <p className="text-xs font-black text-amber-700 uppercase tracking-wider">{folder.name}</p>
+              {!hasContent && <p className="text-xs text-muted-foreground">No items yet — drag flashcard decks or quizzes into this folder.</p>}
+              {folderDecks.map(name => {
+                const deck = decks[name];
+                const gradient = subjectColors[deck.subject] || 'from-slate-400 to-slate-600';
+                return (
+                  <div key={name} className="flex items-center gap-3 bg-secondary/30 rounded-xl px-4 py-3">
+                    <div className={`w-8 h-8 rounded-lg bg-gradient-to-br ${gradient} flex items-center justify-center shrink-0`}>
+                      <Layers className="w-4 h-4 text-white" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-bold text-foreground">{name}</p>
+                      <p className="text-xs text-muted-foreground capitalize">{deck.subject?.replace(/_/g,' ')} · {deck.cards.length} cards</p>
+                    </div>
+                  </div>
+                );
+              })}
+              {folderQuizzes.map(sub => (
+                <div key={sub.id} className="flex items-center gap-3 bg-secondary/30 rounded-xl px-4 py-3">
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-bold text-foreground truncate">{sub.title}</p>
+                    <p className="text-xs text-muted-foreground capitalize">{sub.subject?.replace(/_/g,' ')} · {format(new Date(sub.created_date), 'MMM d, yyyy')}</p>
+                  </div>
+                  <span className={`text-xs font-black px-2.5 py-1 rounded-full shrink-0 ${
+                    sub.quiz_score >= 80 ? 'bg-emerald-50 text-emerald-600' :
+                    sub.quiz_score >= 60 ? 'bg-amber-50 text-amber-600' : 'bg-rose-50 text-rose-600'}`}>
+                    {sub.quiz_score}%
+                  </span>
+                </div>
+              ))}
+            </div>
+          );
+        })()}
       </div>
 
       {/* Flashcard Decks */}
