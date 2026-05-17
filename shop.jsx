@@ -348,8 +348,8 @@ export default function Shop() {
             <p className="text-white/80 text-sm">Study hard. Earn points. Get real rewards emailed to you.</p>
           </div>
           <div className="bg-white/20 backdrop-blur-sm rounded-2xl px-5 py-4 text-center border border-white/20">
-            <p className="text-xs text-white/70 font-semibold uppercase tracking-wide">Available Points</p>
-            <p className="text-4xl font-black font-space">{availablePoints.toLocaleString()}</p>
+            <p className="text-xs text-white/70 font-outfit font-semibold uppercase tracking-wide">Available Points</p>
+            <p className="text-5xl font-bebas tracking-wide">{availablePoints.toLocaleString()}</p>
             <p className="text-xs text-white/60 mt-0.5">{league.emoji} Lv.{level} · {league.name}</p>
           </div>
         </div>

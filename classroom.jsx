@@ -933,7 +933,7 @@ function StudentAssignments({ classroom, user }) {
       <div className="space-y-4">
         <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
           className={`rounded-3xl p-7 text-white text-center ${result.passed ? 'bg-gradient-to-br from-emerald-400 to-teal-500' : 'bg-gradient-to-br from-pink-500 to-rose-600'}`}>
-          <p className="text-5xl font-black font-space">{result.score}%</p>
+          <p className="text-6xl font-bebas tracking-wide">{result.score}%</p>
           <p className="mt-1 font-black text-lg">{result.passed ? '🎉 Passed!' : 'Keep studying!'}</p>
           <p className="opacity-75 text-sm mt-1">{activeAssignment?.title}</p>
         </motion.div>

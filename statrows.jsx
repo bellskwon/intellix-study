@@ -28,8 +28,8 @@ export default function StatsRow({ submissions = [], streak = 0 }) {
             <stat.icon className={`w-5 h-5 ${stat.color}`} />
           </div>
           <div>
-            <p className="text-2xl font-bold font-space text-foreground">{values[stat.key]}</p>
-            <p className="text-xs font-nunito font-semibold text-muted-foreground mt-0.5 uppercase tracking-wide">{stat.label}</p>
+            <p className="text-2xl font-bold font-bebas tracking-wide text-foreground">{values[stat.key]}</p>
+            <p className="text-xs font-outfit font-semibold text-muted-foreground mt-0.5 uppercase tracking-wide">{stat.label}</p>
           </div>
         </div>
       ))}

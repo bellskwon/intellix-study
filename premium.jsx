@@ -271,7 +271,7 @@ export default function Premium() {
                 <p className="text-xs text-white/80 font-outfit font-bold">points</p>
               </div>
               <div className="p-3 text-center">
-                <p className="text-lg font-black font-space text-foreground">{pack.price}</p>
+                <p className="text-xl font-bebas tracking-wide text-foreground">{pack.price}</p>
                 <Button
                   size="sm"
                   className="w-full mt-2 rounded-xl font-bold h-8"
