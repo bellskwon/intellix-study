@@ -517,8 +517,8 @@ Keep it concise (3-5 short paragraphs), use simple language appropriate for the 
           )}
         </motion.div>
         <h2 className="text-2xl font-black font-sora">{passed ? 'Crushed it!' : 'Keep grinding!'}</h2>
-        <p className="text-6xl font-black font-space mt-2">{score}%</p>
-        <p className="opacity-75 mt-1 text-sm font-nunito">{correct} of {total} correct on "{topic}"</p>
+        <p className="text-7xl font-bebas tracking-wide mt-2">{score}%</p>
+        <p className="opacity-75 mt-1 text-sm font-outfit">{correct} of {total} correct on "{topic}"</p>
       </motion.div>
 
       {/* Explanation Panel */}

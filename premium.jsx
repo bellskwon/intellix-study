@@ -191,15 +191,15 @@ export default function Premium() {
             <motion.div key={plan.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }}
               className={`rounded-3xl overflow-hidden ${plan.highlight ? 'ring-2 ring-amber-500 shadow-2xl shadow-amber-200 scale-105' : 'border border-border'}`}>
               {plan.badge && (
-                <div className={`text-center py-2 text-xs font-black ${plan.id === 'pro' ? 'bg-primary text-white' : 'bg-amber-500 text-white'}`}>
+                <div className={`text-center py-2 text-xs font-black font-outfit ${plan.id === 'pro' ? 'bg-primary text-white' : 'bg-amber-500 text-white'}`}>
                   {plan.badge}
                 </div>
               )}
               <div className={`bg-gradient-to-br ${plan.gradient} p-6`}>
-                <p className={`text-xs font-black uppercase tracking-widest mb-1 ${plan.id === 'free' ? 'text-slate-500' : 'text-white/70'}`}>{plan.name}</p>
+                <p className={`text-xs font-outfit font-black uppercase tracking-widest mb-1 ${plan.id === 'free' ? 'text-slate-500' : 'text-white/70'}`}>{plan.name}</p>
                 <div className="flex items-end gap-1">
-                  <p className={`text-4xl font-black ${plan.id === 'free' ? 'text-slate-800' : 'text-white'}`}>{price.display}</p>
-                  <p className={`text-sm mb-1 ${plan.id === 'free' ? 'text-slate-500' : 'text-white/70'}`}>{price.period}</p>
+                  <p className={`text-5xl font-bebas tracking-wide ${plan.id === 'free' ? 'text-slate-800' : 'text-white'}`}>{price.display}</p>
+                  <p className={`text-sm mb-1 font-outfit ${plan.id === 'free' ? 'text-slate-500' : 'text-white/70'}`}>{price.period}</p>
                 </div>
                 {price.yearly && (
                   <p className="text-xs text-white/80 mt-1">{price.yearly} total</p>
@@ -262,18 +262,16 @@ export default function Premium() {
         </div>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           {POINT_PACKS.map(pack => (
-            <div key={pack.id} className="bg-white rounded-2xl border border-border overflow-hidden">
-              {pack.badge && (
-                <div className={`text-center py-1 text-[10px] font-black text-white bg-gradient-to-r ${pack.color}`}>
-                  {pack.badge}
-                </div>
-              )}
-              <div className={`bg-gradient-to-br ${pack.color} p-4 text-center`}>
-                <p className="text-2xl font-black text-white">{pack.points.toLocaleString()}</p>
-                <p className="text-xs text-white/80 font-bold">points</p>
+            <div key={pack.id} className="bg-white rounded-2xl border border-border overflow-hidden flex flex-col">
+              <div className={`text-center py-1 text-[10px] font-black font-outfit text-white bg-gradient-to-r ${pack.color} ${!pack.badge ? 'opacity-0' : ''}`}>
+                {pack.badge || ' '}
+              </div>
+              <div className={`bg-gradient-to-br ${pack.color} p-4 text-center flex-1`}>
+                <p className="text-3xl font-bebas text-white tracking-wide">{pack.points.toLocaleString()}</p>
+                <p className="text-xs text-white/80 font-outfit font-bold">points</p>
               </div>
               <div className="p-3 text-center">
-                <p className="text-lg font-black text-foreground">{pack.price}</p>
+                <p className="text-lg font-black font-space text-foreground">{pack.price}</p>
                 <Button
                   size="sm"
                   className="w-full mt-2 rounded-xl font-bold h-8"

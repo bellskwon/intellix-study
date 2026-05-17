@@ -221,11 +221,11 @@ export default function Dashboard() {
           <div className="flex items-center gap-4 flex-wrap">
             <div className="flex items-center gap-1.5 bg-white/15 rounded-full px-3 py-1.5">
               <Star className="w-3.5 h-3.5 text-amber-300" />
-              <span className="text-sm font-black font-space">{availablePoints.toLocaleString()} pts</span>
+              <span className="text-sm font-bebas tracking-wide">{availablePoints.toLocaleString()} pts</span>
             </div>
             <div className="flex items-center gap-1.5 bg-white/15 rounded-full px-3 py-1.5">
               <Flame className="w-3.5 h-3.5 text-orange-300" />
-              <span className="text-sm font-black font-space">{streak} day streak</span>
+              <span className="text-sm font-bebas tracking-wide">{streak} day streak</span>
             </div>
           </div>
           <div className="mt-4">

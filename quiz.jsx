@@ -378,7 +378,7 @@ Reply with ONLY one word: "correct" or "incorrect". Do not add any explanation.`
             )}
           </motion.div>
           <h2 className="text-2xl font-black font-sora">{passed ? 'Crushed it!' : 'Keep grinding!'}</h2>
-          <p className="text-6xl font-black font-space mt-2">{score}%</p>
+          <p className="text-7xl font-bebas tracking-wide mt-2">{score}%</p>
           <p className="opacity-75 mt-1 text-sm">{correct} of {total} correct · {toTitleCase(activeSubmission?.title)}</p>
           {passed && pointsAwarded > 0 && (
             <div className="mt-3 inline-flex items-center gap-1.5 bg-white/20 rounded-full px-4 py-1.5">

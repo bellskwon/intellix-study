@@ -16,6 +16,8 @@ module.exports = {
   			space: ['var(--font-space)'],
   			nunito: ['var(--font-nunito)'],
   			mono: ['var(--font-mono)'],
+  			bebas: ['var(--font-bebas)'],
+  			outfit: ['var(--font-outfit)'],
   		},
   		borderRadius: {
   			lg: 'var(--radius)',

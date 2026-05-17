@@ -189,10 +189,10 @@ export default function Leaderboard() {
                     <p className="text-xs font-black text-foreground text-center max-w-[72px] truncate">
                       {user?.displayName?.split(' ')[0] || user?.full_name?.split(' ')[0]}
                     </p>
-                    <span className={`text-[10px] px-2 py-0.5 rounded-full ${style.badge} font-black ${style.text}`}>
+                    <span className={`text-[10px] px-2 py-0.5 rounded-full ${style.badge} font-outfit font-black ${style.text}`}>
                       {style.label}
                     </span>
-                    <p className="text-xs font-semibold text-muted-foreground">{getValue(user)}</p>
+                    <p className="text-xs font-bebas tracking-wide text-muted-foreground">{getValue(user)}</p>
                     {/* Podium bar */}
                     <div className={`bg-gradient-to-b ${style.bg} rounded-t-xl w-16 shadow-md`}
                       style={{ height: style.podiumH }} />
@@ -221,9 +221,9 @@ export default function Leaderboard() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-black truncate">{user?.displayName?.split(' ')[0] || user?.full_name?.split(' ')[0]}</p>
-                      <p className="text-xs text-muted-foreground">{getValue(user)}</p>
+                      <p className="text-xs font-bebas tracking-wide text-muted-foreground">{getValue(user)}</p>
                     </div>
-                    <span className={`text-xs font-black ${style.text} ${style.badge} px-2 py-0.5 rounded-full`}>{style.label}</span>
+                    <span className={`text-xs font-outfit font-black ${style.text} ${style.badge} px-2 py-0.5 rounded-full`}>{style.label}</span>
                   </motion.div>
                 );
               })}
