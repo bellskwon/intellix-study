@@ -212,6 +212,7 @@ Reply with ONLY one word: "correct" or "incorrect". Do not add any explanation.`
       });
 
       queryClient.invalidateQueries({ queryKey: ['mySubmissions'] });
+      queryClient.invalidateQueries({ queryKey: ['currentUser'] });
       setResults({ score, correct, total: questions.length, graded, pointsAwarded, passed });
       setView('results');
       setShowSaveModal(true);

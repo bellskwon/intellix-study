@@ -181,6 +181,7 @@ export default function SubmitStudy({ onSuccess }) {
         return;
       }
       queryClient.invalidateQueries({ queryKey: ['mySubmissions'] });
+      queryClient.invalidateQueries({ queryKey: ['currentUser'] });
       if (onSuccess) {
         onSuccess(result);
       } else {

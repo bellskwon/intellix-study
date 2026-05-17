@@ -185,8 +185,8 @@ export default function Dashboard() {
   const studySubmissions = submissions.filter(s => !NON_STREAK_TYPES.has(s.type));
   const lastActivity = studySubmissions[0]?.created_date || null;
   const streak = user?.streak_count ?? 0;
-  const today = new Date().toDateString();
-  const lastActivityDay = lastActivity ? new Date(lastActivity).toDateString() : null;
+  const today = new Date().toISOString().slice(0, 10);
+  const lastActivityDay = lastActivity ? new Date(lastActivity).toISOString().slice(0, 10) : null;
   const streakAtRisk = streak > 0 && lastActivityDay !== today;
 
   const NON_QUIZ_TYPES = new Set(['xp_boost', 'referral', 'points_pack', 'comeback_bonus', 'video']);

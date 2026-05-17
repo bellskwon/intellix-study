@@ -197,6 +197,7 @@ Reply with only "correct" or "incorrect".`
       setStep('results');
       setShowSaveModal(true);
       queryClient.invalidateQueries({ queryKey: ['mySubmissions'] });
+      queryClient.invalidateQueries({ queryKey: ['currentUser'] });
     } catch (err) {
       toast.error(err?.message?.includes('Rate limit') ? 'AI is busy — wait a moment and try again.' : `Grading failed: ${err?.message || 'Unknown error'}`);
     } finally {
