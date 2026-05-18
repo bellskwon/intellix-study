@@ -208,12 +208,13 @@ export default function Dashboard() {
           {/* Hero banner */}
           <motion.div
             initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
-            className="relative rounded-3xl overflow-hidden bg-white dark:bg-card border border-violet-100 dark:border-violet-900/30 px-6 py-8 flex flex-col items-center gap-5"
+            className="flex flex-col items-center gap-4 py-4"
           >
             <div className="w-20 h-20 rounded-2xl overflow-hidden shadow-xl shadow-purple-500/25 bg-violet-600 shrink-0">
               <img src="/logo.png" alt="Intellix" className="w-full h-full object-cover scale-[1.18]" />
             </div>
-            <h1 className="font-serif text-5xl sm:text-6xl font-black tracking-tight text-foreground uppercase w-full text-center leading-none">
+            <h1 className="font-serif font-black text-foreground text-center leading-none w-full"
+              style={{ fontSize: 'clamp(3rem, 10vw, 5.5rem)', letterSpacing: '0.18em', fontStretch: 'expanded' }}>
               Intellix Study
             </h1>
           </motion.div>
