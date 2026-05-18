@@ -211,12 +211,15 @@ export default function Dashboard() {
             initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
             className="relative rounded-3xl overflow-hidden bg-violet-50 dark:bg-violet-950/20 border border-violet-100 dark:border-violet-900/30 p-6"
           >
-            <div className="flex items-center justify-between gap-4">
+            <div className="flex flex-col gap-2">
+              <div className="w-10 h-10 rounded-xl overflow-hidden shadow-md shadow-purple-500/20 bg-violet-600 shrink-0">
+                <img src="/logo.png" alt="Intellix" className="w-full h-full object-cover scale-[1.18]" />
+              </div>
               <div>
-                <h1 className="text-2xl font-black font-sora text-foreground mb-1">
+                <h1 className="text-lg font-bold font-sora text-foreground mb-0.5">
                   Hey, {displayName}!
                 </h1>
-                <p className="text-muted-foreground text-sm">
+                <p className="text-muted-foreground text-xs">
                   {submissions.length === 0
                     ? 'Upload your first notes to get started.'
                     : pendingQuizzes > 0
@@ -225,9 +228,6 @@ export default function Dashboard() {
                     ? `You're on a ${streak}-day streak — keep it up!`
                     : 'Ready to study? Pick up where you left off.'}
                 </p>
-              </div>
-              <div className="w-14 h-14 rounded-2xl overflow-hidden shadow-lg shadow-purple-500/20 bg-violet-600 shrink-0">
-                <img src="/logo.png" alt="Intellix" className="w-full h-full object-cover scale-[1.18]" />
               </div>
             </div>
           </motion.div>
