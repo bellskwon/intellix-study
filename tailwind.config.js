@@ -18,6 +18,7 @@ module.exports = {
   			mono: ['var(--font-mono)'],
   			bebas: ['var(--font-bebas)'],
   			outfit: ['var(--font-outfit)'],
+			oswald: ['var(--font-oswald)'],
   		},
   		borderRadius: {
   			lg: 'var(--radius)',
