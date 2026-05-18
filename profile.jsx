@@ -11,6 +11,7 @@ import LevelXPBar, { calcLevelInfo, getLeague, PASS_THRESHOLD } from '@/componen
 import { toast } from 'sonner';
 import { toTitleCase } from '@/lib/utils';
 import SubjectIcon from '@/pages/SubjectIcon';
+import RecentSubmissions from '@/components/dashboard/RecentSubmissions';
 
 const AVATARS = ['🐯','🦊','🐼','🦁','🐺','🦋','🐉','🦄','🐸','🤖','👾','🎭','🐨','🐧','🦅','🐬'];
 const COLORS = ['#7c3aed','#ec4899','#06b6d4','#10b981','#f59e0b','#ef4444','#8b5cf6','#3b82f6'];
@@ -533,12 +534,15 @@ export default function Profile() {
         </div>
       )}
 
+      {/* Recent Activity */}
+      <RecentSubmissions submissions={submissions} />
+
       {/* Contact */}
       <div className="text-center py-2 space-y-1">
         <p className="text-sm text-muted-foreground">
           Any questions?{' '}
-          <a href="mailto:intellixapp.team@gmail.com" className="text-primary font-semibold hover:underline">
-            intellixapp.team@gmail.com
+          <a href="mailto:intellix.study.app@gmail.com" className="text-primary font-semibold hover:underline">
+            intellix.study.app@gmail.com
           </a>
         </p>
         <p className="text-xs text-muted-foreground">

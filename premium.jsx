@@ -168,9 +168,9 @@ export default function Premium() {
           <Crown className="w-4 h-4 text-amber-500" />
           <span className="text-sm font-black text-amber-700">Intellix Premium</span>
         </div>
-        <h1 className="text-3xl font-black text-foreground">Upgrade Your Learning</h1>
+        <h1 className="text-3xl font-black text-foreground">Intellix Premium</h1>
         <p className="text-muted-foreground max-w-md mx-auto text-sm leading-relaxed">
-          Pro trial: 3 days free. Elite trial: 1 day free. No credit card required.
+          Earn points faster, unlock bigger rewards, and get priority quiz grading. Try free — no card required.
         </p>
         <div className="inline-flex gap-1 p-1 bg-secondary rounded-xl">
           {['monthly', 'yearly'].map(b => (
@@ -391,7 +391,7 @@ export default function Premium() {
       <div className="text-center py-4 border-t border-border">
         <p className="text-sm text-muted-foreground">
           Questions about Premium?{' '}
-          <a href="mailto:intellixapp.team@gmail.com" className="text-primary font-semibold hover:underline">intellixapp.team@gmail.com</a>
+          <a href="mailto:intellix.study.app@gmail.com" className="text-primary font-semibold hover:underline">intellix.study.app@gmail.com</a>
         </p>
       </div>
 

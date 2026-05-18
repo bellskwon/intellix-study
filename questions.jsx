@@ -228,8 +228,8 @@ IMPORTANT: If the notes contain no real study content, return an empty flashcard
   return (
     <div className="max-w-3xl mx-auto space-y-6">
       <div>
-        <h1 className="text-3xl font-black text-foreground tracking-tight font-sora">Study Tools</h1>
-        <p className="text-muted-foreground text-sm mt-1.5">Paste your notes — get key points, practice questions, or instant flashcards.</p>
+        <h1 className="text-3xl font-black text-foreground tracking-tight font-sora">Flashcards</h1>
+        <p className="text-muted-foreground text-sm mt-1.5">Paste your notes to instantly generate flashcards, key concepts, and practice questions.</p>
       </div>
 
       {/* Premium upsell banner */}

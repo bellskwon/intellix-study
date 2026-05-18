@@ -53,8 +53,8 @@ export default function StreakNotification({ streak = 0, lastActivity }) {
   // Streak-at-risk alert (only when not showing a milestone)
   useEffect(() => {
     if (showMilestone) return;
-    const today = new Date().toDateString();
-    const lastDate = lastActivity ? new Date(lastActivity).toDateString() : null;
+    const today = new Date().toISOString().slice(0, 10);
+    const lastDate = lastActivity ? new Date(lastActivity).toISOString().slice(0, 10) : null;
     if (lastDate !== today && streak > 0) {
       const timer = setTimeout(() => setShowAlert(true), 2500);
       return () => clearTimeout(timer);

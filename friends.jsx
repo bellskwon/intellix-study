@@ -6,8 +6,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
+import { formatDistanceToNow } from 'date-fns';
 import { calcLevelInfo, getLeague } from '@/components/shared/LevelXPBar';
 import UserProfileModal from '@/pages/UserProfileModal';
+import SubjectIcon from '@/pages/SubjectIcon';
 
 const CHALLENGE_SUBJECTS = [
   { value: 'math', label: 'Math', emoji: '🔢' },
@@ -179,8 +181,8 @@ export default function Friends() {
   return (
     <div className="max-w-2xl mx-auto space-y-6 pb-8">
       <div>
-        <h1 className="text-3xl font-black text-foreground tracking-tight font-sora">Friends</h1>
-        <p className="text-muted-foreground text-sm mt-1.5">Add friends by Gmail, compete on leaderboards together.</p>
+        <h1 className="text-3xl font-black text-foreground tracking-tight font-sora">Social</h1>
+        <p className="text-muted-foreground text-sm mt-1.5">Add friends, see what they're studying, and challenge each other.</p>
       </div>
 
       {/* Add Friend */}
@@ -296,8 +298,51 @@ export default function Friends() {
         </div>
       )}
 
+      {/* Friends Activity Feed */}
+      {(() => {
+        const friendEmails = myFriends.map(f => f.email);
+        const friendShareMap = Object.fromEntries(allUsers.map(u => [u.email, u.share_stats !== false]));
+        const activity = allSubmissions
+          .filter(s => friendEmails.includes(s.created_by) && s.quiz_score != null)
+          .slice(0, 8);
+        if (activity.length === 0) return null;
+        return (
+          <div className="bg-white rounded-2xl border border-border p-5">
+            <h2 className="font-semibold text-sm text-muted-foreground mb-3">Friends Activity</h2>
+            <div className="space-y-2">
+              {activity.map((s, i) => (
+                <motion.div key={s.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}
+                  className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-secondary/40 transition-colors cursor-pointer"
+                  onClick={() => setSelectedEmail(s.created_by)}>
+                  <FriendAvatar email={s.created_by} userMap={userMap} size="sm" />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-bold text-foreground truncate">{getName(s.created_by)}</p>
+                    <p className="text-[11px] text-muted-foreground flex items-center gap-1 flex-wrap">
+                      <SubjectIcon subject={s.subject} size="xs" />
+                      <span className="capitalize">{s.subject?.replace(/_/g, ' ')}</span>
+                      <span>·</span>
+                      <span>{formatDistanceToNow(new Date(s.created_date), { addSuffix: true })}</span>
+                    </p>
+                  </div>
+                  {friendShareMap[s.created_by] ? (
+                    <span className={`text-sm font-black shrink-0 px-2 py-0.5 rounded-full ${
+                      s.quiz_score >= 80 ? 'bg-emerald-50 text-emerald-600' :
+                      s.quiz_score >= 60 ? 'bg-amber-50 text-amber-600' :
+                      'bg-rose-50 text-rose-500'}`}>
+                      {s.quiz_score}%
+                    </span>
+                  ) : (
+                    <span className="text-xs font-semibold shrink-0 px-2 py-0.5 rounded-full bg-secondary text-muted-foreground">Studied</span>
+                  )}
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        );
+      })()}
+
       <div className="text-center py-4 border-t border-border">
-        <p className="text-sm text-muted-foreground">Any questions? <a href="mailto:intellixapp.team@gmail.com" className="text-primary font-semibold hover:underline">intellixapp.team@gmail.com</a></p>
+        <p className="text-sm text-muted-foreground">Any questions? <a href="mailto:intellix.study.app@gmail.com" className="text-primary font-semibold hover:underline">intellix.study.app@gmail.com</a></p>
       </div>
 
       {selectedEmail && (

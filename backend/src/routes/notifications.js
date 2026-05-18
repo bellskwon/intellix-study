@@ -149,7 +149,7 @@ router.post('/weekly-digest', async (req, res) => {
             </a>
             <p style="text-align:center;font-size:11px;color:#9ca3af;margin:0;">
               You're receiving this because you have an Intellix account.<br>
-              Questions? <a href="mailto:intellixapp.team@gmail.com" style="color:#7c3aed;">intellixapp.team@gmail.com</a>
+              Questions? <a href="mailto:intellix.study.app@gmail.com" style="color:#7c3aed;">intellix.study.app@gmail.com</a>
             </p>
           </div>
         `,

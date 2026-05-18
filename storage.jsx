@@ -400,7 +400,7 @@ export default function Storage() {
       </DragDropContext>
 
       <div className="text-center py-4 border-t border-border">
-        <p className="text-sm text-muted-foreground">Any questions? <a href="mailto:intellixapp.team@gmail.com" className="text-primary font-semibold hover:underline">intellixapp.team@gmail.com</a></p>
+        <p className="text-sm text-muted-foreground">Any questions? <a href="mailto:intellix.study.app@gmail.com" className="text-primary font-semibold hover:underline">intellix.study.app@gmail.com</a></p>
       </div>
     </div>
   );

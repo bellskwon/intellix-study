@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
-import { LayoutDashboard, Zap, BarChart3, Users, User, X, FlaskConical, ShoppingBag, Brain, Crown, Archive, UserPlus, Moon, Sun, GraduationCap } from 'lucide-react';
+import { LayoutDashboard, Zap, X, FlaskConical, ShoppingBag, Brain, Crown, Archive, UserPlus, Moon, Sun } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
@@ -21,16 +21,12 @@ function useDarkMode() {
 const navItems = [
   { path: '/', label: 'Dashboard', icon: LayoutDashboard, color: 'text-violet-500' },
   { path: '/challenge', label: 'Quick Challenge', icon: Zap, color: 'text-amber-500' },
-  { path: '/quiz', label: 'Study Quiz', icon: FlaskConical, color: 'text-pink-500' },
-  { path: '/questions', label: 'Study Tools', icon: Brain, color: 'text-indigo-500' },
+  { path: '/quiz', label: 'Quiz Generator', icon: FlaskConical, color: 'text-pink-500' },
+  { path: '/shop', label: 'Intellix Shop', icon: ShoppingBag, color: 'text-orange-500' },
+  { path: '/questions', label: 'Flashcards', icon: Brain, color: 'text-indigo-500' },
   { path: '/storage', label: 'Storage', icon: Archive, color: 'text-teal-500' },
-  { path: '/progress', label: 'My Progress', icon: BarChart3, color: 'text-cyan-500' },
-  { path: '/leaderboard', label: 'Leaderboard', icon: Users, color: 'text-emerald-500' },
-  { path: '/friends', label: 'Friends', icon: UserPlus, color: 'text-blue-500' },
-  { path: '/classroom', label: 'Classroom', icon: GraduationCap, color: 'text-violet-500' },
-  { path: '/shop', label: 'Shop', icon: ShoppingBag, color: 'text-orange-500' },
-  { path: '/premium', label: 'Go Premium', icon: Crown, color: 'text-amber-500' },
-  { path: '/profile', label: 'Profile', icon: User, color: 'text-rose-500' },
+  { path: '/friends', label: 'Social', icon: UserPlus, color: 'text-blue-500' },
+  { path: '/premium', label: 'Intellix Premium', icon: Crown, color: 'text-amber-500' },
 ];
 
 export default function Sidebar({ open, onClose }) {

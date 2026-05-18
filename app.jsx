@@ -17,7 +17,6 @@ import Questions from '@/pages/Questions';
 import Premium from '@/pages/Premium';
 import Storage from '@/pages/Storage';
 import Friends from '@/pages/Friends';
-import Classroom from '@/pages/Classroom';
 import Terms from '@/pages/Terms';
 import Onboarding, { shouldShowTutorial } from '@/pages/Onboarding';
 import ParentDashboard from '@/pages/ParentDashboard';
@@ -144,7 +143,7 @@ const AuthenticatedApp = () => {
         <Route path="/premium" element={<Premium />} />
         <Route path="/storage" element={<Storage />} />
         <Route path="/friends" element={<Friends />} />
-        <Route path="/classroom" element={<Classroom />} />
+        {/* Classroom route hidden — not yet active */}
         <Route path="/terms" element={<Terms />} />
       </Route>
       <Route path="*" element={<PageNotFound />} />

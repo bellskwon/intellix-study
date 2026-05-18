@@ -221,8 +221,7 @@ function SetupStep({ topic, setTopic, subject, setSubject, grade, setGrade, spec
             <Zap className="w-8 h-8 text-white" />
           </div>
           <h1 className="text-3xl font-black text-foreground tracking-tight font-sora">Quick Challenge</h1>
-
-          <p className="text-muted-foreground text-sm mt-1.5">Enter a topic and get a 5-question challenge instantly</p>
+          <p className="text-muted-foreground text-sm mt-1.5">Enter any topic and get a timed 5-question quiz — no notes needed.</p>
         </div>
 
         {alreadyPassedToday && (

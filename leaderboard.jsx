@@ -341,8 +341,8 @@ export default function Leaderboard() {
       <div className="text-center py-4 border-t border-border">
         <p className="text-xs text-muted-foreground">
           Questions?{' '}
-          <a href="mailto:intellixapp.team@gmail.com" className="text-primary font-semibold hover:underline">
-            intellixapp.team@gmail.com
+          <a href="mailto:intellix.study.app@gmail.com" className="text-primary font-semibold hover:underline">
+            intellix.study.app@gmail.com
           </a>
         </p>
       </div>

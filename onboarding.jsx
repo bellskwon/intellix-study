@@ -148,8 +148,7 @@ function StepRewards() {
       </div>
 
       <div className="bg-gradient-to-r from-violet-50 to-fuchsia-50 border border-violet-100 rounded-2xl p-4 text-center">
-        <p className="text-sm font-semibold text-violet-800">A $5 Starbucks card takes about 3 weeks of daily studying to earn on the free plan.</p>
-        <p className="text-xs text-slate-500 mt-1">Premium members earn faster and unlock higher-tier rewards sooner.</p>
+        <p className="text-xs text-slate-500">Premium members earn faster and unlock higher-tier rewards sooner.</p>
       </div>
     </div>
   );

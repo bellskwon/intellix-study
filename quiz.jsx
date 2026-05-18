@@ -477,8 +477,8 @@ Reply with ONLY one word: "correct" or "incorrect". Do not add any explanation.`
   return (
     <div className="max-w-2xl mx-auto space-y-6">
       <div>
-        <h1 className="text-3xl font-black text-foreground tracking-tight font-sora">Study Quiz</h1>
-        <p className="text-muted-foreground text-sm mt-1.5">Upload your notes, take a quiz, earn points.</p>
+        <h1 className="text-3xl font-black text-foreground tracking-tight font-sora">Quiz Generator</h1>
+        <p className="text-muted-foreground text-sm mt-1.5">Upload your notes and AI turns them into a personalized quiz — earn points for every correct answer.</p>
       </div>
 
       {/* Upload CTA / inline form */}

@@ -1,11 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Outlet } from 'react-router-dom';
 import { Menu, Flame, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Sidebar from '@/components/layout/Sidebar';
 import { base44 } from '@/api/base44Client';
-import { useQuery } from '@tanstack/react-query';
-// Redemption entity used by PointsBadge
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 
 function PointsBadge({ userEmail }) {
@@ -33,11 +32,28 @@ function PointsBadge({ userEmail }) {
 
 export default function AppLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const queryClient = useQueryClient();
 
   const { data: user } = useQuery({
     queryKey: ['currentUser'],
     queryFn: () => base44.auth.me(),
   });
+
+  // Invalidate streak data when the user returns to the tab on a new day
+  useEffect(() => {
+    let lastDate = new Date().toISOString().slice(0, 10);
+    const handleVisibility = () => {
+      if (document.visibilityState !== 'visible') return;
+      const today = new Date().toISOString().slice(0, 10);
+      if (today !== lastDate) {
+        lastDate = today;
+        queryClient.invalidateQueries({ queryKey: ['currentUser'] });
+        queryClient.invalidateQueries({ queryKey: ['mySubmissions'] });
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibility);
+    return () => document.removeEventListener('visibilitychange', handleVisibility);
+  }, [queryClient]);
 
   return (
     <div className="min-h-screen bg-background font-jakarta">
