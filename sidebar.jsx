@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
-import { LayoutDashboard, Zap, X, FlaskConical, ShoppingBag, Brain, Crown, Archive, UserPlus, Moon, Sun, User } from 'lucide-react';
+import { LayoutDashboard, Zap, X, FlaskConical, ShoppingBag, Brain, Crown, Archive, UserPlus, Moon, Sun, User, Trophy } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
@@ -29,6 +29,7 @@ const navItems = [
     path: '/friends', label: 'Social', icon: UserPlus, color: 'text-blue-500',
     children: [
       { path: '/profile', label: 'Profile', icon: User, color: 'text-blue-400' },
+      { path: '/leaderboard', label: 'Leaderboard', icon: Trophy, color: 'text-amber-500' },
     ],
   },
   { path: '/premium', label: 'Intellix Premium', icon: Crown, color: 'text-amber-500' },
@@ -89,7 +90,6 @@ export default function Sidebar({ open, onClose }) {
             const isActive = location.pathname === item.path;
             const isShop = item.path === '/shop';
             const isPremiumNav = item.path === '/premium';
-            const childActive = item.children?.some(c => location.pathname === c.path);
             return (
               <div key={item.path}>
                 <Link
@@ -118,7 +118,7 @@ export default function Sidebar({ open, onClose }) {
                     <span className="text-[10px] font-black bg-amber-100 text-amber-600 px-1.5 py-0.5 rounded-full">✨</span>
                   )}
                 </Link>
-                {item.children && (isActive || childActive) && (
+                {item.children && (
                   <div className="ml-4 mt-0.5 space-y-0.5 border-l border-border pl-3">
                     {item.children.map(child => {
                       const isChildActive = location.pathname === child.path;
