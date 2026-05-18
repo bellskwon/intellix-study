@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Zap, Upload, Brain, BarChart3, ArrowRight, Flame, Star, Trophy, CheckCircle2, X, Users, ShoppingBag, GraduationCap, BookOpen } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import StreakNotification from '@/components/dashboard/StreakNotification';
-import LevelXPBar, { calcLevelInfo, getLeague } from '@/components/shared/LevelXPBar';
+import { calcLevelInfo } from '@/components/shared/LevelXPBar';
 import LevelUpModal from '@/components/shared/LevelUpModal';
 import { toast } from 'sonner';
 import MiniCalendar from '@/pages/MiniCalendar';
@@ -160,13 +160,6 @@ export default function Dashboard() {
     enabled: !!user?.email,
   });
 
-  const { data: redemptions = [] } = useQuery({
-    queryKey: ['myRedemptions'],
-    queryFn: () => base44.entities.Redemption.filter({ created_by: user?.email }),
-    enabled: !!user?.email,
-  });
-
-
   // Comeback bonus — check once per session
   useEffect(() => {
     if (!user?.email) return;
@@ -181,11 +174,8 @@ export default function Dashboard() {
   }, [user?.email]);
 
   const { level } = calcLevelInfo(submissions, user?.xp_bonus || 0);
-  const league = getLeague(level);
 
   const earned = submissions.filter(s => s.status === 'approved').reduce((a, s) => a + (s.points_awarded || 0), 0);
-  const spent = redemptions.reduce((a, r) => a + (r.points_spent || 0), 0);
-  const availablePoints = earned - spent;
 
   const displayName = user?.display_name?.split(' ')[0] || user?.full_name?.split(' ')[0] || 'Student';
 
@@ -219,36 +209,25 @@ export default function Dashboard() {
           {/* Hero greeting */}
           <motion.div
             initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
-            className="relative rounded-3xl overflow-hidden text-white p-6"
-            style={{ background: 'linear-gradient(135deg, #7c3aed 0%, #a855f7 60%, #ec4899 100%)' }}
+            className="relative rounded-3xl overflow-hidden bg-violet-50 dark:bg-violet-950/20 border border-violet-100 dark:border-violet-900/30 p-6"
           >
-            <div className="absolute -top-8 -right-8 w-48 h-48 bg-white/10 rounded-full blur-3xl pointer-events-none" />
-            <div className="relative z-10">
-              <p className="text-white/60 text-xs font-semibold mb-1">
-                {league.name} League · Lv.{level}
-              </p>
-              <h1 className="text-2xl font-black mb-1 font-sora">
-                Hey, {displayName}!
-              </h1>
-              <p className="text-purple-200 text-sm mb-4">
-                {submissions.length === 0
-                  ? 'Upload your first notes to get started.'
-                  : pendingQuizzes > 0
-                  ? `You have ${pendingQuizzes} quiz${pendingQuizzes > 1 ? 'zes' : ''} waiting to be taken!`
-                  : 'Keep the momentum going — great work!'}
-              </p>
-              <div className="flex items-center gap-4 flex-wrap">
-                <div className="flex items-center gap-1.5 bg-white/15 rounded-full px-3 py-1.5">
-                  <Star className="w-3.5 h-3.5 text-amber-300" />
-                  <span className="text-sm font-bebas tracking-wide">{availablePoints.toLocaleString()} pts</span>
-                </div>
-                <div className="flex items-center gap-1.5 bg-white/15 rounded-full px-3 py-1.5">
-                  <Flame className="w-3.5 h-3.5 text-orange-300" />
-                  <span className="text-sm font-bebas tracking-wide">{streak} day streak</span>
-                </div>
+            <div className="flex items-center justify-between gap-4">
+              <div>
+                <h1 className="text-2xl font-black font-sora text-foreground mb-1">
+                  Hey, {displayName}!
+                </h1>
+                <p className="text-muted-foreground text-sm">
+                  {submissions.length === 0
+                    ? 'Upload your first notes to get started.'
+                    : pendingQuizzes > 0
+                    ? `You have ${pendingQuizzes} quiz${pendingQuizzes > 1 ? 'zes' : ''} waiting to be taken!`
+                    : streak > 0
+                    ? `You're on a ${streak}-day streak — keep it up!`
+                    : 'Ready to study? Pick up where you left off.'}
+                </p>
               </div>
-              <div className="mt-4">
-                <LevelXPBar submissions={submissions} xpBonus={user?.xp_bonus || 0} dark />
+              <div className="w-14 h-14 rounded-2xl overflow-hidden shadow-lg shadow-purple-500/20 bg-violet-600 shrink-0">
+                <img src="/logo.png" alt="Intellix" className="w-full h-full object-cover scale-[1.18]" />
               </div>
             </div>
           </motion.div>

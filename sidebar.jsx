@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
-import { LayoutDashboard, Zap, X, FlaskConical, ShoppingBag, Brain, Crown, Archive, UserPlus, Moon, Sun } from 'lucide-react';
+import { LayoutDashboard, Zap, X, FlaskConical, ShoppingBag, Brain, Crown, Archive, UserPlus, Moon, Sun, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
@@ -25,7 +25,12 @@ const navItems = [
   { path: '/shop', label: 'Intellix Shop', icon: ShoppingBag, color: 'text-orange-500' },
   { path: '/questions', label: 'Flashcards', icon: Brain, color: 'text-indigo-500' },
   { path: '/storage', label: 'Storage', icon: Archive, color: 'text-teal-500' },
-  { path: '/friends', label: 'Social', icon: UserPlus, color: 'text-blue-500' },
+  {
+    path: '/friends', label: 'Social', icon: UserPlus, color: 'text-blue-500',
+    children: [
+      { path: '/profile', label: 'Profile', icon: User, color: 'text-blue-400' },
+    ],
+  },
   { path: '/premium', label: 'Intellix Premium', icon: Crown, color: 'text-amber-500' },
 ];
 
@@ -84,34 +89,59 @@ export default function Sidebar({ open, onClose }) {
             const isActive = location.pathname === item.path;
             const isShop = item.path === '/shop';
             const isPremiumNav = item.path === '/premium';
+            const childActive = item.children?.some(c => location.pathname === c.path);
             return (
-              <Link
-                key={item.path}
-                to={item.path}
-                onClick={onClose}
-                className={cn(
-                  "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 group",
-                  isActive
-                    ? "bg-primary text-white shadow-lg shadow-primary/30"
-                    : isPremiumNav
-                    ? "text-amber-600 hover:bg-amber-50"
-                    : "text-muted-foreground hover:text-foreground hover:bg-secondary"
+              <div key={item.path}>
+                <Link
+                  to={item.path}
+                  onClick={onClose}
+                  className={cn(
+                    "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 group",
+                    isActive
+                      ? "bg-primary text-white shadow-lg shadow-primary/30"
+                      : isPremiumNav
+                      ? "text-amber-600 hover:bg-amber-50"
+                      : "text-muted-foreground hover:text-foreground hover:bg-secondary"
+                  )}
+                >
+                  <div className={cn(
+                    "w-8 h-8 rounded-lg flex items-center justify-center transition-all",
+                    isActive ? "bg-white/20" : isPremiumNav ? "bg-amber-100 group-hover:bg-amber-200" : "bg-secondary group-hover:bg-white group-hover:shadow-sm"
+                  )}>
+                    <item.icon className={cn("w-4 h-4", isActive ? "text-white" : item.color)} />
+                  </div>
+                  <span className="flex-1 font-outfit font-semibold">{item.label}</span>
+                  {isShop && storeUnlocked && (
+                    <span className="text-[10px] font-black bg-emerald-100 text-emerald-600 px-1.5 py-0.5 rounded-full">Open!</span>
+                  )}
+                  {isPremiumNav && !isActive && (
+                    <span className="text-[10px] font-black bg-amber-100 text-amber-600 px-1.5 py-0.5 rounded-full">✨</span>
+                  )}
+                </Link>
+                {item.children && (isActive || childActive) && (
+                  <div className="ml-4 mt-0.5 space-y-0.5 border-l border-border pl-3">
+                    {item.children.map(child => {
+                      const isChildActive = location.pathname === child.path;
+                      return (
+                        <Link
+                          key={child.path}
+                          to={child.path}
+                          onClick={onClose}
+                          className={cn(
+                            "flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-semibold transition-all duration-200 group",
+                            isChildActive
+                              ? "bg-primary/10 text-primary"
+                              : "text-muted-foreground hover:text-foreground hover:bg-secondary"
+                          )}
+                        >
+                          <child.icon className={cn("w-3.5 h-3.5", isChildActive ? "text-primary" : child.color)} />
+                          <span className="font-outfit">{child.label}</span>
+                        </Link>
+                      );
+                    })}
+                  </div>
                 )}
-              >
-                <div className={cn(
-                  "w-8 h-8 rounded-lg flex items-center justify-center transition-all",
-                  isActive ? "bg-white/20" : isPremiumNav ? "bg-amber-100 group-hover:bg-amber-200" : "bg-secondary group-hover:bg-white group-hover:shadow-sm"
-                )}>
-                  <item.icon className={cn("w-4 h-4", isActive ? "text-white" : item.color)} />
-                </div>
-                <span className="flex-1 font-outfit font-semibold">{item.label}</span>
-                {isShop && storeUnlocked && (
-                  <span className="text-[10px] font-black bg-emerald-100 text-emerald-600 px-1.5 py-0.5 rounded-full">Open!</span>
-                )}
-                {isPremiumNav && !isActive && (
-                  <span className="text-[10px] font-black bg-amber-100 text-amber-600 px-1.5 py-0.5 rounded-full">✨</span>
-                )}
-              </Link>
+              </div>
             );
           })}
         </nav>
