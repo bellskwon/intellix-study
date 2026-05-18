@@ -177,7 +177,6 @@ export default function Dashboard() {
 
   const earned = submissions.filter(s => s.status === 'approved').reduce((a, s) => a + (s.points_awarded || 0), 0);
 
-  const displayName = user?.display_name?.split(' ')[0] || user?.full_name?.split(' ')[0] || 'Student';
 
   const NON_STREAK_TYPES = new Set(['xp_boost', 'referral', 'points_pack', 'comeback_bonus']);
   const studySubmissions = submissions.filter(s => !NON_STREAK_TYPES.has(s.type));
@@ -206,30 +205,18 @@ export default function Dashboard() {
         {/* Main content column */}
         <div className="flex-1 min-w-0 space-y-6">
 
-          {/* Hero greeting */}
+          {/* Hero banner */}
           <motion.div
             initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
-            className="relative rounded-3xl overflow-hidden bg-violet-50 dark:bg-violet-950/20 border border-violet-100 dark:border-violet-900/30 p-6"
+            className="relative rounded-3xl overflow-hidden bg-white dark:bg-card border border-violet-100 dark:border-violet-900/30 px-6 py-8 flex flex-col items-center gap-5"
           >
-            <div className="flex flex-col gap-2">
-              <div className="w-10 h-10 rounded-xl overflow-hidden shadow-md shadow-purple-500/20 bg-violet-600 shrink-0">
-                <img src="/logo.png" alt="Intellix" className="w-full h-full object-cover scale-[1.18]" />
-              </div>
-              <div>
-                <h1 className="text-lg font-bold font-sora text-foreground mb-0.5">
-                  Hey, {displayName}!
-                </h1>
-                <p className="text-muted-foreground text-xs">
-                  {submissions.length === 0
-                    ? 'Upload your first notes to get started.'
-                    : pendingQuizzes > 0
-                    ? `You have ${pendingQuizzes} quiz${pendingQuizzes > 1 ? 'zes' : ''} waiting to be taken!`
-                    : streak > 0
-                    ? `You're on a ${streak}-day streak — keep it up!`
-                    : 'Ready to study? Pick up where you left off.'}
-                </p>
-              </div>
+            <div className="w-20 h-20 rounded-2xl overflow-hidden shadow-xl shadow-purple-500/25 bg-violet-600 shrink-0">
+              <img src="/logo.png" alt="Intellix" className="w-full h-full object-cover scale-[1.18]" />
             </div>
+            <h1 className="text-5xl sm:text-6xl font-black tracking-tight text-foreground uppercase w-full text-center leading-none"
+              style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '0.04em' }}>
+              Intellix Study
+            </h1>
           </motion.div>
 
           {/* Streak at risk banner */}
