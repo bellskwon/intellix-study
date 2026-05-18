@@ -213,7 +213,7 @@ export default function Dashboard() {
             <div className="w-20 h-20 rounded-2xl overflow-hidden shadow-xl shadow-purple-500/25 bg-violet-600 shrink-0">
               <img src="/logo.png" alt="Intellix" className="w-full h-full object-cover scale-[1.18]" />
             </div>
-            <h1 className="font-oswald text-5xl sm:text-6xl font-bold tracking-tight text-foreground uppercase w-full text-center leading-none">
+            <h1 className="font-montserrat text-5xl sm:text-6xl font-black tracking-tight text-foreground uppercase w-full text-center leading-none">
               Intellix Study
             </h1>
           </motion.div>

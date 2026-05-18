@@ -19,6 +19,7 @@ module.exports = {
   			bebas: ['var(--font-bebas)'],
   			outfit: ['var(--font-outfit)'],
 			oswald: ['var(--font-oswald)'],
+			montserrat: ['var(--font-montserrat)'],
   		},
   		borderRadius: {
   			lg: 'var(--radius)',
