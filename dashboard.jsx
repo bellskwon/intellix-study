@@ -210,11 +210,11 @@ export default function Dashboard() {
             initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
             className="flex flex-col items-center gap-4 py-4"
           >
-            <div className="w-20 h-20 rounded-2xl overflow-hidden shadow-xl shadow-purple-500/25 bg-violet-600 shrink-0">
-              <img src="/logo.png" alt="Intellix" className="w-full h-full object-cover scale-[1.18]" />
+            <div className="w-32 h-32 rounded-2xl overflow-hidden shadow-xl shadow-purple-500/25 bg-violet-600 shrink-0">
+              <img src="/logo.png" alt="Intellix" className="w-full h-full object-contain" />
             </div>
             <h1 className="font-serif font-black text-foreground text-center leading-none w-full"
-              style={{ fontSize: 'clamp(3rem, 10vw, 5.5rem)', letterSpacing: '0.18em', fontStretch: 'expanded' }}>
+              style={{ fontSize: 'clamp(3rem, 10vw, 5.5rem)', letterSpacing: '0.08em' }}>
               Intellix Study
             </h1>
           </motion.div>
