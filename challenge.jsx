@@ -33,6 +33,7 @@ export default function Challenge() {
   const [topic, setTopic] = useState('');
   const [subject, setSubject] = useState('');
   const [grade, setGrade] = useState('');
+  const [difficulty, setDifficulty] = useState('medium');
   const [specificTopic, setSpecificTopic] = useState('');
   const [questions, setQuestions] = useState([]);
   const [answers, setAnswers] = useState({});
@@ -79,7 +80,7 @@ export default function Challenge() {
     setStep('generating');
     try {
     const topicDetail = specificTopic ? `Specifically about: ${specificTopic}.` : '';
-
+    const difficultyNote = difficulty === 'easy' ? ' Use straightforward recall questions appropriate for beginners.' : difficulty === 'hard' ? ' Use challenging questions that require deep understanding, multi-step reasoning, or application of concepts.' : ' Use moderate difficulty questions.';
     const mathNote = subject === 'math' ? ' IMPORTANT: Verify ALL math calculations are correct before including. Double-check arithmetic using a step-by-step approach. Never include a wrong answer.' : '';
 
     const timeoutPromise = new Promise((_, reject) =>
@@ -88,7 +89,7 @@ export default function Challenge() {
     const res = await Promise.race([
       base44.integrations.Core.InvokeLLM({
         prompt: `You are an expert curriculum writer creating a quiz for a ${grade} grade student.
-Topic: "${topic}" (subject: ${subject}). ${topicDetail}${mathNote}
+Topic: "${topic}" (subject: ${subject}). ${topicDetail}${mathNote}${difficultyNote}
 
 RULES:
 - Only include questions whose answers are factually certain and verifiable (no opinion, no ambiguity).
@@ -204,13 +205,20 @@ Reply with only "correct" or "incorrect".`
     }
   };
 
-  if (step === 'setup') return <SetupStep topic={topic} setTopic={setTopic} subject={subject} setSubject={setSubject} grade={grade} setGrade={setGrade} specificTopic={specificTopic} setSpecificTopic={setSpecificTopic} onStart={generate} alreadyPassedToday={alreadyPassedToday} />;
+  if (step === 'setup') return <SetupStep topic={topic} setTopic={setTopic} subject={subject} setSubject={setSubject} grade={grade} setGrade={setGrade} difficulty={difficulty} setDifficulty={setDifficulty} specificTopic={specificTopic} setSpecificTopic={setSpecificTopic} onStart={generate} alreadyPassedToday={alreadyPassedToday} />;
   if (step === 'generating') return <GeneratingStep error={generateError} onCancel={() => { setStep('setup'); setGenerateError(null); }} />;
   if (step === 'quiz') return <QuizStep questions={questions} currentQ={currentQ} setCurrentQ={setCurrentQ} answers={answers} setAnswers={setAnswers} onSubmit={submitQuiz} submitting={submitting} showHints={showHints} setShowHints={setShowHints} />;
   if (step === 'results') return <ResultsStep results={results} topic={topic} subject={subject} grade={grade} onRetry={() => { setStep('setup'); setResults(null); }} showSaveModal={showSaveModal} setShowSaveModal={setShowSaveModal} />;
 }
 
-function SetupStep({ topic, setTopic, subject, setSubject, grade, setGrade, specificTopic, setSpecificTopic, onStart, alreadyPassedToday }) {
+const DIFFICULTY = [
+  { value: 'easy',   label: 'Easy',   active: 'bg-emerald-500 text-white border-emerald-500', hover: 'hover:bg-emerald-50 hover:text-emerald-700 hover:border-emerald-400' },
+  { value: 'medium', label: 'Medium', active: 'bg-amber-400 text-white border-amber-400',     hover: 'hover:bg-amber-50 hover:text-amber-700 hover:border-amber-400' },
+  { value: 'hard',   label: 'Hard',   active: 'bg-rose-500 text-white border-rose-500',       hover: 'hover:bg-rose-50 hover:text-rose-700 hover:border-rose-400' },
+];
+
+function SetupStep({ topic, setTopic, subject, setSubject, grade, setGrade, difficulty, setDifficulty, specificTopic, setSpecificTopic, onStart, alreadyPassedToday }) {
+  const [hoveredSubject, setHoveredSubject] = React.useState(null);
   const isMath = subject === 'math';
   const selected = subjects.find(s => s.value === subject);
   const SubjectIcon = selected?.icon || Zap;
@@ -255,16 +263,35 @@ function SetupStep({ topic, setTopic, subject, setSubject, grade, setGrade, spec
             {subjects.map(s => {
               const Icon = s.icon;
               const isActive = subject === s.value;
+              const isHovered = hoveredSubject === s.value;
               return (
-                <button key={s.value} onClick={() => setSubject(s.value)}
+                <button key={s.value}
+                  onClick={() => setSubject(s.value)}
+                  onMouseEnter={() => setHoveredSubject(s.value)}
+                  onMouseLeave={() => setHoveredSubject(null)}
                   className={`flex items-center gap-1.5 px-3 py-2 rounded-full border-2 text-sm font-bold whitespace-nowrap transition-all shrink-0 ${
-                    isActive ? `${s.pill} border-current shadow-sm` : 'border-border text-muted-foreground hover:border-border/80 hover:bg-secondary'
+                    isActive || isHovered ? `${s.pill} border-current shadow-sm` : 'border-border text-muted-foreground'
                   }`}>
                   <Icon className="w-3.5 h-3.5" />
                   {s.label}
                 </button>
               );
             })}
+          </div>
+        </div>
+
+        {/* Difficulty */}
+        <div>
+          <p className="text-xs font-black text-muted-foreground uppercase tracking-widest mb-2">Difficulty</p>
+          <div className="flex gap-2">
+            {DIFFICULTY.map(d => (
+              <button key={d.value} onClick={() => setDifficulty(d.value)}
+                className={`flex-1 py-2.5 rounded-2xl border-2 text-sm font-black transition-all ${
+                  difficulty === d.value ? d.active : `border-border text-muted-foreground ${d.hover}`
+                }`}>
+                {d.label}
+              </button>
+            ))}
           </div>
         </div>
 
