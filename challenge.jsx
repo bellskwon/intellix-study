@@ -3,26 +3,25 @@ import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Zap, Loader2, ArrowRight, CheckCircle2, XCircle, Trophy, RotateCcw, Flame, Timer } from 'lucide-react';
+import { Zap, Loader2, ArrowRight, CheckCircle2, XCircle, Trophy, RotateCcw, Flame, Timer, FlaskConical, Globe, BookOpen, Code2, Music, Palette, Scroll, Star, Languages } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
 import SaveToFolderModal from '@/pages/SaveToFolder';
 import { renderWithSubscripts } from '@/lib/utils';
 
 const subjects = [
-  { value: 'math', label: 'Mathematics' },
-  { value: 'science', label: 'Science' },
-  { value: 'history', label: 'History' },
-  { value: 'geography', label: 'Geography' },
-  { value: 'english', label: 'English' },
-  { value: 'foreign_language', label: 'Foreign Language' },
-  { value: 'computer_science', label: 'Computer Science' },
-  { value: 'art', label: 'Art' },
-  { value: 'music', label: 'Music' },
-  { value: 'other', label: 'Other' },
+  { value: 'math',             label: 'Math',            icon: Zap,          color: 'bg-blue-100 text-blue-700',    card: 'from-blue-500 to-indigo-600',   pill: 'border-blue-400 bg-blue-50 text-blue-700' },
+  { value: 'science',          label: 'Science',         icon: FlaskConical, color: 'bg-emerald-100 text-emerald-700', card: 'from-emerald-500 to-teal-600', pill: 'border-emerald-400 bg-emerald-50 text-emerald-700' },
+  { value: 'history',          label: 'History',         icon: Scroll,       color: 'bg-amber-100 text-amber-700',  card: 'from-amber-500 to-orange-600',  pill: 'border-amber-400 bg-amber-50 text-amber-700' },
+  { value: 'geography',        label: 'Geography',       icon: Globe,        color: 'bg-teal-100 text-teal-700',    card: 'from-teal-500 to-cyan-600',     pill: 'border-teal-400 bg-teal-50 text-teal-700' },
+  { value: 'english',          label: 'English',         icon: BookOpen,     color: 'bg-violet-100 text-violet-700',card: 'from-violet-500 to-purple-600', pill: 'border-violet-400 bg-violet-50 text-violet-700' },
+  { value: 'foreign_language', label: 'Languages',       icon: Languages,    color: 'bg-pink-100 text-pink-700',    card: 'from-pink-500 to-rose-600',     pill: 'border-pink-400 bg-pink-50 text-pink-700' },
+  { value: 'computer_science', label: 'CS',              icon: Code2,        color: 'bg-cyan-100 text-cyan-700',    card: 'from-cyan-500 to-blue-600',     pill: 'border-cyan-400 bg-cyan-50 text-cyan-700' },
+  { value: 'art',              label: 'Art',             icon: Palette,      color: 'bg-rose-100 text-rose-700',    card: 'from-rose-500 to-pink-600',     pill: 'border-rose-400 bg-rose-50 text-rose-700' },
+  { value: 'music',            label: 'Music',           icon: Music,        color: 'bg-orange-100 text-orange-700',card: 'from-orange-500 to-amber-600',  pill: 'border-orange-400 bg-orange-50 text-orange-700' },
+  { value: 'other',            label: 'Other',           icon: Star,         color: 'bg-slate-100 text-slate-700',  card: 'from-slate-500 to-gray-600',    pill: 'border-slate-400 bg-slate-50 text-slate-700' },
 ];
 
 const grades = ['1st','2nd','3rd','4th','5th','6th','7th','8th','9th','10th','11th','12th','college'];
@@ -213,90 +212,104 @@ Reply with only "correct" or "incorrect".`
 
 function SetupStep({ topic, setTopic, subject, setSubject, grade, setGrade, specificTopic, setSpecificTopic, onStart, alreadyPassedToday }) {
   const isMath = subject === 'math';
+  const selected = subjects.find(s => s.value === subject);
+  const SubjectIcon = selected?.icon || Zap;
+
   return (
-    <div className="max-w-xl mx-auto">
-      <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
-        <div className="text-center">
-          <div className="w-16 h-16 gradient-amber rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-xl shadow-amber-300/40 animate-float">
-            <Zap className="w-8 h-8 text-white" />
+    <div className="max-w-xl mx-auto pb-8">
+      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
+
+        {/* Header */}
+        <div>
+          <p className="text-xs font-black text-muted-foreground uppercase tracking-widest mb-1">Quick Challenge</p>
+          <h1 className="text-4xl font-black text-foreground leading-tight font-sora">
+            Test your<br />
+            <span className={selected ? `bg-gradient-to-r ${selected.card} bg-clip-text text-transparent` : 'text-primary'}>
+              {selected ? selected.label.toLowerCase() : 'knowledge'}
+            </span>
+          </h1>
+        </div>
+
+        {/* Subject preview card */}
+        <div className={`rounded-2xl p-5 flex items-center justify-between bg-gradient-to-br ${selected ? selected.card : 'from-slate-100 to-slate-200'}`}>
+          <div>
+            <p className={`text-lg font-black ${selected ? 'text-white' : 'text-foreground'}`}>
+              {selected ? `${selected.label} challenge` : 'Pick a subject'}
+            </p>
+            <p className={`text-sm mt-0.5 ${selected ? 'text-white/70' : 'text-muted-foreground'}`}>5 questions · AI graded</p>
           </div>
-          <h1 className="text-3xl font-black text-foreground tracking-tight font-sora">Quick Challenge</h1>
-          <p className="text-muted-foreground text-sm mt-1.5">Enter any topic and get a timed 5-question quiz — no notes needed.</p>
+          <SubjectIcon className={`w-12 h-12 ${selected ? 'text-white/80' : 'text-muted-foreground'}`} strokeWidth={1.2} />
         </div>
 
         {alreadyPassedToday && (
           <div className="flex items-start gap-3 bg-emerald-50 border border-emerald-200 rounded-2xl px-4 py-3">
             <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" />
-            <p className="text-sm text-emerald-800">
-              <span className="font-bold">Daily point already earned!</span> You passed today's challenge — extra attempts are great for practice but won't award more points until tomorrow.
-            </p>
+            <p className="text-sm text-emerald-800"><span className="font-bold">Daily point earned!</span> Extra attempts are great practice but won't award more points until tomorrow.</p>
           </div>
         )}
 
-        <div className="bg-white rounded-2xl border border-border p-6 space-y-4 shadow-sm">
-          <div>
-            <label className="text-sm font-bold text-foreground mb-1.5 block">What are you studying? <span className="text-rose-500">*</span></label>
-            <Input
-              placeholder="e.g. Photosynthesis, World War II, Quadratic Formula..."
-              value={topic}
-              onChange={e => setTopic(e.target.value)}
-              className="h-11 rounded-xl border-border font-medium"
-            />
+        {/* Subject pills */}
+        <div>
+          <p className="text-xs font-black text-muted-foreground uppercase tracking-widest mb-2">Subject</p>
+          <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none">
+            {subjects.map(s => {
+              const Icon = s.icon;
+              const isActive = subject === s.value;
+              return (
+                <button key={s.value} onClick={() => setSubject(s.value)}
+                  className={`flex items-center gap-1.5 px-3 py-2 rounded-full border-2 text-sm font-bold whitespace-nowrap transition-all shrink-0 ${
+                    isActive ? `${s.pill} border-current shadow-sm` : 'border-border text-muted-foreground hover:border-border/80 hover:bg-secondary'
+                  }`}>
+                  <Icon className="w-3.5 h-3.5" />
+                  {s.label}
+                </button>
+              );
+            })}
           </div>
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="text-sm font-bold text-foreground mb-1.5 block">Subject <span className="text-rose-500">*</span></label>
-              <Select value={subject} onValueChange={setSubject}>
-                <SelectTrigger className="h-11 rounded-xl"><SelectValue placeholder="Select subject" /></SelectTrigger>
-                <SelectContent>
-                  {subjects.map(s => <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>)}
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <label className="text-sm font-bold text-foreground mb-1.5 block">Grade <span className="text-rose-500">*</span></label>
-              <Select value={grade} onValueChange={setGrade}>
-                <SelectTrigger className="h-11 rounded-xl"><SelectValue placeholder="Select grade" /></SelectTrigger>
-                <SelectContent>
-                  {grades.map(g => <SelectItem key={g} value={g}>{g} Grade</SelectItem>)}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
-          <div>
-            <label className="text-sm font-bold text-foreground mb-1.5 block">
-              {isMath ? 'Type of Math (required)' : 'Specific topic or notes (optional)'}
-              {isMath && <span className="text-rose-500 ml-1">*</span>}
-            </label>
-            <Input
-              placeholder={isMath
-                ? 'e.g. Algebra, Fractions, Long Division, Geometry...'
-                : 'e.g. Chapter 3, pages 45-60, the water cycle...'}
-              value={specificTopic}
-              onChange={e => setSpecificTopic(e.target.value)}
-              className="h-11 rounded-xl border-border"
-            />
-          </div>
-
-          <Button onClick={onStart} className="w-full h-12 rounded-xl font-bold text-base gradient-amber border-0 shadow-lg shadow-amber-300/40 text-white hover:opacity-90">
-            <Zap className="w-5 h-5 mr-2" /> Start Challenge
-          </Button>
         </div>
 
-        <div className="grid grid-cols-3 gap-3 text-center">
-          {[
-            { icon: <Zap className="w-5 h-5 text-amber-500 mx-auto" />, label: '5 Questions', sub: 'Focused & fast' },
-            { icon: <Trophy className="w-5 h-5 text-violet-500 mx-auto" />, label: 'Instant Score', sub: 'Lenient grading' },
-            { icon: <Timer className="w-5 h-5 text-cyan-500 mx-auto" />, label: 'Tracks Progress', sub: 'See improvement' },
-          ].map(f => (
-            <div key={f.label} className="bg-white rounded-xl border border-border p-3 hover:shadow-sm transition-all">
-              <div className="mb-1.5">{f.icon}</div>
-              <p className="text-xs font-bold text-foreground">{f.label}</p>
-              <p className="text-xs text-muted-foreground">{f.sub}</p>
-            </div>
-          ))}
+        {/* Grade pills */}
+        <div>
+          <p className="text-xs font-black text-muted-foreground uppercase tracking-widest mb-2">Grade</p>
+          <div className="flex flex-wrap gap-2">
+            {grades.map(g => (
+              <button key={g} onClick={() => setGrade(g)}
+                className={`px-3.5 py-1.5 rounded-full border-2 text-sm font-bold transition-all ${
+                  grade === g
+                    ? 'border-foreground bg-foreground text-background'
+                    : 'border-border text-muted-foreground hover:border-foreground/40'
+                }`}>
+                {g}
+              </button>
+            ))}
+          </div>
         </div>
+
+        {/* Topic input */}
+        <div>
+          <Input
+            placeholder={isMath ? 'What type of math? e.g. Algebra, Fractions...' : 'What topic? e.g. Photosynthesis, WW2...'}
+            value={topic}
+            onChange={e => setTopic(e.target.value)}
+            onKeyDown={e => e.key === 'Enter' && onStart()}
+            className="h-14 rounded-2xl text-sm font-medium bg-foreground text-background placeholder:text-background/40 border-0 px-5"
+          />
+        </div>
+
+        {/* Specific topic for math */}
+        {isMath && (
+          <Input
+            placeholder="Specific type of math, e.g. Quadratic equations..."
+            value={specificTopic}
+            onChange={e => setSpecificTopic(e.target.value)}
+            className="h-11 rounded-xl border-border"
+          />
+        )}
+
+        {/* Start button */}
+        <Button onClick={onStart} className={`w-full h-14 rounded-2xl font-black text-base border-0 text-white shadow-lg hover:opacity-90 bg-gradient-to-r ${selected ? selected.card : 'from-violet-500 to-purple-600'}`}>
+          <Zap className="w-5 h-5 mr-2" /> Start Challenge
+        </Button>
       </motion.div>
     </div>
   );
