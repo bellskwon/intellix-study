@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   FlaskConical, Upload, CheckCircle2, XCircle, Trophy,
   RotateCcw, Loader2, ArrowRight, BookOpen, Star, Flag, ChevronDown, ChevronUp, AlertTriangle, Sparkles,
+  Clipboard, Camera, Minus, Plus,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -474,23 +475,64 @@ Reply with ONLY one word: "correct" or "incorrect". Do not add any explanation.`
   }
 
   // ── Default: list view ───────────────────────────────────────────────────
+  const subjectColor = (s) => {
+    const map = {
+      math: 'bg-blue-500', science: 'bg-emerald-500', history: 'bg-orange-500',
+      english: 'bg-violet-500', geography: 'bg-teal-500', foreign_language: 'bg-pink-500',
+      computer_science: 'bg-indigo-500', art: 'bg-rose-500', music: 'bg-amber-500', other: 'bg-slate-500',
+    };
+    return map[s] || 'bg-violet-500';
+  };
+  const subjectBadge = (s) => {
+    const map = {
+      math: 'bg-blue-50 text-blue-600', science: 'bg-emerald-50 text-emerald-600',
+      history: 'bg-orange-50 text-orange-600', english: 'bg-violet-50 text-violet-600',
+      geography: 'bg-teal-50 text-teal-600', foreign_language: 'bg-pink-50 text-pink-600',
+      computer_science: 'bg-indigo-50 text-indigo-600', art: 'bg-rose-50 text-rose-600',
+      music: 'bg-amber-50 text-amber-600', other: 'bg-slate-50 text-slate-600',
+    };
+    return map[s] || 'bg-violet-50 text-violet-600';
+  };
+
   return (
-    <div className="max-w-2xl mx-auto space-y-6">
+    <div className="max-w-2xl mx-auto space-y-6 pb-8">
+      {/* Header */}
       <div>
-        <h1 className="text-3xl font-black text-foreground tracking-tight font-sora">Quiz Generator</h1>
-        <p className="text-muted-foreground text-sm mt-1.5">Upload your notes and AI turns them into a personalized quiz — earn points for every correct answer.</p>
+        <p className="text-xs font-black text-muted-foreground uppercase tracking-widest mb-1">AI-Powered</p>
+        <h1 className="text-4xl font-black text-foreground tracking-tight">Quiz generator</h1>
       </div>
 
-      {/* Upload CTA / inline form */}
+      {/* Upload hero card / inline form */}
       {!showUploadForm ? (
-        <button onClick={() => setShowUploadForm(true)}
-          className="w-full bg-white rounded-2xl border-2 border-dashed border-violet-200 hover:border-violet-400 hover:bg-violet-50/50 transition-all p-5 text-center group">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-violet-500 to-purple-700 flex items-center justify-center mx-auto mb-3 shadow-md group-hover:scale-105 transition-transform">
-            <Upload className="w-6 h-6 text-white" />
+        <div className="rounded-3xl bg-violet-100 dark:bg-violet-950/30 p-6 relative overflow-hidden">
+          <div className="absolute right-4 top-4 flex gap-2 opacity-30">
+            <div className="w-14 h-16 rounded-2xl bg-violet-300" />
+            <div className="w-14 h-16 rounded-2xl bg-white flex items-center justify-center">
+              <Clipboard className="w-7 h-7 text-violet-400" />
+            </div>
           </div>
-          <p className="font-black text-foreground">Upload New Notes</p>
-          <p className="text-xs text-muted-foreground mt-1">PDF, image, or paste text — get a quiz in seconds</p>
-        </button>
+          <span className="inline-flex items-center gap-1.5 bg-white/70 text-violet-700 text-xs font-bold px-3 py-1 rounded-full mb-4">
+            <Sparkles className="w-3 h-3" /> AI powered
+          </span>
+          <h2 className="text-2xl font-black text-violet-800 leading-tight mb-1">
+            Turn your notes<br />into a quiz
+          </h2>
+          <p className="text-sm text-violet-600 mb-5">PDF, image, or paste text</p>
+          <div className="flex gap-2 flex-wrap">
+            <button onClick={() => setShowUploadForm(true)}
+              className="flex items-center gap-2 bg-white text-foreground text-sm font-bold px-4 py-2.5 rounded-2xl border border-violet-200 hover:shadow-sm transition-all">
+              <Upload className="w-4 h-4" /> Upload
+            </button>
+            <button onClick={() => setShowUploadForm(true)}
+              className="flex items-center gap-2 bg-white text-foreground text-sm font-bold px-4 py-2.5 rounded-2xl border border-violet-200 hover:shadow-sm transition-all">
+              <Clipboard className="w-4 h-4" /> Paste
+            </button>
+            <button onClick={() => setShowUploadForm(true)}
+              className="flex items-center gap-2 bg-white text-foreground text-sm font-bold px-4 py-2.5 rounded-2xl border border-violet-200 hover:shadow-sm transition-all">
+              <Camera className="w-4 h-4" /> Scan
+            </button>
+          </div>
+        </div>
       ) : (
         <div>
           <button onClick={() => setShowUploadForm(false)} className="text-sm text-muted-foreground hover:text-foreground mb-4 flex items-center gap-1 font-semibold">
@@ -504,17 +546,20 @@ Reply with ONLY one word: "correct" or "incorrect". Do not add any explanation.`
       {pending.length > 0 && (
         <div>
           <div className="flex items-center justify-between mb-3">
-            <h2 className="font-semibold text-sm text-muted-foreground">Ready to Quiz ({pending.length})</h2>
+            <p className="text-xs font-black text-muted-foreground uppercase tracking-widest">Up Next · {pending.length}</p>
             <div className="flex items-center gap-2">
-              <label className="text-xs text-muted-foreground font-semibold">Questions</label>
-              <input
-                type="number"
-                min={1}
-                max={maxQuestions}
-                value={numQuestions}
-                onChange={e => setNumQuestions(Math.min(maxQuestions, Math.max(1, parseInt(e.target.value) || 1)))}
-                className="w-16 text-center text-sm font-bold border border-border rounded-lg px-2 py-1 bg-white focus:outline-none focus:ring-2 focus:ring-violet-400"
-              />
+              <span className="text-xs text-muted-foreground font-semibold">Questions</span>
+              <div className="flex items-center gap-1">
+                <button onClick={() => setNumQuestions(n => Math.max(1, n - 1))}
+                  className="w-7 h-7 rounded-full border border-border flex items-center justify-center text-muted-foreground hover:bg-secondary transition-colors">
+                  <Minus className="w-3 h-3" />
+                </button>
+                <span className="w-8 text-center text-sm font-black">{numQuestions}</span>
+                <button onClick={() => setNumQuestions(n => Math.min(maxQuestions, n + 1))}
+                  className="w-7 h-7 rounded-full border border-border flex items-center justify-center text-muted-foreground hover:bg-secondary transition-colors">
+                  <Plus className="w-3 h-3" />
+                </button>
+              </div>
             </div>
           </div>
           <div className="space-y-3">
@@ -525,14 +570,17 @@ Reply with ONLY one word: "correct" or "incorrect". Do not add any explanation.`
                 <SubjectIcon subject={sub.subject} size="md" />
                 <div className="flex-1 min-w-0">
                   <p className="font-bold text-sm text-foreground truncate">{toTitleCase(sub.title)}</p>
-                  <p className="text-xs text-muted-foreground capitalize">
-                    {sub.subject?.replace(/_/g, ' ')} · {sub.grade_level} · {format(new Date(sub.created_date), 'MMM d')}
-                  </p>
+                  <div className="flex items-center gap-2 mt-1 flex-wrap">
+                    <span className={`text-xs font-bold px-2 py-0.5 rounded-full capitalize ${subjectBadge(sub.subject)}`}>
+                      {sub.subject?.replace(/_/g, ' ')}
+                    </span>
+                    <span className="text-xs text-muted-foreground">{sub.grade_level} · {format(new Date(sub.created_date), 'MMM d')}</span>
+                  </div>
                 </div>
-                <Button size="sm" onClick={() => startQuiz(sub, numQuestions)}
-                  className="rounded-xl font-bold bg-gradient-to-r from-violet-500 to-purple-600 text-white border-0 hover:opacity-90 shrink-0">
-                  Take Quiz
-                </Button>
+                <button onClick={() => startQuiz(sub, numQuestions)}
+                  className={`${subjectColor(sub.subject)} text-white text-sm font-black px-5 py-2.5 rounded-2xl hover:opacity-90 transition-opacity shrink-0`}>
+                  Start
+                </button>
               </motion.div>
             ))}
           </div>
@@ -542,21 +590,23 @@ Reply with ONLY one word: "correct" or "incorrect". Do not add any explanation.`
       {/* Completed quizzes */}
       {completed.length > 0 && (
         <div>
-          <h2 className="font-semibold text-sm text-muted-foreground mb-3">Completed ({completed.length})</h2>
+          <p className="text-xs font-black text-muted-foreground uppercase tracking-widest mb-3">Completed · {completed.length}</p>
           <div className="space-y-2">
             {(showAllCompleted ? completed : completed.slice(0, 10)).map(sub => (
-              <div key={sub.id} className="bg-white rounded-xl border border-border px-4 py-3 flex items-center gap-3">
+              <div key={sub.id} className="bg-white rounded-2xl border border-border px-4 py-3.5 flex items-center gap-3">
                 <SubjectIcon subject={sub.subject} size="sm" />
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold text-foreground truncate">{toTitleCase(sub.title)}</p>
-                  <p className="text-xs text-muted-foreground capitalize">
-                    {sub.subject?.replace(/_/g, ' ')} · {format(new Date(sub.created_date), 'MMM d')}
-                  </p>
+                  <p className="text-sm font-bold text-foreground truncate">{toTitleCase(sub.title)}</p>
+                  <div className="flex items-center gap-2 mt-0.5">
+                    <span className={`text-xs font-bold px-2 py-0.5 rounded-full capitalize ${subjectBadge(sub.subject)}`}>
+                      {sub.subject?.replace(/_/g, ' ')}
+                    </span>
+                    <span className="text-xs text-muted-foreground">{format(new Date(sub.created_date), 'MMM d')}</span>
+                  </div>
                 </div>
-                <span className={`text-xs font-black px-2.5 py-1 rounded-full shrink-0 ${
-                  sub.quiz_score >= PASS_THRESHOLD ? 'bg-emerald-50 text-emerald-600' :
-                  sub.quiz_score >= 60 ? 'bg-amber-50 text-amber-600' :
-                  'bg-rose-50 text-rose-600'}`}>
+                <span className={`text-sm font-black shrink-0 ${
+                  sub.quiz_score >= PASS_THRESHOLD ? 'text-emerald-600' :
+                  sub.quiz_score >= 60 ? 'text-amber-600' : 'text-rose-500'}`}>
                   {sub.quiz_score}%
                 </span>
               </div>
@@ -578,21 +628,16 @@ Reply with ONLY one word: "correct" or "incorrect". Do not add any explanation.`
       )}
 
       {!isLoading && submissions.length === 0 && (
-        <div className="bg-white rounded-2xl border border-border py-14 px-8 text-center">
-          <svg width="110" height="90" viewBox="0 0 110 90" fill="none" className="mx-auto mb-5 opacity-80">
-            <rect x="15" y="20" width="80" height="58" rx="8" fill="#fdf4ff" stroke="#e879f9" strokeWidth="2"/>
-            <rect x="27" y="34" width="56" height="5" rx="2.5" fill="#f0abfc"/>
-            <rect x="27" y="45" width="38" height="5" rx="2.5" fill="#f5d0fe"/>
-            <rect x="27" y="56" width="48" height="5" rx="2.5" fill="#f5d0fe"/>
-            <circle cx="85" cy="20" r="13" fill="#a855f7"/>
-            <path d="M79.5 20 L83.5 24 L90.5 16" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
-          <h3 className="font-black text-foreground text-lg mb-1">No notes uploaded yet</h3>
+        <div className="text-center py-14 px-8">
+          <div className="w-16 h-16 rounded-2xl bg-violet-100 flex items-center justify-center mx-auto mb-4">
+            <BookOpen className="w-8 h-8 text-violet-400" />
+          </div>
+          <h3 className="font-black text-foreground text-lg mb-1">No notes yet</h3>
           <p className="text-sm text-muted-foreground max-w-xs mx-auto mb-5">
-            Upload your class notes above and get a quiz in seconds. Score 80%+ to earn points.
+            Upload your class notes and get a quiz in seconds. Score 80%+ to earn points.
           </p>
           <button onClick={() => setShowUploadForm(true)}
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-pink-500 to-violet-600 text-white text-sm font-bold shadow-md shadow-pink-200 hover:opacity-90 transition-opacity">
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-violet-600 text-white text-sm font-bold hover:opacity-90 transition-opacity">
             Upload Your First Notes →
           </button>
         </div>
