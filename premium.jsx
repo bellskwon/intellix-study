@@ -2,18 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { motion, AnimatePresence } from 'framer-motion';
-import { CheckCircle2, Zap, Star, Crown, Users, Gift, X, Sparkles, ExternalLink, Settings } from 'lucide-react';
+import { CheckCircle2, Zap, Star, Crown, Users, Gift, X, ExternalLink, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
 import { format, addDays } from 'date-fns';
-
-const POINT_PACKS = [
-  { id: 'pack_100',  points: 100,  price: '$0.99',  label: '100 Points',   color: 'from-slate-400 to-slate-500',   badge: null },
-  { id: 'pack_350',  points: 350,  price: '$2.99',  label: '350 Points',   color: 'from-violet-500 to-purple-600', badge: 'Popular' },
-  { id: 'pack_1000', points: 1000, price: '$7.99',  label: '1,000 Points', color: 'from-blue-500 to-indigo-600',   badge: 'Best Value' },
-  { id: 'pack_2500', points: 2500, price: '$14.99', label: '2,500 Points', color: 'from-amber-500 to-orange-600',  badge: 'Max Pack' },
-];
 
 const PLANS = [
   {
@@ -252,39 +245,6 @@ export default function Premium() {
         </div>
       )}
 
-      {/* ── Bonus Point Packs ─────────────────────────────────────────────── */}
-      <div className="space-y-4">
-        <div>
-          <h3 className="font-black text-foreground text-lg flex items-center gap-2">
-            <Sparkles className="w-5 h-5 text-amber-500" /> Bonus Point Packs
-          </h3>
-          <p className="text-sm text-muted-foreground mt-1">One-time purchases — points are instantly added to your account.</p>
-        </div>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          {POINT_PACKS.map(pack => (
-            <div key={pack.id} className="bg-white rounded-2xl border border-border overflow-hidden flex flex-col">
-              <div className={`text-center py-1 text-[10px] font-black font-outfit text-white bg-gradient-to-r ${pack.color} ${!pack.badge ? 'opacity-0' : ''}`}>
-                {pack.badge || ' '}
-              </div>
-              <div className={`bg-gradient-to-br ${pack.color} p-4 text-center flex-1`}>
-                <p className="text-3xl font-bebas text-white tracking-wide">{pack.points.toLocaleString()}</p>
-                <p className="text-xs text-white/80 font-outfit font-bold">points</p>
-              </div>
-              <div className="p-3 text-center">
-                <p className="text-xl font-bebas tracking-wide text-foreground">{pack.price}</p>
-                <Button
-                  size="sm"
-                  className="w-full mt-2 rounded-xl font-bold h-8"
-                  disabled={stripeLoading === pack.id}
-                  onClick={() => startStripeCheckout('points_pack', { packId: pack.id })}>
-                  {stripeLoading === pack.id ? 'Loading…' : 'Buy'}
-                </Button>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
       {/* ── Gift Premium ──────────────────────────────────────────────────── */}
       <div className="bg-gradient-to-br from-pink-50 to-fuchsia-50 border border-pink-200 rounded-3xl p-6 space-y-4">
         <div className="flex items-center gap-3">
@@ -372,14 +332,10 @@ export default function Premium() {
       <div className="space-y-3">
         <h3 className="font-black text-foreground text-lg">Common Questions</h3>
         {[
-          { q: 'How long is the free trial?', a: 'Pro plan: 3-day free trial. Elite plan: 1-day free trial. No credit card required to start.' },
-          { q: 'What happens when the trial ends?', a: 'You\'ll see a prompt to subscribe. Your data stays forever — you just lose premium features until you subscribe.' },
-          { q: 'Can I switch plans later?', a: 'Yes — upgrade or downgrade any time from this page.' },
-          { q: 'How many quiz questions do I get per session?', a: 'Free plan: 5 questions max per session, 3 study tool uses per day. Pro: up to 50 questions, 20 uses/day. Elite: unlimited.' },
-          { q: 'When does the shop unlock?', a: 'Free users: Level 50. Pro & Elite subscribers: Level 35. Elite users unlock the FULL shop at Level 350.' },
-          { q: 'Can I earn rewards on the free plan?', a: 'Yes! Free users earn 1 pt per daily challenge (80%+) and up to 5 pts per quiz. It takes about 3 weeks of daily studying to earn a $5 gift card on the free plan.' },
-          { q: 'How does the weekly leaderboard work?', a: 'The leaderboard resets every week. The top 5 players each week earn bonus points: 1st gets 5 pts, 2nd gets 4, down to 5th getting 1 pt.' },
-          { q: 'What counts as a "passed" quiz?', a: 'Any quiz where you score 80% or higher is counted as passed.' },
+          { q: 'How long is the free trial?', a: 'Pro: 3 days. Elite: 1 day. No card required.' },
+          { q: 'What happens when it ends?', a: 'Your data stays. You lose premium features until you subscribe.' },
+          { q: 'Can I switch plans?', a: 'Yes — upgrade or downgrade any time from this page.' },
+          { q: 'What counts as a passed quiz?', a: 'Any quiz scored 80% or higher.' },
         ].map((faq, i) => (
           <div key={i} className="bg-white rounded-xl border border-border p-4">
             <p className="text-sm font-bold text-foreground">{faq.q}</p>

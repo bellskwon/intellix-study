@@ -11,15 +11,6 @@ import LevelUpModal from '@/components/shared/LevelUpModal';
 import { toast } from 'sonner';
 import MiniCalendar from '@/pages/MiniCalendar';
 
-const EXPLORE_FEATURES = [
-  { label: 'Upload notes',     icon: Upload,   to: '/quiz',       bg: 'bg-violet-100',  iconBg: 'bg-white', color: 'text-violet-600', desc: 'Generate a quiz' },
-  { label: 'Quick challenge',  icon: Zap,      to: '/challenge',  bg: 'bg-amber-100',   iconBg: 'bg-white', color: 'text-amber-500',  desc: '5 questions fast' },
-  { label: 'Study tools',      icon: BookOpen, to: '/questions',  bg: 'bg-emerald-100', iconBg: 'bg-white', color: 'text-emerald-600',desc: 'Flashcards & more' },
-  { label: 'Progress',         icon: BarChart3,to: '/progress',   bg: 'bg-rose-100',    iconBg: 'bg-white', color: 'text-rose-500',   desc: 'See your trends' },
-  { label: 'Leaderboard',      icon: Trophy,   to: '/friends',    bg: 'bg-pink-100',    iconBg: 'bg-white', color: 'text-pink-500',   desc: 'Top students' },
-  { label: 'Social',           icon: Users,    to: '/friends',    bg: 'bg-blue-100',    iconBg: 'bg-white', color: 'text-blue-500',   desc: 'Friends & activity' },
-];
-
 function GettingStarted({ submissions, streak, onDismiss }) {
   const NON_STUDY = new Set(['xp_boost', 'referral', 'points_pack', 'comeback_bonus']);
   const studySubs = submissions.filter(s => !NON_STUDY.has(s.type));
@@ -31,11 +22,11 @@ function GettingStarted({ submissions, streak, onDismiss }) {
     (() => { try { return !!localStorage.getItem('intellix_shared_referral'); } catch { return false; } })();
 
   const tasks = [
-    { label: 'Upload notes & take a quiz', desc: 'Turn your study materials into an AI-generated quiz', done: hasSubmitted && hasTakenQuiz, to: '/quiz', cta: 'Upload Notes', icon: Upload },
-    { label: 'Try a Quick Challenge', desc: 'Test yourself on any topic in 60 seconds', done: hasChallenged, to: '/challenge', cta: 'Go', icon: Zap },
-    { label: 'Build a 3-day streak', desc: 'Study 3 days in a row to earn bonus XP and badges', done: hasStreak3, to: '/quiz', cta: 'Go', icon: Flame },
-    { label: 'Explore Study Tools', desc: 'Flashcards, key concepts, vocab helpers & more', done: false, to: '/questions', cta: 'Go', icon: Brain },
-    { label: 'Share with a friend', desc: 'Invite a friend and both of you earn bonus points', done: hasShared, to: '/profile', cta: 'Get Link', icon: Users },
+    { label: 'Upload notes & take a quiz', desc: 'Turn your notes into an AI quiz', done: hasSubmitted && hasTakenQuiz, to: '/quiz', cta: 'Upload', icon: Upload },
+    { label: 'Try a Quick Challenge', desc: 'Test yourself in 60 seconds', done: hasChallenged, to: '/challenge', cta: 'Go', icon: Zap },
+    { label: 'Build a 3-day streak', desc: 'Study 3 days in a row for bonus XP', done: hasStreak3, to: '/quiz', cta: 'Go', icon: Flame },
+    { label: 'Explore Study Tools', desc: 'Flashcards, vocab helpers & more', done: false, to: '/questions', cta: 'Go', icon: Brain },
+    { label: 'Share with a friend', desc: 'Invite a friend and both earn points', done: hasShared, to: '/profile', cta: 'Get Link', icon: Users },
   ];
 
   const doneCount = tasks.filter(t => t.done).length;
@@ -43,30 +34,36 @@ function GettingStarted({ submissions, streak, onDismiss }) {
 
   return (
     <AnimatePresence>
-      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}
+        className="bg-blue-50 border border-blue-100 rounded-2xl p-4">
         <div className="flex items-center justify-between mb-3">
-          <p className="text-xs font-black text-muted-foreground uppercase tracking-widest">
-            Getting Started · {doneCount}/{tasks.length}
-          </p>
-          <button onClick={onDismiss} className="text-muted-foreground hover:text-foreground transition-colors">
-            <X className="w-3.5 h-3.5" />
-          </button>
+          <div>
+            <p className="text-sm font-black text-blue-700 uppercase tracking-wider border-b-2 border-blue-500 pb-0.5 inline-block">
+              Getting Started
+            </p>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-bold bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">{doneCount} / {tasks.length} done</span>
+            <button onClick={onDismiss} className="text-blue-400 hover:text-blue-600 transition-colors">
+              <X className="w-3.5 h-3.5" />
+            </button>
+          </div>
         </div>
         <div className="space-y-2">
           {tasks.map((task) => (
             <div key={task.label}
-              className={`flex items-center gap-3 p-3 rounded-2xl transition-colors ${task.done ? 'opacity-40' : 'bg-white border border-border hover:shadow-sm'}`}>
-              <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 ${task.done ? 'bg-emerald-100' : 'bg-secondary'}`}>
+              className={`flex items-center gap-3 p-2.5 rounded-xl transition-colors ${task.done ? 'opacity-40' : 'bg-white border border-blue-100'}`}>
+              <div className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${task.done ? 'bg-emerald-100' : 'bg-blue-50'}`}>
                 {task.done
-                  ? <CheckCircle2 className="w-4 h-4 text-emerald-500" />
-                  : <task.icon className="w-4 h-4 text-muted-foreground" />}
+                  ? <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
+                  : <task.icon className="w-3.5 h-3.5 text-blue-400" />}
               </div>
               <div className="flex-1 min-w-0">
-                <p className={`text-sm font-bold leading-tight ${task.done ? 'line-through text-muted-foreground' : 'text-foreground'}`}>{task.label}</p>
-                {!task.done && <p className="text-xs text-muted-foreground mt-0.5">{task.desc}</p>}
+                <p className={`text-xs font-bold leading-tight ${task.done ? 'line-through text-muted-foreground' : 'text-foreground'}`}>{task.label}</p>
+                {!task.done && <p className="text-[10px] text-muted-foreground mt-0.5">{task.desc}</p>}
               </div>
               {!task.done && (
-                <Link to={task.to} className="text-xs font-black text-primary hover:underline shrink-0 whitespace-nowrap">
+                <Link to={task.to} className="text-xs font-black text-blue-600 hover:underline shrink-0 whitespace-nowrap">
                   {task.cta} →
                 </Link>
               )}
@@ -120,145 +117,182 @@ export default function Dashboard() {
   const quizCount = submissions.filter(s => s.type !== 'xp_boost').length;
   const passedCount = submissions.filter(s => s.quiz_passed).length;
 
-
   return (
-    <div className="max-w-2xl mx-auto pb-8 space-y-5">
+    <div className="max-w-2xl mx-auto pb-8">
       <LevelUpModal level={level} isLoaded={submissionsLoaded} />
       <StreakNotification streak={streak} lastActivity={lastActivity} />
 
-      {/* Greeting + badge bar */}
-      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
-        className="flex items-center justify-between gap-3 flex-wrap">
-        <p className="text-lg font-black text-foreground">Hey, <span className="text-primary">{displayName}</span></p>
-        <div className="flex items-center gap-2">
-          <span className="flex items-center gap-1 bg-amber-50 border border-amber-200 text-amber-700 text-xs font-bold px-2.5 py-1 rounded-full">
-            <Star className="w-3 h-3" /> {earned.toLocaleString()} pts
-          </span>
-          <span className="flex items-center gap-1 bg-orange-50 border border-orange-200 text-orange-700 text-xs font-bold px-2.5 py-1 rounded-full">
-            <Flame className="w-3 h-3" /> {streak} streak
-          </span>
-          <span className="flex items-center gap-1 bg-slate-50 border border-slate-200 text-slate-700 text-xs font-bold px-2.5 py-1 rounded-full">
-            {league.emoji} {league.name}
-          </span>
-        </div>
-      </motion.div>
-
-      {/* Big title */}
-      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}>
-        <p className="text-xs font-black text-muted-foreground uppercase tracking-widest mb-1">Online Study Platform</p>
-        <h1 className="font-serif font-black leading-none" style={{ fontSize: 'clamp(2.8rem, 9vw, 5rem)', letterSpacing: '0.03em' }}>
-          <span className="text-foreground">Intellix </span>
-          <span className="text-primary">Study</span>
-        </h1>
-      </motion.div>
-
-      {/* XP bar card */}
-      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.08 }}
-        className="bg-violet-50 border border-violet-100 rounded-2xl px-5 py-4">
-        <div className="flex items-center justify-between mb-2">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center shadow-sm">
-              <Zap className="w-4 h-4 text-white" />
+      {/* Dark hero — breaks out of p-4/p-8 wrapper */}
+      <div className="-mx-4 -mt-4 lg:-mx-8 lg:-mt-8 mb-6">
+        <div className="bg-[#130d25] px-6 pt-7 pb-8 space-y-5">
+          {/* Greeting row */}
+          <div className="flex items-start justify-between gap-3">
+            <p className="text-white/70 text-sm font-semibold">Welcome back, {displayName} 👋</p>
+            <div className="flex items-center gap-1.5 shrink-0">
+              <span className="flex items-center gap-1 bg-white/10 text-white/80 text-xs font-bold px-2 py-1 rounded-full">
+                <Star className="w-3 h-3 text-amber-400" /> {earned.toLocaleString()}
+              </span>
+              <span className="flex items-center gap-1 bg-white/10 text-white/80 text-xs font-bold px-2 py-1 rounded-full">
+                <Flame className="w-3 h-3 text-orange-400" /> {streak}
+              </span>
+              <span className="bg-white/10 text-white/80 text-xs font-bold px-2 py-1 rounded-full">
+                {league.name}
+              </span>
             </div>
-            <span className="text-sm font-black text-foreground">{league.emoji} {league.name} · Lv. {level}</span>
           </div>
-          <span className="text-xs font-bold text-muted-foreground">{xpInLevel} / 200 XP</span>
-        </div>
-        <div className="h-2 rounded-full bg-violet-200 overflow-hidden">
-          <motion.div className="h-full rounded-full bg-primary"
-            initial={{ width: 0 }} animate={{ width: `${xpPct}%` }} transition={{ duration: 0.7, ease: 'easeOut' }} />
-        </div>
-      </motion.div>
 
-      {/* 4 stat cards */}
-      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
-        className="grid grid-cols-4 gap-3">
-        {[
-          { label: 'POINTS',  value: earned.toLocaleString(), bg: 'bg-violet-50',  text: 'text-violet-700' },
-          { label: 'QUIZZES', value: quizCount,               bg: 'bg-emerald-50', text: 'text-emerald-700' },
-          { label: 'PASSED',  value: passedCount,             bg: 'bg-rose-50',    text: 'text-rose-700' },
-          { label: 'STREAK',  value: streak,                  bg: 'bg-amber-50',   text: 'text-amber-700' },
-        ].map(s => (
-          <div key={s.label} className={`${s.bg} rounded-2xl p-4 text-center`}>
-            <p className={`text-2xl font-black ${s.text}`}>{s.value}</p>
-            <p className={`text-[10px] font-black uppercase tracking-wider mt-0.5 ${s.text} opacity-70`}>{s.label}</p>
+          {/* Big heading */}
+          <div className="leading-none">
+            <h1 className="font-black text-white" style={{ fontSize: 'clamp(3.2rem, 13vw, 5.5rem)', lineHeight: 0.95 }}>
+              Intellix
+            </h1>
+            <h1 className="font-black text-violet-400" style={{ fontSize: 'clamp(3.2rem, 13vw, 5.5rem)', lineHeight: 0.95 }}>
+              Study
+            </h1>
           </div>
-        ))}
-      </motion.div>
 
-      {/* Streak at risk banner */}
-      {streakAtRisk && (
-        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
-          className="bg-orange-50 border-2 border-orange-200 rounded-2xl px-5 py-4 flex items-center gap-4">
-          <div className="w-10 h-10 rounded-xl bg-orange-100 flex items-center justify-center shrink-0">
-            <Flame className="w-5 h-5 text-orange-500" />
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="font-black text-orange-800 text-sm">Your {streak}-day streak is at risk!</p>
-            <p className="text-orange-600 text-xs mt-0.5">Study something today to keep it alive.</p>
-          </div>
-          <Link to="/quiz">
-            <Button size="sm" className="bg-orange-500 hover:bg-orange-600 text-white rounded-xl font-bold shrink-0">
-              Study Now <ArrowRight className="w-3.5 h-3.5 ml-1" />
-            </Button>
-          </Link>
-        </motion.div>
-      )}
-
-      {/* Pending quiz banner */}
-      {pendingQuizzes > 0 && (
-        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
-          className="bg-amber-50 border-2 border-amber-200 rounded-2xl px-5 py-4 flex items-center gap-4">
-          <div className="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center shrink-0">
-            <Trophy className="w-5 h-5 text-amber-600" />
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="font-black text-amber-800 text-sm">{pendingQuizzes} quiz{pendingQuizzes > 1 ? 'zes' : ''} ready to take</p>
-            <p className="text-amber-600 text-xs mt-0.5">Earn points for every correct answer</p>
-          </div>
-          <Link to="/quiz">
-            <Button size="sm" className="bg-amber-500 hover:bg-amber-600 text-white rounded-xl font-bold shrink-0">
-              Take Now <ArrowRight className="w-3.5 h-3.5 ml-1" />
-            </Button>
-          </Link>
-        </motion.div>
-      )}
-
-      {/* Getting Started checklist */}
-      {showChecklist && (
-        <GettingStarted
-          submissions={submissions}
-          streak={streak}
-          onDismiss={() => {
-            setShowChecklist(false);
-            try { localStorage.setItem('intellix_checklist_dismissed', 'true'); } catch {}
-          }}
-        />
-      )}
-
-      {/* Explore */}
-      <div>
-        <p className="text-xs font-black text-muted-foreground uppercase tracking-widest mb-3">Explore</p>
-        <div className="grid grid-cols-3 gap-3">
-          {EXPLORE_FEATURES.map((f, i) => (
-            <motion.div key={f.label} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}>
-              <Link to={f.to}
-                className={`flex flex-col items-center gap-2 p-5 rounded-2xl ${f.bg} hover:shadow-md transition-all duration-200 group`}>
-                <div className={`w-10 h-10 rounded-xl ${f.iconBg} flex items-center justify-center shadow-sm`}>
-                  <f.icon className={`w-5 h-5 ${f.color}`} />
+          {/* XP bar card */}
+          <div className="bg-white/10 rounded-2xl px-4 py-3">
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-2">
+                <div className="w-7 h-7 rounded-lg bg-violet-600 flex items-center justify-center">
+                  <Zap className="w-3.5 h-3.5 text-white" />
                 </div>
-                <div className="text-center">
-                  <p className="text-sm font-black text-foreground">{f.label}</p>
-                  <p className={`text-xs font-semibold mt-0.5 ${f.color}`}>{f.desc}</p>
-                </div>
-              </Link>
-            </motion.div>
-          ))}
+                <span className="text-sm font-bold text-white">{league.name} · Lv. {level}</span>
+              </div>
+              <span className="text-xs text-white/50">{xpInLevel} / 200 XP</span>
+            </div>
+            <div className="h-1.5 rounded-full bg-white/20 overflow-hidden">
+              <motion.div className="h-full rounded-full bg-violet-400"
+                initial={{ width: 0 }} animate={{ width: `${xpPct}%` }} transition={{ duration: 0.7, ease: 'easeOut' }} />
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Calendar */}
-      <MiniCalendar userEmail={user?.email} />
+      {/* Content below hero */}
+      <div className="space-y-5">
+
+        {/* Getting Started checklist */}
+        {showChecklist && (
+          <GettingStarted
+            submissions={submissions}
+            streak={streak}
+            onDismiss={() => {
+              setShowChecklist(false);
+              try { localStorage.setItem('intellix_checklist_dismissed', 'true'); } catch {}
+            }}
+          />
+        )}
+
+        {/* 4 stat cards */}
+        <div className="grid grid-cols-4 gap-3">
+          {[
+            { label: 'POINTS',  value: earned.toLocaleString(), icon: Star,    iconColor: 'text-violet-500', bg: 'bg-white' },
+            { label: 'QUIZZES', value: quizCount,               icon: BookOpen, iconColor: 'text-emerald-500', bg: 'bg-white' },
+            { label: 'PASSED',  value: passedCount,             icon: Trophy,   iconColor: 'text-rose-500',   bg: 'bg-white' },
+            { label: 'STREAK',  value: streak,                  icon: Flame,    iconColor: 'text-amber-500',  bg: 'bg-white' },
+          ].map(s => (
+            <div key={s.label} className={`${s.bg} border border-border rounded-2xl p-3 text-center shadow-sm`}>
+              <s.icon className={`w-4 h-4 ${s.iconColor} mx-auto mb-1.5`} />
+              <p className="text-xl font-black text-foreground">{s.value}</p>
+              <p className="text-[9px] font-black uppercase tracking-wider text-muted-foreground mt-0.5">{s.label}</p>
+            </div>
+          ))}
+        </div>
+
+        {/* Streak at risk banner */}
+        {streakAtRisk && (
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
+            className="bg-orange-50 border-2 border-orange-200 rounded-2xl px-5 py-4 flex items-center gap-4">
+            <div className="w-10 h-10 rounded-xl bg-orange-100 flex items-center justify-center shrink-0">
+              <Flame className="w-5 h-5 text-orange-500" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="font-black text-orange-800 text-sm">Your {streak}-day streak is at risk!</p>
+              <p className="text-orange-600 text-xs mt-0.5">Study something today to keep it alive.</p>
+            </div>
+            <Link to="/quiz">
+              <Button size="sm" className="bg-orange-500 hover:bg-orange-600 text-white rounded-xl font-bold shrink-0">
+                Study Now <ArrowRight className="w-3.5 h-3.5 ml-1" />
+              </Button>
+            </Link>
+          </motion.div>
+        )}
+
+        {/* Pending quiz banner */}
+        {pendingQuizzes > 0 && (
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
+            className="bg-slate-900 rounded-2xl px-5 py-4 flex items-center gap-4">
+            <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center shrink-0">
+              <Trophy className="w-5 h-5 text-white" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="font-black text-white text-sm">{pendingQuizzes} quiz{pendingQuizzes > 1 ? 'zes' : ''} ready to take</p>
+              <p className="text-white/50 text-xs mt-0.5">Earn points for every correct answer</p>
+            </div>
+            <Link to="/quiz">
+              <Button size="sm" className="bg-white text-slate-900 hover:bg-white/90 rounded-xl font-bold shrink-0">
+                Take now <ArrowRight className="w-3.5 h-3.5 ml-1" />
+              </Button>
+            </Link>
+          </motion.div>
+        )}
+
+        {/* Explore */}
+        <div>
+          <div className="flex items-center justify-between mb-3">
+            <p className="text-base font-black text-foreground">Explore</p>
+            <Link to="/quiz" className="text-xs font-bold text-muted-foreground hover:text-foreground">See all →</Link>
+          </div>
+          <div className="space-y-3">
+            {/* Featured card */}
+            <Link to="/quiz">
+              <div className="bg-violet-100 rounded-2xl p-5 relative overflow-hidden hover:shadow-md transition-shadow">
+                <div className="absolute top-4 right-4 w-8 h-8 rounded-xl bg-violet-200 flex items-center justify-center">
+                  <Upload className="w-4 h-4 text-violet-600" />
+                </div>
+                <p className="text-[10px] font-black uppercase tracking-widest text-violet-500 mb-1">AI Powered</p>
+                <p className="text-xl font-black text-foreground">Upload your notes</p>
+              </div>
+            </Link>
+            {/* Two medium cards */}
+            <div className="grid grid-cols-2 gap-3">
+              <Link to="/challenge">
+                <div className="bg-amber-50 rounded-2xl p-4 hover:shadow-md transition-shadow">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-amber-500 mb-1">Timed</p>
+                  <p className="text-base font-black text-foreground">Quick challenge</p>
+                </div>
+              </Link>
+              <Link to="/questions">
+                <div className="bg-emerald-50 rounded-2xl p-4 hover:shadow-md transition-shadow">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-emerald-600 mb-1">Learn</p>
+                  <p className="text-base font-black text-foreground">Study tools</p>
+                </div>
+              </Link>
+            </div>
+            {/* Three small cards */}
+            <div className="grid grid-cols-3 gap-3">
+              {[
+                { label: 'Progress', sub: 'My stats', to: '/progress', color: 'text-rose-500', bg: 'bg-rose-50', icon: BarChart3 },
+                { label: 'Rankings', sub: 'Leaderboard', to: '/friends', color: 'text-amber-500', bg: 'bg-amber-50', icon: Trophy },
+                { label: 'Friends', sub: 'Invite & earn', to: '/friends', color: 'text-blue-500', bg: 'bg-blue-50', icon: Users },
+              ].map(card => (
+                <Link key={card.label} to={card.to}>
+                  <div className={`${card.bg} rounded-2xl p-3 text-center hover:shadow-md transition-shadow`}>
+                    <card.icon className={`w-4 h-4 ${card.color} mx-auto mb-1.5`} />
+                    <p className="text-xs font-black text-foreground">{card.label}</p>
+                    <p className={`text-[10px] font-semibold ${card.color} mt-0.5`}>{card.sub}</p>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Calendar */}
+        <MiniCalendar userEmail={user?.email} />
+      </div>
     </div>
   );
 }

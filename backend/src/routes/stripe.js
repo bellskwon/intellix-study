@@ -19,14 +19,6 @@ const getStripe = () => {
 const getPriceId = (plan, billing) =>
   process.env[`STRIPE_PRICE_${plan.toUpperCase()}_${billing.toUpperCase()}`];
 
-// ── One-time point packs ──────────────────────────────────────────────────────
-const POINT_PACKS = {
-  pack_100:  { points: 100,  amount: 99,   label: '100 Bonus Points'   },
-  pack_350:  { points: 350,  amount: 299,  label: '350 Bonus Points'   },
-  pack_1000: { points: 1000, amount: 799,  label: '1,000 Bonus Points' },
-  pack_2500: { points: 2500, amount: 1499, label: '2,500 Bonus Points' },
-};
-
 // ── Ensure user has a Stripe customer record ──────────────────────────────────
 async function getOrCreateCustomer(stripe, user) {
   if (user.stripe_customer_id) return user.stripe_customer_id;
@@ -43,10 +35,10 @@ async function getOrCreateCustomer(stripe, user) {
 }
 
 // ─── POST /api/stripe/checkout-session ───────────────────────────────────────
-// type: 'subscription' | 'gift' | 'points_pack'
+// type: 'subscription' | 'gift'
 router.post('/checkout-session', requireAuth, async (req, res) => {
   const stripe = getStripe();
-  const { type, plan, billing, packId, giftEmail } = req.body;
+  const { type, plan, billing, giftEmail } = req.body;
   const user = req.user;
   const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
 
@@ -82,39 +74,6 @@ router.post('/checkout-session', requireAuth, async (req, res) => {
           userEmail: user.email,
           ...(giftEmail ? { giftEmail } : {}),
         },
-      },
-    });
-    return res.json({ url: session.url });
-  }
-
-  if (type === 'points_pack') {
-    const pack = POINT_PACKS[packId];
-    if (!pack) return res.status(400).json({ message: `Unknown pack: ${packId}` });
-
-    const customerId = await getOrCreateCustomer(stripe, user);
-    const session = await stripe.checkout.sessions.create({
-      customer: customerId,
-      mode: 'payment',
-      payment_method_types: ['card'],
-      line_items: [{
-        price_data: {
-          currency: 'usd',
-          unit_amount: pack.amount,
-          product_data: {
-            name: pack.label,
-            description: `Adds ${pack.points.toLocaleString()} bonus points to your Intellix account`,
-          },
-        },
-        quantity: 1,
-      }],
-      success_url: `${frontendUrl}/premium?stripe_status=success`,
-      cancel_url:  `${frontendUrl}/premium?stripe_status=cancelled`,
-      metadata: {
-        type: 'points_pack',
-        packId,
-        points: String(pack.points),
-        userId: user.id,
-        userEmail: user.email,
       },
     });
     return res.json({ url: session.url });
@@ -163,7 +122,7 @@ router.post('/webhook', async (req, res) => {
   // ── checkout.session.completed ─────────────────────────────────────────────
   if (event.type === 'checkout.session.completed') {
     const session = event.data.object;
-    const { type, plan, userId, userEmail, giftEmail, packId, points } = session.metadata || {};
+    const { type, plan, userId, userEmail, giftEmail } = session.metadata || {};
 
     if (type === 'subscription') {
       await prisma.user.update({
@@ -186,24 +145,6 @@ router.post('/webhook', async (req, res) => {
       }
     }
 
-    if (type === 'points_pack') {
-      const numPoints = parseInt(points, 10) || 0;
-      if (numPoints > 0 && userEmail) {
-        await prisma.submission.create({
-          data: {
-            title:          `Bonus Points Pack — ${numPoints.toLocaleString()} points purchased`,
-            subject:        'other',
-            grade_level:    'n/a',
-            type:           'points_pack',
-            status:         'approved',
-            points_awarded: numPoints,
-            quiz_passed:    false,
-            created_by:     userEmail,
-          },
-        });
-        console.log(`[Stripe] Points pack credited: ${userEmail} +${numPoints} pts`);
-      }
-    }
   }
 
   // ── customer.subscription.updated (plan change via portal) ───────────────────
