@@ -340,11 +340,12 @@ export default function Shop() {
   };
 
   return (
-    <div className="max-w-2xl mx-auto pb-8">
+    <div className="pb-8">
 
-      {/* Dark hero — breaks out of padding like dashboard */}
+      {/* Dark hero — full width across main content area */}
       <div className="-mx-4 -mt-4 lg:-mx-8 lg:-mt-8 mb-6">
-        <div className="bg-[#130d25] px-6 pt-7 pb-8 space-y-5">
+        <div className="bg-[#130d25] px-6 pt-7 pb-8">
+          <div className="max-w-2xl mx-auto space-y-5">
           {/* Top row: label + points card */}
           <div className="flex items-start justify-between gap-4">
             <div className="flex-1">
@@ -383,11 +384,12 @@ export default function Shop() {
                 transition={{ duration: 1.2, ease: 'easeOut' }} />
             </div>
           </div>
-        </div>
-      </div>
+          </div>{/* end max-w-2xl */}
+        </div>{/* end bg */}
+      </div>{/* end -mx-4 */}
 
       {/* Content */}
-      <div className="space-y-5">
+      <div className="max-w-2xl mx-auto space-y-5">
 
         {/* How it works */}
         <div className="grid grid-cols-3 gap-3">

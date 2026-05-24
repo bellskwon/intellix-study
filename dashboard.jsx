@@ -118,13 +118,14 @@ export default function Dashboard() {
   const passedCount = submissions.filter(s => s.quiz_passed).length;
 
   return (
-    <div className="max-w-2xl mx-auto pb-8">
+    <div className="pb-8">
       <LevelUpModal level={level} isLoaded={submissionsLoaded} />
       <StreakNotification streak={streak} lastActivity={lastActivity} />
 
-      {/* Dark hero — breaks out of p-4/p-8 wrapper */}
+      {/* Dark hero — full width across main content area */}
       <div className="-mx-4 -mt-4 lg:-mx-8 lg:-mt-8 mb-6">
-        <div className="bg-[#130d25] px-6 pt-7 pb-8 space-y-5">
+        <div className="bg-[#130d25] px-6 pt-7 pb-8">
+          <div className="max-w-2xl mx-auto space-y-5">
           {/* Greeting row */}
           <div className="flex items-start justify-between gap-3">
             <p className="text-white/70 text-sm font-semibold">Welcome back, {displayName} 👋</p>
@@ -167,11 +168,12 @@ export default function Dashboard() {
                 initial={{ width: 0 }} animate={{ width: `${xpPct}%` }} transition={{ duration: 0.7, ease: 'easeOut' }} />
             </div>
           </div>
-        </div>
-      </div>
+          </div>{/* end max-w-2xl */}
+        </div>{/* end bg */}
+      </div>{/* end -mx-4 */}
 
       {/* Content below hero */}
-      <div className="space-y-5">
+      <div className="max-w-2xl mx-auto space-y-5">
 
         {/* Getting Started checklist */}
         {showChecklist && (
