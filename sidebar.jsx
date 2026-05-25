@@ -109,9 +109,6 @@ export default function Sidebar({ open, onClose }) {
                 {isShop && storeUnlocked && (
                   <span className="text-[10px] font-black bg-emerald-100 text-emerald-600 px-1.5 py-0.5 rounded-full">Open!</span>
                 )}
-                {isPremiumNav && !isActive && (
-                  <span className="text-[10px] font-black bg-amber-100 text-amber-600 px-1.5 py-0.5 rounded-full">✨</span>
-                )}
               </Link>
             );
           })}
