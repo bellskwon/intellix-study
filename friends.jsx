@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { UserPlus, Check, X, Mail, Swords, UserMinus, Trophy, Crown, Star, Zap, TrendingUp } from 'lucide-react';
+import { UserPlus, Check, X, Mail, Swords, UserMinus, Trophy, Crown, Star, Zap, TrendingUp, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { motion } from 'framer-motion';
