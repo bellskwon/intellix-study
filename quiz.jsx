@@ -60,7 +60,7 @@ export default function Quiz() {
 
   const { data: user } = useQuery({ queryKey: ['currentUser'], queryFn: () => base44.auth.me() });
   const isPremium = user?.premium_plan && user.premium_plan !== 'free';
-  const maxQuestions = isPremium ? 50 : 5;
+  const maxQuestions = isPremium ? 50 : 10;
 
   const { data: submissions = [], isLoading } = useQuery({
     queryKey: ['mySubmissions'],

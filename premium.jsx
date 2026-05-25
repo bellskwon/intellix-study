@@ -16,7 +16,7 @@ const PLANS = [
     yearlyPrice: 0,
     badge: null,
     gradient: 'from-slate-100 to-slate-200',
-    features: ['5 quiz questions per session','3 uploads per day','Basic flashcard generator','Leaderboard access','Streak tracking'],
+    features: ['10 quiz questions per session','3 uploads per day','Basic flashcard generator','Leaderboard access','Streak tracking'],
     locked: ['Up to 50 questions per session','Unlimited daily uploads','Priority grading','Premium shop items','Referral bonus XP'],
     cta: 'Current Plan',
     ctaDisabled: true,
