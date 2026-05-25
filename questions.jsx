@@ -233,14 +233,14 @@ IMPORTANT: If the notes contain no real study content, return an empty flashcard
           <div className="max-w-3xl mx-auto">
             <div className="flex items-center justify-end gap-2 mb-5">
               <span className="flex items-center gap-1.5 bg-white/10 text-white/70 text-xs font-bold px-3 py-1.5 rounded-full">
-                <Layers className="w-3 h-3 text-violet-400" />
+                <Layers className="w-3 h-3 text-sky-400" />
                 <span className="text-[10px] font-black uppercase tracking-widest text-white/50">AI POWERED</span>
                 <span className="text-white/80 font-black">Instant</span>
               </span>
             </div>
             <div className="leading-none mb-3">
               <h1 className="font-black text-white" style={{ fontSize: 'clamp(3rem, 12vw, 5rem)', lineHeight: 0.92 }}>Flash</h1>
-              <h1 className="font-black text-violet-400" style={{ fontSize: 'clamp(3rem, 12vw, 5rem)', lineHeight: 0.92 }}>cards</h1>
+              <h1 className="font-black text-sky-400" style={{ fontSize: 'clamp(3rem, 12vw, 5rem)', lineHeight: 0.92 }}>cards</h1>
             </div>
             <p className="text-white/50 text-sm">Paste your notes — get instant flashcards, key points &amp; practice questions.</p>
           </div>
