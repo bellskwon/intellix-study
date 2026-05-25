@@ -351,10 +351,10 @@ export default function Shop() {
             <div className="flex-1">
               <p className="text-[10px] font-black uppercase tracking-widest text-white/50 mb-2">Rewards Store</p>
               <div className="leading-none mb-3">
-                <h1 className="font-black text-white" style={{ fontSize: 'clamp(2.8rem, 11vw, 4.5rem)', lineHeight: 0.95 }}>
+                <h1 className="font-black text-white" style={{ fontSize: 'clamp(3rem, 12vw, 5rem)', lineHeight: 0.92 }}>
                   Intellix
                 </h1>
-                <h1 className="font-black text-yellow-400" style={{ fontSize: 'clamp(2.8rem, 11vw, 4.5rem)', lineHeight: 0.95 }}>
+                <h1 className="font-black text-yellow-400" style={{ fontSize: 'clamp(3rem, 12vw, 5rem)', lineHeight: 0.92 }}>
                   Shop
                 </h1>
               </div>

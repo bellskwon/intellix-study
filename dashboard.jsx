@@ -144,10 +144,10 @@ export default function Dashboard() {
 
           {/* Big heading */}
           <div className="leading-none">
-            <h1 className="font-black text-white" style={{ fontSize: 'clamp(3.2rem, 13vw, 5.5rem)', lineHeight: 0.95 }}>
+            <h1 className="font-black text-white" style={{ fontSize: 'clamp(3rem, 12vw, 5rem)', lineHeight: 0.92 }}>
               Intellix
             </h1>
-            <h1 className="font-black text-violet-400" style={{ fontSize: 'clamp(3.2rem, 13vw, 5.5rem)', lineHeight: 0.95 }}>
+            <h1 className="font-black text-violet-400" style={{ fontSize: 'clamp(3rem, 12vw, 5rem)', lineHeight: 0.92 }}>
               Study
             </h1>
           </div>

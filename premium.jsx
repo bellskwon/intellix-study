@@ -148,8 +148,8 @@ export default function Premium() {
             </div>
             {/* Title */}
             <div className="leading-none mb-3">
-              <h1 className="font-black text-white" style={{ fontSize: 'clamp(2.8rem, 10vw, 4.5rem)', lineHeight: 0.95 }}>Unlock your</h1>
-              <h1 className="font-black text-amber-400" style={{ fontSize: 'clamp(2.8rem, 10vw, 4.5rem)', lineHeight: 0.95 }}>full potential</h1>
+              <h1 className="font-black text-white" style={{ fontSize: 'clamp(3rem, 12vw, 5rem)', lineHeight: 0.92 }}>Unlock your</h1>
+              <h1 className="font-black text-amber-400" style={{ fontSize: 'clamp(3rem, 12vw, 5rem)', lineHeight: 0.92 }}>full potential</h1>
             </div>
             <p className="text-white/50 text-sm mb-6 max-w-sm">Earn faster, unlock bigger rewards,<br />and get priority grading. No card required.</p>
             {/* Billing toggle */}

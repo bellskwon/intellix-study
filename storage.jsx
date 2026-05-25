@@ -136,10 +136,10 @@ export default function Storage() {
           <div className="max-w-3xl mx-auto space-y-4">
             {/* Heading */}
             <div className="leading-none">
-              <h1 className="font-black text-white" style={{ fontSize: 'clamp(3rem, 12vw, 5rem)', lineHeight: 0.95 }}>
+              <h1 className="font-black text-white" style={{ fontSize: 'clamp(3rem, 12vw, 5rem)', lineHeight: 0.92 }}>
                 Your
               </h1>
-              <h1 className="font-black text-cyan-400" style={{ fontSize: 'clamp(3rem, 12vw, 5rem)', lineHeight: 0.95 }}>
+              <h1 className="font-black text-cyan-400" style={{ fontSize: 'clamp(3rem, 12vw, 5rem)', lineHeight: 0.92 }}>
                 Storage
               </h1>
             </div>
