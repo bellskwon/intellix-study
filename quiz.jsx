@@ -495,13 +495,26 @@ Reply with ONLY one word: "correct" or "incorrect". Do not add any explanation.`
   };
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6 pb-8">
-      {/* Header */}
-      <div>
-        <p className="text-xs font-black text-muted-foreground uppercase tracking-widest mb-1">AI-Powered</p>
-        <h1 className="text-4xl font-black text-foreground tracking-tight">Quiz generator</h1>
+    <div className="pb-8">
+      {/* Dark Hero */}
+      <div className="-mx-4 -mt-4 lg:-mx-8 lg:-mt-8 mb-6">
+        <div className="bg-[#130d25] px-6 pt-7 pb-8">
+          <div className="max-w-2xl mx-auto">
+            <div className="flex items-center gap-2 mb-3">
+              <span className="inline-flex items-center gap-1.5 bg-violet-500/20 text-violet-300 text-xs font-bold px-3 py-1 rounded-full border border-violet-500/30">
+                <Sparkles className="w-3 h-3" /> AI-Powered
+              </span>
+            </div>
+            <h1 className="text-4xl font-black tracking-tight leading-tight">
+              <span className="text-white">Quiz </span>
+              <span className="text-violet-400">Generator</span>
+            </h1>
+            <p className="text-slate-400 text-sm mt-2">Upload notes, paste text, or scan a page — get a quiz in seconds.</p>
+          </div>
+        </div>
       </div>
 
+      <div className="max-w-2xl mx-auto space-y-6">
       {/* Upload hero card / inline form */}
       {!showUploadForm ? (
         <div className="rounded-3xl bg-violet-100 dark:bg-violet-950/30 p-6 relative overflow-hidden">
@@ -642,6 +655,7 @@ Reply with ONLY one word: "correct" or "incorrect". Do not add any explanation.`
           </button>
         </div>
       )}
+      </div>
     </div>
   );
 }
