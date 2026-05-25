@@ -505,10 +505,8 @@ Reply with ONLY one word: "correct" or "incorrect". Do not add any explanation.`
                 <Sparkles className="w-3 h-3" /> AI-Powered
               </span>
             </div>
-            <h1 className="font-black tracking-tight" style={{ fontSize: 'clamp(3rem, 12vw, 5rem)', lineHeight: 0.92 }}>
-              <span className="text-white">Quiz </span>
-              <span className="text-emerald-400">Generator</span>
-            </h1>
+            <h1 className="font-black text-white" style={{ fontSize: 'clamp(3rem, 12vw, 5rem)', lineHeight: 0.92 }}>Quiz</h1>
+            <h1 className="font-black text-emerald-400" style={{ fontSize: 'clamp(3rem, 12vw, 5rem)', lineHeight: 0.92 }}>Generator</h1>
             <p className="text-slate-400 text-sm mt-3">Upload notes, paste text, or scan a page — get a quiz in seconds.</p>
           </div>
         </div>
