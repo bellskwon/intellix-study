@@ -354,7 +354,7 @@ export default function Shop() {
                 <h1 className="font-black text-white" style={{ fontSize: 'clamp(2.8rem, 11vw, 4.5rem)', lineHeight: 0.95 }}>
                   Intellix
                 </h1>
-                <h1 className="font-black text-orange-400" style={{ fontSize: 'clamp(2.8rem, 11vw, 4.5rem)', lineHeight: 0.95 }}>
+                <h1 className="font-black text-yellow-400" style={{ fontSize: 'clamp(2.8rem, 11vw, 4.5rem)', lineHeight: 0.95 }}>
                   Shop
                 </h1>
               </div>
