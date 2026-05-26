@@ -50,11 +50,14 @@ export default function Profile() {
   const approved = visibleSubmissions.filter(s => s.status === 'approved');
   const totalPoints = approved.reduce((a, b) => a + (b.points_awarded || 0), 0);
   const avgScore = graded.length ? Math.round(graded.reduce((s, q) => s + q.quiz_score, 0) / graded.length) : 0;
+  const best = graded.length ? Math.max(...graded.map(s => s.quiz_score)) : 0;
+  const passed = visibleSubmissions.filter(s => s.quiz_passed).length;
   const { level } = calcLevelInfo(submissions, user?.xp_bonus || 0);
   const league = getLeague(level);
 
   const subjectMap = {};
   submissions.forEach(s => { subjectMap[s.subject] = (subjectMap[s.subject] || 0) + 1; });
+  const sortedSubjects = Object.entries(subjectMap).sort((a, b) => b[1] - a[1]);
 
   const streak = user?.streak_count ?? 0;
   const subjectCount = Object.keys(subjectMap).length;
@@ -301,6 +304,87 @@ export default function Profile() {
           </AnimatePresence>
         </div>
       </motion.div>
+
+      {/* Stats strip */}
+      <div className="bg-white rounded-2xl border border-border divide-x divide-border grid grid-cols-4 text-center overflow-hidden">
+        {[
+          { label: 'POINTS',    value: totalPoints, color: 'text-amber-500' },
+          { label: 'AVG SCORE', value: `${avgScore}%`, color: 'text-violet-500' },
+          { label: 'BEST',      value: `${best}%`, color: 'text-emerald-500' },
+          { label: 'QUIZZES',   value: visibleSubmissions.length, color: 'text-blue-500' },
+        ].map(s => (
+          <div key={s.label} className="py-4 px-2">
+            <p className={`text-2xl font-black ${s.color}`}>{s.value}</p>
+            <p className="text-[10px] font-bold text-muted-foreground tracking-widest mt-0.5">{s.label}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* Next Goals */}
+      <div className="bg-white rounded-2xl border border-border p-5">
+        <div className="flex items-center gap-2 mb-4">
+          <Target className="w-4 h-4 text-primary" />
+          <h2 className="font-black text-sm text-foreground">Next goals</h2>
+        </div>
+        <div className="space-y-4">
+          {[
+            { label: 'Reach 10 quizzes', target: 10, current: visibleSubmissions.length, bar: 'bg-emerald-500', Icon: BookOpen },
+            { label: 'Avg score 80%',    target: 80, current: avgScore,                  bar: 'bg-violet-500',  Icon: BarChart3 },
+            { label: 'Pass 5 quizzes',   target: 5,  current: passed,                    bar: 'bg-orange-500',  Icon: Trophy },
+          ].map(g => {
+            const pct = Math.min(Math.round((g.current / g.target) * 100), 100);
+            const done = pct >= 100;
+            return (
+              <div key={g.label}>
+                <div className="flex items-center justify-between text-sm mb-1.5">
+                  <span className="font-semibold text-foreground flex items-center gap-2">
+                    <g.Icon className="w-4 h-4 text-muted-foreground" /> {g.label}
+                  </span>
+                  <span className={`text-xs font-bold ${done ? 'text-emerald-600' : 'text-muted-foreground'}`}>
+                    {done ? '✓ Done!' : `${g.current} / ${g.target}`}
+                  </span>
+                </div>
+                <div className="h-2.5 bg-muted rounded-full overflow-hidden">
+                  <motion.div className={`h-full rounded-full ${g.bar}`}
+                    initial={{ width: 0 }} animate={{ width: `${pct}%` }}
+                    transition={{ duration: 1, ease: 'easeOut', delay: 0.2 }} />
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Subject Breakdown */}
+      {sortedSubjects.length > 0 && (
+        <div className="bg-white rounded-2xl border border-border p-5">
+          <div className="flex items-center gap-2 mb-4">
+            <BookOpen className="w-4 h-4 text-primary" />
+            <h2 className="font-black text-sm text-foreground">Subject breakdown</h2>
+          </div>
+          <div className="space-y-3">
+            {sortedSubjects.slice(0, 5).map(([subj, count]) => {
+              const pct = Math.round((count / (visibleSubmissions.length || 1)) * 100);
+              return (
+                <div key={subj} className="flex items-center gap-3">
+                  <SubjectIcon subject={subj} size="xs" />
+                  <div className="flex-1">
+                    <div className="flex justify-between text-xs mb-1">
+                      <span className="font-semibold capitalize">{subj.replace(/_/g, ' ')}</span>
+                      <span className="text-muted-foreground">{count} quiz{count !== 1 ? 'zes' : ''}</span>
+                    </div>
+                    <div className="h-2 bg-muted rounded-full overflow-hidden">
+                      <motion.div className="h-full bg-gradient-to-r from-violet-400 to-purple-500 rounded-full"
+                        initial={{ width: 0 }} animate={{ width: `${pct}%` }}
+                        transition={{ duration: 0.8, ease: 'easeOut' }} />
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {/* Achievements */}
       <div className="bg-white rounded-2xl border border-border p-5 space-y-5">
