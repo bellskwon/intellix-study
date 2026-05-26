@@ -1,13 +1,12 @@
 import React, { useState, useRef } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { Trophy, Flame, BookOpen, Target, LogOut, Star, Zap, BarChart3, Pencil, Upload, Smile, Check, X, Edit2, Copy, Users, TrendingUp, TrendingDown, Globe, Map, Gem, Crown, Award, AlertTriangle } from 'lucide-react';
+import { Trophy, Flame, BookOpen, Target, LogOut, Star, Zap, BarChart3, Pencil, Upload, Smile, Check, X, Edit2, Copy, Users, TrendingUp, Globe, Map, Gem, Crown, Award } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { motion, AnimatePresence } from 'framer-motion';
 import { format } from 'date-fns';
-import { AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer } from 'recharts';
 import LevelXPBar, { calcLevelInfo, getLeague, PASS_THRESHOLD } from '@/components/shared/LevelXPBar';
 import { toast } from 'sonner';
 import { toTitleCase } from '@/lib/utils';
@@ -51,42 +50,16 @@ export default function Profile() {
   const approved = visibleSubmissions.filter(s => s.status === 'approved');
   const totalPoints = approved.reduce((a, b) => a + (b.points_awarded || 0), 0);
   const avgScore = graded.length ? Math.round(graded.reduce((s, q) => s + q.quiz_score, 0) / graded.length) : 0;
-  const best = graded.length ? Math.max(...graded.map(s => s.quiz_score)) : 0;
-  const passed = visibleSubmissions.filter(s => s.quiz_passed).length;
-
   const { level } = calcLevelInfo(submissions, user?.xp_bonus || 0);
   const league = getLeague(level);
 
   const subjectMap = {};
   submissions.forEach(s => { subjectMap[s.subject] = (subjectMap[s.subject] || 0) + 1; });
-  const sortedSubjects = Object.entries(subjectMap).sort((a, b) => b[1] - a[1]);
 
   const streak = user?.streak_count ?? 0;
   const subjectCount = Object.keys(subjectMap).length;
   const perfectScores = graded.filter(s => s.quiz_score === 100).length;
   const sharedProfile = (() => { try { return !!localStorage.getItem('intellix_shared_referral'); } catch { return false; } })();
-
-  // Progress analytics
-  const last5 = graded.slice(-5);
-  const prev5 = graded.slice(-10, -5);
-  const avgLast5 = last5.length ? Math.round(last5.reduce((s, q) => s + q.quiz_score, 0) / last5.length) : 0;
-  const avgPrev5 = prev5.length ? Math.round(prev5.reduce((s, q) => s + q.quiz_score, 0) / prev5.length) : 0;
-  const trend = graded.length >= 2 ? avgLast5 - avgPrev5 : 0;
-  const timeline = graded.slice(-12).map(s => ({
-    name: format(new Date(s.created_date), 'MMM d'),
-    score: s.quiz_score,
-  }));
-  const subjectScores = {};
-  graded.forEach(s => {
-    if (!subjectScores[s.subject]) subjectScores[s.subject] = [];
-    subjectScores[s.subject].push(s.quiz_score);
-  });
-  const subjectAvg = Object.entries(subjectScores).map(([subject, scores]) => ({
-    subject: subject.replace(/_/g, ' '),
-    avg: Math.round(scores.reduce((a, b) => a + b, 0) / scores.length),
-  })).sort((a, b) => b.avg - a.avg);
-  const weakAreas = subjectAvg.filter(s => s.avg < 70);
-  const strongAreas = subjectAvg.filter(s => s.avg >= 80);
 
   const badgeGroups = [
     {
@@ -328,155 +301,6 @@ export default function Profile() {
           </AnimatePresence>
         </div>
       </motion.div>
-
-      {/* Stats Grid */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        {[
-          { label: 'Total Points', value: totalPoints, gradient: 'from-amber-400 to-orange-500', Icon: Star },
-          { label: 'Avg Score', value: `${avgScore}%`, gradient: 'from-violet-500 to-purple-600', Icon: Target },
-          { label: 'Best Score', value: `${best}%`, gradient: 'from-emerald-400 to-teal-500', Icon: Trophy },
-          { label: 'Quizzes', value: visibleSubmissions.length, gradient: 'from-cyan-400 to-blue-500', Icon: Zap },
-        ].map((s, i) => (
-          <motion.div key={s.label} initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: i * 0.07 }}
-            className="bg-white rounded-2xl border border-border p-4 text-center card-hover">
-            <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${s.gradient} flex items-center justify-center mx-auto mb-2 shadow-md`}>
-              <s.Icon className="w-5 h-5 text-white" />
-            </div>
-            <p className="text-xl font-black text-foreground">{s.value}</p>
-            <p className="text-xs text-muted-foreground font-medium">{s.label}</p>
-          </motion.div>
-        ))}
-      </div>
-
-      {/* Score Timeline */}
-      {timeline.length > 1 && (
-        <div className="bg-white rounded-2xl border border-border p-5">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="font-semibold text-sm text-muted-foreground">Score Timeline</h2>
-            {graded.length >= 2 && (
-              <span className={`flex items-center gap-1 text-xs font-bold px-2.5 py-1 rounded-full ${trend >= 0 ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'}`}>
-                {trend >= 0 ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
-                {trend >= 0 ? `+${trend}%` : `${trend}%`} recent
-              </span>
-            )}
-          </div>
-          <ResponsiveContainer width="100%" height={180}>
-            <AreaChart data={timeline}>
-              <defs>
-                <linearGradient id="scoreGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="hsl(258,90%,60%)" stopOpacity={0.25} />
-                  <stop offset="95%" stopColor="hsl(258,90%,60%)" stopOpacity={0} />
-                </linearGradient>
-              </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="hsl(240,12%,93%)" />
-              <XAxis dataKey="name" tick={{ fontSize: 11, fontWeight: 600 }} />
-              <YAxis domain={[0, 100]} tick={{ fontSize: 11 }} width={28} />
-              <Tooltip
-                contentStyle={{ borderRadius: '12px', border: '1px solid hsl(240,12%,89%)', fontSize: 12 }}
-                formatter={(v) => [`${v}%`, 'Score']}
-              />
-              <Area type="monotone" dataKey="score" stroke="hsl(258,90%,60%)" fill="url(#scoreGrad)"
-                strokeWidth={2.5} dot={{ fill: 'hsl(258,90%,60%)', strokeWidth: 0, r: 3.5 }} />
-            </AreaChart>
-          </ResponsiveContainer>
-        </div>
-      )}
-
-      {/* Next Goal Panel */}
-      <div className="bg-white rounded-2xl border border-border p-5">
-        <h2 className="font-semibold text-sm text-muted-foreground mb-3">Next Goals</h2>
-        <div className="space-y-3">
-          {[
-            { label: 'Reach 10 quizzes', target: 10, current: visibleSubmissions.length, Icon: BookOpen },
-            { label: 'Avg score 80%', target: 80, current: avgScore, Icon: BarChart3 },
-            { label: 'Pass 5 quizzes', target: 5, current: passed, Icon: Trophy },
-          ].map(g => {
-            const pct = Math.min(Math.round((g.current / g.target) * 100), 100);
-            const done = pct >= 100;
-            return (
-              <div key={g.label}>
-                <div className="flex items-center justify-between text-xs mb-1">
-                  <span className="font-semibold text-foreground flex items-center gap-1.5">
-                    <g.Icon className="w-3.5 h-3.5 text-primary" /> {g.label}
-                  </span>
-                  <span className={`font-bold ${done ? 'text-emerald-600' : 'text-muted-foreground'}`}>
-                    {done ? '✓ Done!' : `${g.current} / ${g.target}`}
-                  </span>
-                </div>
-                <div className="h-2 bg-muted rounded-full overflow-hidden">
-                  <motion.div className={`h-full rounded-full ${done ? 'bg-emerald-400' : 'bg-gradient-to-r from-violet-500 to-purple-400'}`}
-                    initial={{ width: 0 }} animate={{ width: `${pct}%` }} transition={{ duration: 1, ease: 'easeOut', delay: 0.3 }} />
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Subject Breakdown */}
-      {sortedSubjects.length > 0 && (
-        <div className="bg-white rounded-2xl border border-border p-5">
-          <h2 className="font-semibold text-sm text-muted-foreground mb-3">Subject Breakdown</h2>
-          <div className="space-y-2.5">
-            {sortedSubjects.slice(0, 5).map(([subj, count]) => {
-              const pct = Math.round((count / (visibleSubmissions.length || 1)) * 100);
-              return (
-                <div key={subj} className="flex items-center gap-3">
-                  <SubjectIcon subject={subj} size="xs" />
-                  <div className="flex-1">
-                    <div className="flex justify-between text-xs mb-1">
-                      <span className="font-semibold capitalize">{subj.replace(/_/g, ' ')}</span>
-                      <span className="text-muted-foreground">{count} quiz{count !== 1 ? 'zes' : ''}</span>
-                    </div>
-                    <div className="h-1.5 bg-muted rounded-full overflow-hidden">
-                      <motion.div className="h-full bg-gradient-to-r from-violet-400 to-purple-500 rounded-full"
-                        initial={{ width: 0 }} animate={{ width: `${pct}%` }} transition={{ duration: 0.8, ease: 'easeOut' }} />
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      )}
-
-      {/* Weak & Strong Areas */}
-      {(weakAreas.length > 0 || strongAreas.length > 0) && (
-        <div className="grid grid-cols-2 gap-3">
-          {strongAreas.length > 0 && (
-            <div className="bg-emerald-50 border border-emerald-100 rounded-2xl p-4">
-              <div className="flex items-center gap-2 mb-3">
-                <Award className="w-4 h-4 text-emerald-500" />
-                <h3 className="font-black text-sm text-emerald-700">Strengths</h3>
-              </div>
-              <div className="space-y-1.5">
-                {strongAreas.map(a => (
-                  <div key={a.subject} className="flex items-center justify-between bg-white/70 rounded-xl px-3 py-1.5">
-                    <span className="text-xs font-semibold capitalize text-foreground">{a.subject}</span>
-                    <span className="text-xs font-bold text-emerald-600">{a.avg}%</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-          {weakAreas.length > 0 && (
-            <div className="bg-rose-50 border border-rose-100 rounded-2xl p-4">
-              <div className="flex items-center gap-2 mb-3">
-                <AlertTriangle className="w-4 h-4 text-rose-500" />
-                <h3 className="font-black text-sm text-rose-700">Needs Work</h3>
-              </div>
-              <div className="space-y-1.5">
-                {weakAreas.map(a => (
-                  <div key={a.subject} className="flex items-center justify-between bg-white/70 rounded-xl px-3 py-1.5">
-                    <span className="text-xs font-semibold capitalize text-foreground">{a.subject}</span>
-                    <span className="text-xs font-bold text-rose-600">{a.avg}%</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
-      )}
 
       {/* Achievements */}
       <div className="bg-white rounded-2xl border border-border p-5 space-y-5">

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
-import { LayoutDashboard, Zap, X, FlaskConical, ShoppingBag, Brain, Crown, Archive, UserPlus, Moon, Sun, User } from 'lucide-react';
+import { LayoutDashboard, Zap, X, FlaskConical, ShoppingBag, Brain, Crown, Archive, UserPlus, Moon, Sun, User, TrendingUp } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
@@ -26,6 +26,7 @@ const navItems = [
   { path: '/questions', label: 'Flashcards', icon: Brain, color: 'text-indigo-500' },
   { path: '/storage', label: 'Storage', icon: Archive, color: 'text-teal-500' },
   { path: '/friends', label: 'Social', icon: UserPlus, color: 'text-blue-500' },
+  { path: '/progress', label: 'Progress', icon: TrendingUp, color: 'text-rose-500' },
   { path: '/profile', label: 'Profile', icon: User, color: 'text-slate-500' },
   { path: '/premium', label: 'Intellix Premium', icon: Crown, color: 'text-amber-500' },
 ];
