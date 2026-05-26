@@ -177,133 +177,132 @@ export default function Profile() {
   };
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6 pb-8">
+    <div className="pb-8">
 
-      {/* Profile Hero */}
-      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
-        className="relative rounded-3xl overflow-hidden text-white"
-        style={{ background: 'linear-gradient(135deg, #7c3aed 0%, #a855f7 60%, #ec4899 100%)' }}>
-        <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute -top-8 -right-8 w-40 h-40 rounded-full bg-white/10 blur-2xl" />
-          <div className="absolute bottom-0 left-10 w-32 h-32 rounded-full bg-pink-400/20 blur-2xl" />
-        </div>
+      {/* Dark Hero */}
+      <div className="-mx-4 -mt-4 lg:-mx-8 lg:-mt-8 mb-6">
+        <div className="bg-[#130d25] px-6 pt-7 pb-8">
+          <div className="max-w-2xl mx-auto">
 
-        <div className="relative z-10 p-7">
-          <div className="flex items-start gap-5">
-            {/* Avatar */}
-            <div className="relative shrink-0">
-              <AvatarCircle size="lg" />
-              <button onClick={() => setShowAvatarPicker(!showAvatarPicker)}
-                className="absolute -bottom-1 -right-1 w-7 h-7 rounded-xl bg-white/30 backdrop-blur-sm flex items-center justify-center hover:bg-white/50 transition-all border border-white/40">
-                <Pencil className="w-3 h-3 text-white" />
-              </button>
-            </div>
+            {/* Title */}
+            <h1 className="font-black text-white" style={{ fontSize: 'clamp(3rem, 12vw, 5rem)', lineHeight: 0.92 }}>Your</h1>
+            <h1 className="font-black text-fuchsia-400" style={{ fontSize: 'clamp(3rem, 12vw, 5rem)', lineHeight: 0.92 }}>Profile</h1>
 
-            {/* Info */}
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 mb-0.5 flex-wrap">
-                {editingName ? (
-                  <div className="flex items-center gap-2 flex-1">
-                    <Input
-                      value={nameInput}
-                      onChange={e => setNameInput(e.target.value)}
-                      className="h-8 text-sm bg-white/20 border-white/30 text-white placeholder:text-white/50 rounded-lg"
-                      placeholder="Your name..."
-                      onKeyDown={e => { if (e.key === 'Enter') handleSaveName(); if (e.key === 'Escape') setEditingName(false); }}
-                      autoFocus
-                    />
-                    <button onClick={handleSaveName} disabled={savingName}
-                      className="w-7 h-7 rounded-lg bg-emerald-400/80 flex items-center justify-center hover:bg-emerald-400">
-                      <Check className="w-3.5 h-3.5 text-white" />
-                    </button>
-                    <button onClick={() => setEditingName(false)}
-                      className="w-7 h-7 rounded-lg bg-white/20 flex items-center justify-center hover:bg-white/30">
-                      <X className="w-3.5 h-3.5 text-white" />
-                    </button>
-                  </div>
-                ) : (
-                  <>
-                    <h1 className="text-xl font-black truncate">{displayName}</h1>
-                    <button onClick={() => { setNameInput(displayName); setEditingName(true); }}
-                      className="w-6 h-6 rounded-lg bg-white/20 flex items-center justify-center hover:bg-white/30 shrink-0">
-                      <Edit2 className="w-3 h-3 text-white" />
-                    </button>
-                    <span className={`text-xs px-2 py-0.5 rounded-full bg-gradient-to-r ${league.color} text-white font-bold shrink-0`}>
-                      {league.emoji} {league.name}
-                    </span>
-                  </>
-                )}
+            {/* User card */}
+            <div className="mt-5 flex items-start gap-4">
+              {/* Avatar */}
+              <div className="relative shrink-0">
+                <AvatarCircle size="lg" />
+                <button onClick={() => setShowAvatarPicker(!showAvatarPicker)}
+                  className="absolute -bottom-1 -right-1 w-7 h-7 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center hover:bg-white/30 transition-all border border-white/20">
+                  <Pencil className="w-3 h-3 text-white" />
+                </button>
               </div>
-              <p className="text-purple-200 text-xs mb-3">{user?.email}</p>
-              <div className="flex items-center gap-3 mb-4 flex-wrap">
-                <span className="flex items-center gap-1 bg-white/15 px-2.5 py-1 rounded-full text-xs font-bold">
-                  <Flame className="w-3 h-3 text-amber-300" /> {user?.streak_count ?? 0} day streak
-                </span>
-                <span className="flex items-center gap-1 bg-white/15 px-2.5 py-1 rounded-full text-xs font-bold">
-                  <Star className="w-3 h-3 text-yellow-300" /> {totalPoints} pts
-                </span>
-              </div>
-              <LevelXPBar submissions={submissions} xpBonus={user?.xp_bonus || 0} dark />
-            </div>
-          </div>
 
-          {/* Avatar Picker */}
-          <AnimatePresence>
-            {showAvatarPicker && (
-              <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}
-                className="mt-4 bg-white/20 backdrop-blur-sm rounded-2xl p-4 border border-white/30">
-                {/* Tabs */}
-                <div className="flex gap-2 mb-3">
-                  {[
-                    { key: 'emoji', label: 'Emoji', Icon: Smile },
-                    { key: 'color', label: 'Color', Icon: null },
-                    { key: 'image', label: 'Upload', Icon: Upload },
-                  ].map(t => (
-                    <button key={t.key} onClick={() => setAvatarTab(t.key)}
-                      className={`flex-1 py-1.5 rounded-xl text-xs font-bold transition-all ${avatarTab === t.key ? 'bg-white text-purple-700' : 'bg-white/20 text-white hover:bg-white/30'}`}>
-                      {t.label}
-                    </button>
-                  ))}
+              {/* Info */}
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 mb-0.5 flex-wrap">
+                  {editingName ? (
+                    <div className="flex items-center gap-2 flex-1">
+                      <Input
+                        value={nameInput}
+                        onChange={e => setNameInput(e.target.value)}
+                        className="h-8 text-sm bg-white/20 border-white/30 text-white placeholder:text-white/50 rounded-lg"
+                        placeholder="Your name..."
+                        onKeyDown={e => { if (e.key === 'Enter') handleSaveName(); if (e.key === 'Escape') setEditingName(false); }}
+                        autoFocus
+                      />
+                      <button onClick={handleSaveName} disabled={savingName}
+                        className="w-7 h-7 rounded-lg bg-emerald-400/80 flex items-center justify-center hover:bg-emerald-400">
+                        <Check className="w-3.5 h-3.5 text-white" />
+                      </button>
+                      <button onClick={() => setEditingName(false)}
+                        className="w-7 h-7 rounded-lg bg-white/20 flex items-center justify-center hover:bg-white/30">
+                        <X className="w-3.5 h-3.5 text-white" />
+                      </button>
+                    </div>
+                  ) : (
+                    <>
+                      <h2 className="text-lg font-black text-white truncate">{displayName}</h2>
+                      <button onClick={() => { setNameInput(displayName); setEditingName(true); }}
+                        className="w-6 h-6 rounded-lg bg-white/20 flex items-center justify-center hover:bg-white/30 shrink-0">
+                        <Edit2 className="w-3 h-3 text-white" />
+                      </button>
+                      <span className={`text-xs px-2 py-0.5 rounded-full bg-gradient-to-r ${league.color} text-white font-bold shrink-0`}>
+                        {league.emoji} {league.name}
+                      </span>
+                    </>
+                  )}
                 </div>
+                <p className="text-white/40 text-xs mb-2">{user?.email}</p>
+                <div className="flex items-center gap-2 mb-3 flex-wrap">
+                  <span className="flex items-center gap-1 bg-white/10 px-2.5 py-1 rounded-full text-xs font-bold text-white">
+                    <Flame className="w-3 h-3 text-amber-300" /> {user?.streak_count ?? 0} day streak
+                  </span>
+                  <span className="flex items-center gap-1 bg-white/10 px-2.5 py-1 rounded-full text-xs font-bold text-white">
+                    <Star className="w-3 h-3 text-yellow-300" /> {totalPoints} pts
+                  </span>
+                </div>
+                <LevelXPBar submissions={submissions} xpBonus={user?.xp_bonus || 0} dark />
+              </div>
+            </div>
 
-                {avatarTab === 'emoji' && (
-                  <div className="flex flex-wrap gap-2">
-                    {AVATARS.map(e => (
-                      <button key={e} onClick={() => saveAvatar({ avatar_emoji: e, avatar_color: null, avatar_image_url: null })}
-                        className={`w-9 h-9 rounded-xl text-xl flex items-center justify-center transition-all hover:scale-110 ${savedAvatar === e ? 'bg-white/40 ring-2 ring-white' : 'bg-white/20 hover:bg-white/30'}`}>
-                        {e}
+            {/* Avatar Picker */}
+            <AnimatePresence>
+              {showAvatarPicker && (
+                <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}
+                  className="mt-4 bg-white/10 backdrop-blur-sm rounded-2xl p-4 border border-white/20">
+                  <div className="flex gap-2 mb-3">
+                    {[
+                      { key: 'emoji', label: 'Emoji' },
+                      { key: 'color', label: 'Color' },
+                      { key: 'image', label: 'Upload' },
+                    ].map(t => (
+                      <button key={t.key} onClick={() => setAvatarTab(t.key)}
+                        className={`flex-1 py-1.5 rounded-xl text-xs font-bold transition-all ${avatarTab === t.key ? 'bg-white text-[#130d25]' : 'bg-white/10 text-white hover:bg-white/20'}`}>
+                        {t.label}
                       </button>
                     ))}
                   </div>
-                )}
+                  {avatarTab === 'emoji' && (
+                    <div className="flex flex-wrap gap-2">
+                      {AVATARS.map(e => (
+                        <button key={e} onClick={() => saveAvatar({ avatar_emoji: e, avatar_color: null, avatar_image_url: null })}
+                          className={`w-9 h-9 rounded-xl text-xl flex items-center justify-center transition-all hover:scale-110 ${savedAvatar === e ? 'bg-white/40 ring-2 ring-white' : 'bg-white/10 hover:bg-white/20'}`}>
+                          {e}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                  {avatarTab === 'color' && (
+                    <div className="flex flex-wrap gap-2">
+                      {COLORS.map(c => (
+                        <button key={c} onClick={() => saveAvatar({ avatar_color: c, avatar_emoji: null, avatar_image_url: null })}
+                          className={`w-9 h-9 rounded-xl transition-all hover:scale-110 ${savedColor === c ? 'ring-2 ring-white ring-offset-1 ring-offset-transparent' : ''}`}
+                          style={{ background: c }} />
+                      ))}
+                    </div>
+                  )}
+                  {avatarTab === 'image' && (
+                    <div className="text-center">
+                      <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
+                      <button onClick={() => fileInputRef.current?.click()} disabled={uploadingAvatar}
+                        className="w-full py-3 rounded-xl bg-white/10 hover:bg-white/20 text-white text-sm font-bold flex items-center justify-center gap-2 transition-all">
+                        {uploadingAvatar ? <Zap className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+                        {uploadingAvatar ? 'Uploading...' : 'Choose from device'}
+                      </button>
+                      <p className="text-white/40 text-xs mt-2">PNG, JPG — max 5MB</p>
+                    </div>
+                  )}
+                </motion.div>
+              )}
+            </AnimatePresence>
 
-                {avatarTab === 'color' && (
-                  <div className="flex flex-wrap gap-2">
-                    {COLORS.map(c => (
-                      <button key={c} onClick={() => saveAvatar({ avatar_color: c, avatar_emoji: null, avatar_image_url: null })}
-                        className={`w-9 h-9 rounded-xl transition-all hover:scale-110 ${savedColor === c ? 'ring-2 ring-white ring-offset-1 ring-offset-transparent' : ''}`}
-                        style={{ background: c }} />
-                    ))}
-                  </div>
-                )}
-
-                {avatarTab === 'image' && (
-                  <div className="text-center">
-                    <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
-                    <button onClick={() => fileInputRef.current?.click()}
-                      disabled={uploadingAvatar}
-                      className="w-full py-3 rounded-xl bg-white/20 hover:bg-white/30 text-white text-sm font-bold flex items-center justify-center gap-2 transition-all">
-                      {uploadingAvatar ? <Zap className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
-                      {uploadingAvatar ? 'Uploading...' : 'Choose from device'}
-                    </button>
-                    <p className="text-white/50 text-xs mt-2">PNG, JPG — max 5MB</p>
-                  </div>
-                )}
-              </motion.div>
-            )}
-          </AnimatePresence>
+          </div>
         </div>
-      </motion.div>
+      </div>
+
+      <div className="max-w-2xl mx-auto space-y-5">
 
       {/* Stats strip */}
       <div className="bg-white rounded-2xl border border-border divide-x divide-border grid grid-cols-4 text-center overflow-hidden">
@@ -557,6 +556,7 @@ export default function Profile() {
         onClick={() => base44.auth.logout()}>
         <LogOut className="w-4 h-4 mr-2" /> Sign Out
       </Button>
+      </div>
     </div>
   );
 }
