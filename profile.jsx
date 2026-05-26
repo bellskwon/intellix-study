@@ -1,12 +1,13 @@
 import React, { useState, useRef } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { Trophy, Flame, BookOpen, Target, LogOut, Star, Zap, BarChart3, Pencil, Upload, Smile, Check, X, Edit2, Copy, Users, TrendingUp, Globe, Map, Gem, Crown, Award } from 'lucide-react';
+import { Trophy, Flame, BookOpen, Target, LogOut, Star, Zap, BarChart3, Pencil, Upload, Smile, Check, X, Edit2, Copy, Users, TrendingUp, TrendingDown, Globe, Map, Gem, Crown, Award, AlertTriangle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { motion, AnimatePresence } from 'framer-motion';
 import { format } from 'date-fns';
+import { AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer } from 'recharts';
 import LevelXPBar, { calcLevelInfo, getLeague, PASS_THRESHOLD } from '@/components/shared/LevelXPBar';
 import { toast } from 'sonner';
 import { toTitleCase } from '@/lib/utils';
@@ -64,6 +65,28 @@ export default function Profile() {
   const subjectCount = Object.keys(subjectMap).length;
   const perfectScores = graded.filter(s => s.quiz_score === 100).length;
   const sharedProfile = (() => { try { return !!localStorage.getItem('intellix_shared_referral'); } catch { return false; } })();
+
+  // Progress analytics
+  const last5 = graded.slice(-5);
+  const prev5 = graded.slice(-10, -5);
+  const avgLast5 = last5.length ? Math.round(last5.reduce((s, q) => s + q.quiz_score, 0) / last5.length) : 0;
+  const avgPrev5 = prev5.length ? Math.round(prev5.reduce((s, q) => s + q.quiz_score, 0) / prev5.length) : 0;
+  const trend = graded.length >= 2 ? avgLast5 - avgPrev5 : 0;
+  const timeline = graded.slice(-12).map(s => ({
+    name: format(new Date(s.created_date), 'MMM d'),
+    score: s.quiz_score,
+  }));
+  const subjectScores = {};
+  graded.forEach(s => {
+    if (!subjectScores[s.subject]) subjectScores[s.subject] = [];
+    subjectScores[s.subject].push(s.quiz_score);
+  });
+  const subjectAvg = Object.entries(subjectScores).map(([subject, scores]) => ({
+    subject: subject.replace(/_/g, ' '),
+    avg: Math.round(scores.reduce((a, b) => a + b, 0) / scores.length),
+  })).sort((a, b) => b.avg - a.avg);
+  const weakAreas = subjectAvg.filter(s => s.avg < 70);
+  const strongAreas = subjectAvg.filter(s => s.avg >= 80);
 
   const badgeGroups = [
     {
@@ -325,6 +348,40 @@ export default function Profile() {
         ))}
       </div>
 
+      {/* Score Timeline */}
+      {timeline.length > 1 && (
+        <div className="bg-white rounded-2xl border border-border p-5">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="font-semibold text-sm text-muted-foreground">Score Timeline</h2>
+            {graded.length >= 2 && (
+              <span className={`flex items-center gap-1 text-xs font-bold px-2.5 py-1 rounded-full ${trend >= 0 ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'}`}>
+                {trend >= 0 ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
+                {trend >= 0 ? `+${trend}%` : `${trend}%`} recent
+              </span>
+            )}
+          </div>
+          <ResponsiveContainer width="100%" height={180}>
+            <AreaChart data={timeline}>
+              <defs>
+                <linearGradient id="scoreGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="hsl(258,90%,60%)" stopOpacity={0.25} />
+                  <stop offset="95%" stopColor="hsl(258,90%,60%)" stopOpacity={0} />
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" stroke="hsl(240,12%,93%)" />
+              <XAxis dataKey="name" tick={{ fontSize: 11, fontWeight: 600 }} />
+              <YAxis domain={[0, 100]} tick={{ fontSize: 11 }} width={28} />
+              <Tooltip
+                contentStyle={{ borderRadius: '12px', border: '1px solid hsl(240,12%,89%)', fontSize: 12 }}
+                formatter={(v) => [`${v}%`, 'Score']}
+              />
+              <Area type="monotone" dataKey="score" stroke="hsl(258,90%,60%)" fill="url(#scoreGrad)"
+                strokeWidth={2.5} dot={{ fill: 'hsl(258,90%,60%)', strokeWidth: 0, r: 3.5 }} />
+            </AreaChart>
+          </ResponsiveContainer>
+        </div>
+      )}
+
       {/* Next Goal Panel */}
       <div className="bg-white rounded-2xl border border-border p-5">
         <h2 className="font-semibold text-sm text-muted-foreground mb-3">Next Goals</h2>
@@ -380,6 +437,44 @@ export default function Profile() {
               );
             })}
           </div>
+        </div>
+      )}
+
+      {/* Weak & Strong Areas */}
+      {(weakAreas.length > 0 || strongAreas.length > 0) && (
+        <div className="grid grid-cols-2 gap-3">
+          {strongAreas.length > 0 && (
+            <div className="bg-emerald-50 border border-emerald-100 rounded-2xl p-4">
+              <div className="flex items-center gap-2 mb-3">
+                <Award className="w-4 h-4 text-emerald-500" />
+                <h3 className="font-black text-sm text-emerald-700">Strengths</h3>
+              </div>
+              <div className="space-y-1.5">
+                {strongAreas.map(a => (
+                  <div key={a.subject} className="flex items-center justify-between bg-white/70 rounded-xl px-3 py-1.5">
+                    <span className="text-xs font-semibold capitalize text-foreground">{a.subject}</span>
+                    <span className="text-xs font-bold text-emerald-600">{a.avg}%</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+          {weakAreas.length > 0 && (
+            <div className="bg-rose-50 border border-rose-100 rounded-2xl p-4">
+              <div className="flex items-center gap-2 mb-3">
+                <AlertTriangle className="w-4 h-4 text-rose-500" />
+                <h3 className="font-black text-sm text-rose-700">Needs Work</h3>
+              </div>
+              <div className="space-y-1.5">
+                {weakAreas.map(a => (
+                  <div key={a.subject} className="flex items-center justify-between bg-white/70 rounded-xl px-3 py-1.5">
+                    <span className="text-xs font-semibold capitalize text-foreground">{a.subject}</span>
+                    <span className="text-xs font-bold text-rose-600">{a.avg}%</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       )}
 
