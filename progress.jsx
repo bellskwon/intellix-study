@@ -65,7 +65,7 @@ export default function Progress() {
               </span>
             </div>
             <h1 className="font-black text-white" style={{ fontSize: 'clamp(3rem, 12vw, 5rem)', lineHeight: 0.92 }}>My</h1>
-            <h1 className="font-black text-rose-400" style={{ fontSize: 'clamp(3rem, 12vw, 5rem)', lineHeight: 0.92 }}>Progress</h1>
+            <h1 className="font-black text-red-400" style={{ fontSize: 'clamp(3rem, 12vw, 5rem)', lineHeight: 0.92 }}>Progress</h1>
             <p className="text-slate-400 text-sm mt-3">Track your improvement across subjects over time.</p>
           </div>
         </div>

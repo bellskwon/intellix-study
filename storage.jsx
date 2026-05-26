@@ -139,7 +139,7 @@ export default function Storage() {
               <h1 className="font-black text-white" style={{ fontSize: 'clamp(3rem, 12vw, 5rem)', lineHeight: 0.92 }}>
                 Your
               </h1>
-              <h1 className="font-black text-cyan-400" style={{ fontSize: 'clamp(3rem, 12vw, 5rem)', lineHeight: 0.92 }}>
+              <h1 className="font-black text-green-400" style={{ fontSize: 'clamp(3rem, 12vw, 5rem)', lineHeight: 0.92 }}>
                 Storage
               </h1>
             </div>
