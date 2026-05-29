@@ -101,8 +101,8 @@ const inputModes = [
 export default function SubmitStudy({ onSuccess }) {
   const [form, setForm] = useState({ title: '', subject: '', grade_level: '', type: 'notes', notes_text: '' });
   const [inputMode, setInputMode] = useState('file');
-  const [file, setFile] = useState(null);
-  const [filePreview, setFilePreview] = useState(null);
+  const [files, setFiles] = useState([]);
+  const [filePreviews, setFilePreviews] = useState([]);
   const [uploading, setUploading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   // Moderation state
@@ -136,26 +136,32 @@ export default function SubmitStudy({ onSuccess }) {
     img.src = objectUrl;
   });
 
-  const handleFile = async (f) => {
-    if (!f) return;
-    const processed = f.type.startsWith('image/') ? await compressImage(f) : f;
-    setFile(processed);
-    if (processed.type.startsWith('image/')) {
-      setFilePreview(URL.createObjectURL(processed));
-    } else {
-      setFilePreview(null);
+  const addFiles = async (newFiles) => {
+    for (const f of Array.from(newFiles)) {
+      if (!f) continue;
+      const processed = f.type.startsWith('image/') ? await compressImage(f) : f;
+      const preview = processed.type.startsWith('image/') ? URL.createObjectURL(processed) : null;
+      setFiles(prev => [...prev, processed]);
+      setFilePreviews(prev => [...prev, preview]);
     }
+  };
+
+  const removeFile = (index) => {
+    setFiles(prev => prev.filter((_, i) => i !== index));
+    setFilePreviews(prev => prev.filter((_, i) => i !== index));
   };
 
   const createMutation = useMutation({
     mutationFn: async (data) => {
       setUploading(true);
 
-      // 1. Upload file first (needed so Claude can inspect images)
+      // 1. Upload all files (needed so Claude can inspect images)
       let file_url = '';
-      if (file) {
-        const result = await base44.integrations.Core.UploadFile({ file });
-        file_url = result.file_url;
+      if (files.length > 0) {
+        const urls = await Promise.all(
+          files.map(f => base44.integrations.Core.UploadFile({ file: f }).then(r => r.file_url))
+        );
+        file_url = urls.filter(Boolean).join(',');
       }
 
       // 2. Moderation check — runs before anything is saved
@@ -201,8 +207,8 @@ export default function SubmitStudy({ onSuccess }) {
       setFormError('Please fill in the title, subject, and grade level.');
       return;
     }
-    if ((inputMode === 'file' || inputMode === 'camera') && !file) {
-      setFormError(inputMode === 'camera' ? 'Please take a photo first.' : 'Please upload a file.');
+    if ((inputMode === 'file' || inputMode === 'camera') && files.length === 0) {
+      setFormError(inputMode === 'camera' ? 'Please take at least one photo first.' : 'Please upload at least one file.');
       return;
     }
     if (inputMode === 'text' && !form.notes_text?.trim()) {
@@ -238,8 +244,8 @@ export default function SubmitStudy({ onSuccess }) {
   const reset = () => {
     setSubmitted(false);
     setForm({ title: '', subject: '', grade_level: '', type: 'notes', notes_text: '' });
-    setFile(null);
-    setFilePreview(null);
+    setFiles([]);
+    setFilePreviews([]);
   };
 
   if (submitted) {
@@ -328,33 +334,41 @@ export default function SubmitStudy({ onSuccess }) {
           {inputMode === 'file' && (
             <motion.div key="file" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}
               className="bg-white rounded-2xl border border-border p-5">
-              <Label className="text-xs font-black uppercase tracking-wide text-muted-foreground mb-3 block">Upload File</Label>
-              {file ? (
-                <div className="rounded-xl border-2 border-violet-200 bg-violet-50 p-4 flex items-center gap-3">
-                  {filePreview ? (
-                    <img src={filePreview} alt="preview" className="w-14 h-14 rounded-lg object-cover shrink-0" />
-                  ) : (
-                    <div className="w-14 h-14 rounded-lg bg-violet-100 flex items-center justify-center shrink-0">
-                      <FileImage className="w-6 h-6 text-violet-500" />
+              <div className="flex items-center justify-between mb-3">
+                <Label className="text-xs font-black uppercase tracking-wide text-muted-foreground">Upload Files</Label>
+                {files.length > 0 && (
+                  <span className="text-[10px] font-bold text-violet-600 bg-violet-50 px-2 py-0.5 rounded-full">{files.length} file{files.length !== 1 ? 's' : ''} selected</span>
+                )}
+              </div>
+              {files.length > 0 && (
+                <div className="space-y-2 mb-3">
+                  {files.map((f, i) => (
+                    <div key={i} className="rounded-xl border border-violet-200 bg-violet-50 px-3 py-2.5 flex items-center gap-3">
+                      {filePreviews[i] ? (
+                        <img src={filePreviews[i]} alt="preview" className="w-10 h-10 rounded-lg object-cover shrink-0" />
+                      ) : (
+                        <div className="w-10 h-10 rounded-lg bg-violet-100 flex items-center justify-center shrink-0">
+                          <FileImage className="w-5 h-5 text-violet-500" />
+                        </div>
+                      )}
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-bold text-foreground truncate">{f.name}</p>
+                        <p className="text-xs text-muted-foreground">{(f.size / 1024).toFixed(0)} KB</p>
+                      </div>
+                      <button type="button" onClick={() => removeFile(i)} className="p-1 hover:bg-violet-100 rounded-lg shrink-0">
+                        <X className="w-4 h-4 text-muted-foreground" />
+                      </button>
                     </div>
-                  )}
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-bold text-foreground truncate">{file.name}</p>
-                    <p className="text-xs text-muted-foreground">{(file.size / 1024).toFixed(0)} KB · Ready to upload</p>
-                  </div>
-                  <button onClick={() => { setFile(null); setFilePreview(null); }} className="p-1 hover:bg-violet-100 rounded-lg">
-                    <X className="w-4 h-4 text-muted-foreground" />
-                  </button>
+                  ))}
                 </div>
-              ) : (
-                <label className="block border-2 border-dashed border-border rounded-xl p-10 text-center hover:border-violet-400 hover:bg-violet-50/50 transition-all cursor-pointer">
-                  <Upload className="w-8 h-8 text-violet-400 mx-auto mb-2" />
-                  <p className="text-sm font-bold text-foreground">Click to upload</p>
-                  <p className="text-xs text-muted-foreground mt-1">PDF, images, or video</p>
-                  <input ref={fileInputRef} type="file" accept="image/*,.pdf,video/*"
-                    onChange={e => handleFile(e.target.files[0])} className="hidden" />
-                </label>
               )}
+              <label className="block border-2 border-dashed border-border rounded-xl p-6 text-center hover:border-violet-400 hover:bg-violet-50/50 transition-all cursor-pointer">
+                <Upload className="w-7 h-7 text-violet-400 mx-auto mb-2" />
+                <p className="text-sm font-bold text-foreground">{files.length > 0 ? 'Add more files' : 'Click to upload'}</p>
+                <p className="text-xs text-muted-foreground mt-1">PDF, images, or video · multiple allowed</p>
+                <input ref={fileInputRef} type="file" accept="image/*,.pdf,video/*" multiple
+                  onChange={e => addFiles(e.target.files)} className="hidden" />
+              </label>
             </motion.div>
           )}
 
@@ -375,31 +389,39 @@ export default function SubmitStudy({ onSuccess }) {
           {inputMode === 'camera' && (
             <motion.div key="camera" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}
               className="bg-white rounded-2xl border border-border p-5">
-              <Label className="text-xs font-black uppercase tracking-wide text-muted-foreground mb-3 block">Scan with Camera</Label>
-              {file ? (
-                <div className="rounded-xl border-2 border-pink-200 bg-pink-50 p-4 flex items-center gap-3">
-                  {filePreview && <img src={filePreview} alt="preview" className="w-14 h-14 rounded-lg object-cover shrink-0" />}
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-bold text-foreground truncate">{file.name}</p>
-                    <p className="text-xs text-muted-foreground">Photo ready ✓</p>
-                  </div>
-                  <button onClick={() => { setFile(null); setFilePreview(null); }} className="p-1 hover:bg-pink-100 rounded-lg">
-                    <X className="w-4 h-4 text-muted-foreground" />
-                  </button>
+              <div className="flex items-center justify-between mb-3">
+                <Label className="text-xs font-black uppercase tracking-wide text-muted-foreground">Scan with Camera</Label>
+                {files.length > 0 && (
+                  <span className="text-[10px] font-bold text-pink-600 bg-pink-50 px-2 py-0.5 rounded-full">{files.length} photo{files.length !== 1 ? 's' : ''}</span>
+                )}
+              </div>
+              {files.length > 0 && (
+                <div className="space-y-2 mb-3">
+                  {files.map((f, i) => (
+                    <div key={i} className="rounded-xl border border-pink-200 bg-pink-50 px-3 py-2.5 flex items-center gap-3">
+                      {filePreviews[i] && <img src={filePreviews[i]} alt="preview" className="w-10 h-10 rounded-lg object-cover shrink-0" />}
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-bold text-foreground truncate">{f.name}</p>
+                        <p className="text-xs text-muted-foreground">Photo ready ✓</p>
+                      </div>
+                      <button type="button" onClick={() => removeFile(i)} className="p-1 hover:bg-pink-100 rounded-lg shrink-0">
+                        <X className="w-4 h-4 text-muted-foreground" />
+                      </button>
+                    </div>
+                  ))}
                 </div>
-              ) : (
-                <button type="button" onClick={() => setShowCamera(true)}
-                  className="w-full border-2 border-dashed border-pink-200 rounded-xl p-10 text-center hover:border-pink-400 hover:bg-pink-50 transition-all cursor-pointer">
-                  <Camera className="w-8 h-8 text-pink-400 mx-auto mb-2" />
-                  <p className="text-sm font-bold text-foreground">Open Camera</p>
-                  <p className="text-xs text-muted-foreground mt-1">Take a photo of your handwritten or printed notes</p>
-                </button>
               )}
+              <button type="button" onClick={() => setShowCamera(true)}
+                className="w-full border-2 border-dashed border-pink-200 rounded-xl p-6 text-center hover:border-pink-400 hover:bg-pink-50 transition-all cursor-pointer">
+                <Camera className="w-7 h-7 text-pink-400 mx-auto mb-2" />
+                <p className="text-sm font-bold text-foreground">{files.length > 0 ? 'Scan another page' : 'Open Camera'}</p>
+                <p className="text-xs text-muted-foreground mt-1">Take a photo of your handwritten or printed notes</p>
+              </button>
             </motion.div>
           )}
           {showCamera && (
             <CameraModal
-              onCapture={f => { setShowCamera(false); handleFile(f); }}
+              onCapture={f => { setShowCamera(false); addFiles([f]); }}
               onClose={() => setShowCamera(false)}
             />
           )}

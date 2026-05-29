@@ -102,7 +102,7 @@ RULES:
 
 Notes:
 ${submission.notes_text || '(see attached file)'}`,
-        file_urls: submission.file_url ? [submission.file_url] : undefined,
+        file_urls: submission.file_url ? submission.file_url.split(',').filter(Boolean) : undefined,
         response_json_schema: {
           type: 'object',
           properties: {
@@ -553,25 +553,32 @@ Reply with ONLY one word: "correct" or "incorrect". Do not add any explanation.`
         </div>
       )}
 
+      {/* Question count — always visible when there are pending quizzes */}
+      {pending.length > 0 && (
+        <div className="bg-white rounded-2xl border border-border px-5 py-4 flex items-center justify-between gap-4">
+          <div>
+            <p className="text-sm font-black text-foreground">Questions per quiz</p>
+            <p className="text-xs text-muted-foreground mt-0.5">Max {maxQuestions} · applied to every quiz you start</p>
+          </div>
+          <div className="flex items-center gap-2 shrink-0">
+            <button onClick={() => setNumQuestions(n => Math.max(1, n - 1))}
+              className="w-9 h-9 rounded-xl border-2 border-border flex items-center justify-center text-muted-foreground hover:bg-secondary hover:border-primary/30 transition-all font-black text-lg">
+              <Minus className="w-4 h-4" />
+            </button>
+            <span className="w-10 text-center text-2xl font-black text-foreground">{numQuestions}</span>
+            <button onClick={() => setNumQuestions(n => Math.min(maxQuestions, n + 1))}
+              className="w-9 h-9 rounded-xl border-2 border-border flex items-center justify-center text-muted-foreground hover:bg-secondary hover:border-primary/30 transition-all font-black text-lg">
+              <Plus className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Pending quizzes */}
       {pending.length > 0 && (
         <div>
           <div className="flex items-center justify-between mb-3">
             <p className="text-xs font-black text-muted-foreground uppercase tracking-widest">Up Next · {pending.length}</p>
-            <div className="flex items-center gap-2">
-              <span className="text-xs text-muted-foreground font-semibold">Questions</span>
-              <div className="flex items-center gap-1">
-                <button onClick={() => setNumQuestions(n => Math.max(1, n - 1))}
-                  className="w-7 h-7 rounded-full border border-border flex items-center justify-center text-muted-foreground hover:bg-secondary transition-colors">
-                  <Minus className="w-3 h-3" />
-                </button>
-                <span className="w-8 text-center text-sm font-black">{numQuestions}</span>
-                <button onClick={() => setNumQuestions(n => Math.min(maxQuestions, n + 1))}
-                  className="w-7 h-7 rounded-full border border-border flex items-center justify-center text-muted-foreground hover:bg-secondary transition-colors">
-                  <Plus className="w-3 h-3" />
-                </button>
-              </div>
-            </div>
           </div>
           <div className="space-y-3">
             {pending.map((sub, i) => (
