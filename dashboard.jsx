@@ -175,6 +175,20 @@ export default function Dashboard() {
       {/* Content below hero */}
       <div className="max-w-2xl mx-auto space-y-5">
 
+        {/* Upload Notes CTA */}
+        <Link to="/quiz">
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
+            className="bg-gradient-to-r from-violet-600 to-purple-700 rounded-2xl p-5 flex items-center justify-between gap-4 hover:opacity-90 active:scale-[0.98] transition-all cursor-pointer shadow-lg shadow-violet-500/20">
+            <div>
+              <p className="text-white font-black text-xl leading-tight">Upload your notes</p>
+              <p className="text-purple-200 text-sm mt-1">Generate an AI quiz from any file or text</p>
+            </div>
+            <div className="w-14 h-14 rounded-2xl bg-white/20 flex items-center justify-center shrink-0">
+              <Upload className="w-7 h-7 text-white" />
+            </div>
+          </motion.div>
+        </Link>
+
         {/* Getting Started checklist */}
         {showChecklist && (
           <GettingStarted
