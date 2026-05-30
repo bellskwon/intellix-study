@@ -42,9 +42,12 @@ export default function Quiz() {
       await base44.moderation.reportQuestion({
         questionText: q.question_text,
         correctAnswer: q.correct_answer,
+        studentAnswer: q.studentAnswer || '',
+        markedAs: q.isCorrect ? 'correct' : 'incorrect',
         submissionTitle: activeSubmission?.title || '',
       });
       setReportedQuestions(prev => new Set([...prev, i]));
+      toast.success("Report sent — we'll review this question!", { duration: 3000 });
     } catch {
       toast.error('Could not send report. Please try again.');
     }
@@ -182,12 +185,22 @@ ${submission.notes_text || '(see attached file)'}`,
         // Use AI to grade open answers leniently
         try {
           const check = await base44.integrations.Core.InvokeLLM({
-            prompt: `Grade this student answer. Be lenient: allow minor spelling errors, abbreviations, and synonyms. If the student clearly demonstrates understanding of the core concept, mark it correct.
+            prompt: `You are a lenient, student-friendly quiz grader. Your job is to decide if the student's answer is acceptable.
+
+GRADING RULES — read carefully:
+1. ACCEPT any rephrasing, paraphrase, or different wording that conveys the same meaning as the expected answer.
+2. ACCEPT synonyms, equivalent terms, and abbreviations.
+3. ACCEPT answers with minor spelling mistakes.
+4. ACCEPT partial answers that clearly capture the main concept, even if they omit secondary details.
+5. DO NOT require the student to use the exact words from the expected answer.
+6. When in doubt, lean toward CORRECT — it is better to pass a student who understood than to penalise one who just worded it differently.
+7. Only mark INCORRECT if the student's answer is factually wrong, directly contradicts the concept, or shows a clear fundamental misunderstanding.
+
 Question: "${q.question_text}"
 Expected answer: "${q.correct_answer}"
 Student answer: "${ans}"
 
-Reply with ONLY one word: "correct" or "incorrect". Do not add any explanation.`,
+Reply with ONLY one word: "correct" or "incorrect". No explanation.`,
           });
           const normalized = (typeof check === 'string' ? check : JSON.stringify(check)).toLowerCase().trim();
           const isCorrect = normalized.startsWith('correct');
@@ -436,17 +449,25 @@ Reply with ONLY one word: "correct" or "incorrect". Do not add any explanation.`
                         )}
                       </div>
                     )}
-                  </div>
 
-                  {/* Report button */}
-                  <button
-                    onClick={() => reportQuestion(q, i)}
-                    disabled={reported}
-                    title={reported ? 'Reported' : 'Report this question as inaccurate'}
-                    className={`shrink-0 p-1.5 rounded-lg transition-colors ${reported ? 'text-rose-400 bg-rose-50 cursor-default' : 'text-muted-foreground hover:text-rose-500 hover:bg-rose-50'}`}
-                  >
-                    <Flag className="w-3.5 h-3.5" />
-                  </button>
+                    {/* Report error — only on incorrect answers */}
+                    {!q.isCorrect && (
+                      <div className="mt-3 pt-2 border-t border-border">
+                        <button
+                          onClick={() => reportQuestion(q, i)}
+                          disabled={reported}
+                          className={`flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-lg border transition-all ${
+                            reported
+                              ? 'bg-rose-50 border-rose-200 text-rose-400 cursor-default'
+                              : 'bg-white border-rose-200 text-rose-500 hover:bg-rose-50 hover:border-rose-300 active:scale-95'
+                          }`}
+                        >
+                          <Flag className="w-3 h-3" />
+                          {reported ? 'Reported ✓' : 'Report incorrect grading'}
+                        </button>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </motion.div>
             );

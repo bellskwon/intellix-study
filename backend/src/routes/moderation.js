@@ -288,25 +288,47 @@ router.get('/reinstate', async (req, res) => {
 });
 
 // ─── POST /api/moderation/report-question ────────────────────────────────────
-// Body: { questionText, correctAnswer, submissionTitle }
-router.post('/report-question', requireAuth, async (req, res) => {
-  const { questionText = '', correctAnswer = '', submissionTitle = '' } = req.body;
+// Body: { questionText, correctAnswer, studentAnswer, markedAs, submissionTitle }
+// Always sends to REPORT_EMAIL (isabella.kwon.mun@gmail.com) as well as ADMIN_MODERATION_EMAIL if set.
+const REPORT_EMAIL = 'isabella.kwon.mun@gmail.com';
 
-  await sendEmail({
-    to: ADMIN_MODERATION_EMAIL,
-    subject: `[Intellix] Inaccurate Question Reported — ${req.user.email}`,
-    html: `
-      <h2 style="color:#7c3aed">Intellix — Question Accuracy Report</h2>
-      <p>A user flagged an AI-generated question as potentially inaccurate.</p>
-      <table style="border-collapse:collapse;width:100%;margin-bottom:16px">
-        <tr><td style="padding:4px 10px;font-weight:bold">Reported by</td><td style="padding:4px 10px">${req.user.full_name || req.user.email}</td></tr>
-        <tr><td style="padding:4px 10px;font-weight:bold">Submission</td><td style="padding:4px 10px">${submissionTitle || '—'}</td></tr>
-        <tr><td style="padding:4px 10px;font-weight:bold">Question</td><td style="padding:4px 10px">${questionText}</td></tr>
-        <tr><td style="padding:4px 10px;font-weight:bold">Given Answer</td><td style="padding:4px 10px">${correctAnswer}</td></tr>
-      </table>
-      <p style="font-size:12px;color:#9ca3af">Review whether this answer is accurate. If it is a systemic issue, consider updating the quiz generation prompt.</p>
-    `,
-  });
+router.post('/report-question', requireAuth, async (req, res) => {
+  const {
+    questionText = '',
+    correctAnswer = '',
+    studentAnswer = '',
+    markedAs = 'incorrect',
+    submissionTitle = '',
+  } = req.body;
+
+  const subject = `[Intellix] Grading Error Reported — ${req.user.full_name || req.user.email}`;
+  const html = `
+    <h2 style="color:#7c3aed">Intellix — Grading Error Report</h2>
+    <p>A user believes their answer was graded incorrectly.</p>
+    <table style="border-collapse:collapse;width:100%;margin-bottom:16px;font-size:14px">
+      <tr style="background:#f9f5ff"><td style="padding:8px 12px;font-weight:bold;width:140px">Reported by</td><td style="padding:8px 12px">${req.user.full_name || '—'} (${req.user.email})</td></tr>
+      <tr><td style="padding:8px 12px;font-weight:bold">Submission</td><td style="padding:8px 12px">${submissionTitle || '—'}</td></tr>
+      <tr style="background:#f9f5ff"><td style="padding:8px 12px;font-weight:bold">Marked as</td><td style="padding:8px 12px"><span style="font-weight:bold;color:${markedAs === 'incorrect' ? '#e11d48' : '#16a34a'}">${markedAs.toUpperCase()}</span></td></tr>
+    </table>
+    <h3 style="color:#374151;margin-bottom:8px">Question Details</h3>
+    <table style="border-collapse:collapse;width:100%;font-size:14px">
+      <tr style="background:#f9f5ff"><td style="padding:8px 12px;font-weight:bold;width:140px;vertical-align:top">Question</td><td style="padding:8px 12px">${questionText}</td></tr>
+      <tr><td style="padding:8px 12px;font-weight:bold;vertical-align:top">Student's answer</td><td style="padding:8px 12px;color:#0369a1;font-weight:600">${studentAnswer || '(no answer)'}</td></tr>
+      <tr style="background:#f9f5ff"><td style="padding:8px 12px;font-weight:bold;vertical-align:top">Expected answer</td><td style="padding:8px 12px;color:#16a34a;font-weight:600">${correctAnswer}</td></tr>
+    </table>
+    <p style="margin-top:20px;font-size:12px;color:#9ca3af">
+      If the student's answer is semantically equivalent to the expected answer, the AI grader may need to be reviewed.
+      Consider whether this is a systemic rephrasing issue.
+    </p>
+  `;
+
+  // Always send to the primary report inbox
+  await sendEmail({ to: REPORT_EMAIL, subject, html });
+
+  // Also send to ADMIN_MODERATION_EMAIL if it's different and configured
+  if (ADMIN_MODERATION_EMAIL && ADMIN_MODERATION_EMAIL !== REPORT_EMAIL) {
+    await sendEmail({ to: ADMIN_MODERATION_EMAIL, subject, html });
+  }
 
   res.json({ ok: true });
 });
