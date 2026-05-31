@@ -1,5 +1,4 @@
 import React from 'react';
-import { motion } from 'framer-motion';
 
 /**
  * Reusable Level + XP bar component
@@ -35,13 +34,9 @@ export default function LevelXPBar({ submissions = [], xpBonus = 0, className = 
     <div className={`space-y-1.5 ${className}`}>
       <div className="flex items-center justify-between text-xs">
         <div className="flex items-center gap-1.5">
-          <motion.span
-            whileHover={{ scale: 1.06 }}
-            className={`inline-flex items-center gap-1.5 text-sm font-outfit font-semibold px-3 py-1 rounded-full bg-gradient-to-r ${league.color} text-white select-none`}
-            style={{ boxShadow: `0 0 14px ${league.glow}, 0 2px 6px rgba(0,0,0,0.25)` }}
-          >
-            <span>Lv.{level}</span>
-          </motion.span>
+          <span className="inline-flex items-center gap-1.5 text-sm font-outfit font-semibold px-3 py-1 rounded-full bg-violet-600 text-white select-none">
+            Lv.{level}
+          </span>
           <span className={`font-outfit font-semibold text-xs ${dark ? 'text-white/60' : 'text-muted-foreground'}`}>{league.name} League</span>
         </div>
         <span className={`font-outfit font-semibold text-xs ${dark ? 'text-white/70' : 'text-muted-foreground'}`}>
@@ -49,12 +44,7 @@ export default function LevelXPBar({ submissions = [], xpBonus = 0, className = 
         </span>
       </div>
       <div className={`h-2.5 rounded-full overflow-hidden ${dark ? 'bg-white/20' : 'bg-muted'}`}>
-        <motion.div
-          className="h-full rounded-full bg-gradient-to-r from-violet-500 to-purple-400"
-          initial={{ width: 0 }}
-          animate={{ width: `${xpPct}%` }}
-          transition={{ duration: 1.1, ease: 'easeOut', delay: 0.2 }}
-        />
+        <div className="h-full rounded-full bg-violet-600" style={{ width: `${xpPct}%` }} />
       </div>
       {nextUnlock && (
         <p className={`text-[11px] ${dark ? 'text-white/50' : 'text-muted-foreground'}`}>

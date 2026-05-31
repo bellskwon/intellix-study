@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { Trophy, Flame, BookOpen, Target, LogOut, Star, Zap, BarChart3, Pencil, Upload, Smile, Check, X, Edit2, Copy, Users, TrendingUp, Globe, Map, Gem, Crown, Award } from 'lucide-react';
+import { Trophy, Flame, BookOpen, Target, LogOut, Star, Zap, BarChart3, Upload, Check, X, Edit2, Copy, Users, TrendingUp, Globe, Map, Gem, Crown, Award } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -114,15 +114,6 @@ export default function Profile() {
   const referralCode = user?.referral_code || '';
   const referralLink = referralCode ? `${window.location.origin}?ref=${referralCode}` : '';
 
-  // Avatar display logic
-  const getAvatarDisplay = () => {
-    if (savedImageUrl) return { type: 'image', value: savedImageUrl };
-    if (savedAvatar) return { type: 'emoji', value: savedAvatar };
-    if (savedColor) return { type: 'color', value: savedColor };
-    return { type: 'initial', value: displayName[0] || '?' };
-  };
-  const avatar = getAvatarDisplay();
-
   const saveAvatar = async (updates) => {
     await base44.auth.updateMe(updates);
     await refetchUser();
@@ -151,30 +142,6 @@ export default function Profile() {
     toast.success('Name updated!');
   };
 
-  const AvatarCircle = ({ size = 'lg' }) => {
-    const sz = size === 'lg' ? 'w-20 h-20 text-3xl' : 'w-10 h-10 text-base';
-    if (avatar.type === 'image') return (
-      <div className={`${sz} rounded-3xl overflow-hidden border-2 border-white/30 shadow-xl`}>
-        <img src={avatar.value} alt="avatar" className="w-full h-full object-cover" />
-      </div>
-    );
-    if (avatar.type === 'emoji') return (
-      <div className={`${sz} rounded-3xl flex items-center justify-center bg-white/20 border-2 border-white/30 shadow-xl`}>
-        {avatar.value}
-      </div>
-    );
-    if (avatar.type === 'color') return (
-      <div className={`${sz} rounded-3xl flex items-center justify-center border-2 border-white/30 shadow-xl font-black text-white`}
-        style={{ background: avatar.value }}>
-        {displayName[0] || '?'}
-      </div>
-    );
-    return (
-      <div className={`${sz} rounded-3xl flex items-center justify-center bg-white/20 border-2 border-white/30 shadow-xl font-black text-white`}>
-        {displayName[0] || '?'}
-      </div>
-    );
-  };
 
   return (
     <div className="pb-8">
@@ -189,16 +156,7 @@ export default function Profile() {
             <h1 className="font-black text-fuchsia-400" style={{ fontSize: 'clamp(3rem, 12vw, 5rem)', lineHeight: 0.92 }}>Profile</h1>
 
             {/* User card */}
-            <div className="mt-5 flex items-start gap-4">
-              {/* Avatar */}
-              <div className="relative shrink-0">
-                <AvatarCircle size="lg" />
-                <button onClick={() => setShowAvatarPicker(!showAvatarPicker)}
-                  className="absolute -bottom-1 -right-1 w-7 h-7 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center hover:bg-white/30 transition-all border border-white/20">
-                  <Pencil className="w-3 h-3 text-white" />
-                </button>
-              </div>
-
+            <div className="mt-5">
               {/* Info */}
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-0.5 flex-wrap">
@@ -228,8 +186,8 @@ export default function Profile() {
                         className="w-6 h-6 rounded-lg bg-white/20 flex items-center justify-center hover:bg-white/30 shrink-0">
                         <Edit2 className="w-3 h-3 text-white" />
                       </button>
-                      <span className={`text-xs px-2 py-0.5 rounded-full bg-gradient-to-r ${league.color} text-white font-bold shrink-0`}>
-                        {league.emoji} {league.name}
+                      <span className="text-xs px-2 py-0.5 rounded-full bg-white/20 text-white font-bold shrink-0">
+                        {league.name}
                       </span>
                     </>
                   )}
