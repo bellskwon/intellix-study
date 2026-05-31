@@ -163,4 +163,102 @@ router.post('/weekly-digest', async (req, res) => {
   res.json({ sent, skipped: users.length - sent, errors: errors.length ? errors : undefined });
 });
 
+// ─── POST /api/notifications/admin-weekly-stats ───────────────────────────────
+// Sends a platform-wide stats summary to the admin email.
+// Protected by X-Admin-Secret header (or ?secret= query param).
+// Trigger via Vercel cron (see vercel.json) or call manually.
+router.post('/admin-weekly-stats', async (req, res) => {
+  const secret = req.headers['x-admin-secret'] || req.query.secret;
+  if (!secret || secret !== process.env.ADMIN_SECRET) {
+    return res.status(403).json({ message: 'Forbidden' });
+  }
+  if (!emailConfigured()) {
+    return res.status(503).json({ message: 'SMTP not configured — set SMTP_USER and SMTP_PASS in .env' });
+  }
+
+  const ADMIN_REPORT_EMAIL = process.env.ADMIN_REPORT_EMAIL || 'isabella.kwon.mun@gmail.com';
+
+  const now = new Date();
+  const weekAgo = new Date(now); weekAgo.setDate(now.getDate() - 7);
+
+  // ── Gather stats in parallel ────────────────────────────────────────────────
+  const [
+    totalUsers,
+    newUsersThisWeek,
+    premiumUsers,
+    totalSubmissionsThisWeek,
+    approvedThisWeek,
+    pendingSubmissions,
+    rejectedThisWeek,
+    pointsThisWeek,
+    newRedemptionsThisWeek,
+    allTimeSubmissions,
+    activeClassrooms,
+  ] = await Promise.all([
+    prisma.user.count(),
+    prisma.user.count({ where: { created_date: { gte: weekAgo } } }),
+    prisma.user.count({ where: { premium_plan: { not: 'free' } } }),
+    prisma.submission.count({ where: { created_date: { gte: weekAgo } } }),
+    prisma.submission.count({ where: { status: 'approved', created_date: { gte: weekAgo } } }),
+    prisma.submission.count({ where: { status: 'pending_review' } }),
+    prisma.submission.count({ where: { status: 'rejected', created_date: { gte: weekAgo } } }),
+    prisma.submission.aggregate({
+      where: { status: 'approved', created_date: { gte: weekAgo } },
+      _sum: { points_awarded: true },
+    }),
+    prisma.redemption.count({ where: { created_date: { gte: weekAgo } } }),
+    prisma.submission.count(),
+    prisma.classroom.count(),
+  ]);
+
+  const pointsAwarded = pointsThisWeek._sum.points_awarded || 0;
+
+  const weekLabel = weekAgo.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) +
+    ' – ' + now.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+
+  const statBlock = (label, value, color) => `
+    <div style="background:white;border-radius:12px;padding:16px 20px;border:1px solid #e5e7eb;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;">
+      <span style="font-size:14px;color:#6b7280;">${label}</span>
+      <span style="font-size:20px;font-weight:900;color:${color};">${typeof value === 'number' ? value.toLocaleString() : value}</span>
+    </div>`;
+
+  await transporter.sendMail({
+    from: `"Intellix Admin" <${process.env.SMTP_USER}>`,
+    to: ADMIN_REPORT_EMAIL,
+    subject: `📊 Weekly Stats Report — ${weekLabel}`,
+    html: `
+      <div style="font-family:-apple-system,sans-serif;max-width:540px;margin:0 auto;padding:24px;background:#fafafa;border-radius:16px;">
+        <div style="background:linear-gradient(135deg,#7c3aed,#ec4899);border-radius:12px;padding:24px;text-align:center;color:white;margin-bottom:24px;">
+          <p style="margin:0 0 4px;font-size:11px;opacity:.8;text-transform:uppercase;letter-spacing:2px;">Admin Report</p>
+          <h1 style="margin:0;font-size:22px;font-weight:900;">Weekly Stats</h1>
+          <p style="margin:6px 0 0;font-size:13px;opacity:.85;">${weekLabel}</p>
+        </div>
+
+        <p style="font-size:12px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:1px;margin:0 0 8px;">Members</p>
+        ${statBlock('Total Members', totalUsers, '#7c3aed')}
+        ${statBlock('New This Week', newUsersThisWeek, '#10b981')}
+        ${statBlock('Premium Subscribers', premiumUsers, '#f59e0b')}
+
+        <p style="font-size:12px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:1px;margin:16px 0 8px;">Study Activity (this week)</p>
+        ${statBlock('Submissions', totalSubmissionsThisWeek, '#7c3aed')}
+        ${statBlock('Approved', approvedThisWeek, '#10b981')}
+        ${statBlock('Rejected', rejectedThisWeek, '#ef4444')}
+        ${statBlock('Points Awarded', pointsAwarded, '#f59e0b')}
+
+        <p style="font-size:12px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:1px;margin:16px 0 8px;">Platform</p>
+        ${statBlock('Pending Reviews', pendingSubmissions, '#f59e0b')}
+        ${statBlock('Gift Card Orders (this week)', newRedemptionsThisWeek, '#ec4899')}
+        ${statBlock('Total Submissions (all time)', allTimeSubmissions, '#6b7280')}
+        ${statBlock('Active Classrooms', activeClassrooms, '#3b82f6')}
+
+        <p style="text-align:center;font-size:11px;color:#9ca3af;margin:20px 0 0;">
+          Intellix Admin Report — sent automatically every Monday
+        </p>
+      </div>
+    `,
+  });
+
+  res.json({ success: true, reportSentTo: ADMIN_REPORT_EMAIL });
+});
+
 module.exports = router;

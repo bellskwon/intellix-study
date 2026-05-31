@@ -15,5 +15,11 @@
       "source": "/((?!backend|assets|favicon).*)",
       "destination": "/index.html"
     }
+  ],
+  "crons": [
+    {
+      "path": "/backend/api/notifications/admin-weekly-stats?secret=318de38b55d16e7428a1fd4e6df89852de54c3aaba86b62e86db526e7e373ba7",
+      "schedule": "0 8 * * 1"
+    }
   ]
 }
