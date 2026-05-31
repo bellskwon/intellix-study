@@ -37,11 +37,10 @@ export default function LevelXPBar({ submissions = [], xpBonus = 0, className = 
         <div className="flex items-center gap-1.5">
           <motion.span
             whileHover={{ scale: 1.06 }}
-            className={`inline-flex items-center gap-1.5 text-sm font-bebas tracking-wide px-3 py-1 rounded-full bg-gradient-to-r ${league.color} text-white select-none`}
+            className={`inline-flex items-center gap-1.5 text-sm font-outfit font-semibold px-3 py-1 rounded-full bg-gradient-to-r ${league.color} text-white select-none`}
             style={{ boxShadow: `0 0 14px ${league.glow}, 0 2px 6px rgba(0,0,0,0.25)` }}
           >
-            <span className="text-base leading-none">{league.emoji}</span>
-            <span className="tracking-tight">Lv.{level}</span>
+            <span>Lv.{level}</span>
           </motion.span>
           <span className={`font-outfit font-semibold text-xs ${dark ? 'text-white/60' : 'text-muted-foreground'}`}>{league.name} League</span>
         </div>

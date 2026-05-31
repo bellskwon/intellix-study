@@ -386,7 +386,7 @@ IMPORTANT: If the notes contain no real study content, return an empty flashcard
             </div>
           )}
 
-          <Button onClick={handleSubmit} disabled={loading} className="w-full h-12 rounded-2xl font-bold text-base gradient-violet border-0 text-white shadow-lg hover:opacity-90">
+          <Button onClick={handleSubmit} disabled={loading} className="w-full h-12 rounded-2xl font-bold text-base bg-violet-600 border-0 text-white shadow-lg hover:bg-violet-700">
             {loading ? <><Loader2 className="w-5 h-5 mr-2 animate-spin" /> Analyzing...</> :
               activeTab === 'analyze' ? <><Sparkles className="w-5 h-5 mr-2" /> Find Key Points</> :
               activeTab === 'questions' ? <><Brain className="w-5 h-5 mr-2" /> Generate Questions</> :
