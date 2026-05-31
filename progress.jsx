@@ -143,7 +143,8 @@ export default function Progress() {
                       formatter={(v) => [`${v}%`, 'Score']}
                     />
                     <Area type="monotone" dataKey="score" stroke="hsl(258,90%,60%)" fill="url(#scoreGrad)"
-                      strokeWidth={2.5} dot={{ fill: 'hsl(258,90%,60%)', strokeWidth: 0, r: 3.5 }} />
+                      strokeWidth={2.5} dot={{ fill: 'hsl(258,90%,60%)', strokeWidth: 0, r: 3.5 }}
+                      isAnimationActive={false} />
                   </AreaChart>
                 </ResponsiveContainer>
               </div>
@@ -171,10 +172,9 @@ export default function Progress() {
                         </span>
                       </div>
                       <div className="h-2 bg-muted rounded-full overflow-hidden">
-                        <motion.div
+                        <div
                           className={`h-full rounded-full ${done ? 'bg-emerald-400' : 'bg-gradient-to-r from-violet-500 to-purple-400'}`}
-                          initial={{ width: 0 }} animate={{ width: `${pct}%` }}
-                          transition={{ duration: 1, ease: 'easeOut', delay: 0.3 }} />
+                          style={{ width: `${pct}%` }} />
                       </div>
                     </div>
                   );
@@ -185,8 +185,7 @@ export default function Progress() {
             {/* Subject Breakdown */}
             <div className="grid md:grid-cols-2 gap-4">
               {radarData.length >= 3 && (
-                <motion.div initial={{ opacity: 0, x: -16 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.4 }}
-                  className="bg-white rounded-2xl border border-border p-5">
+                <div className="bg-white rounded-2xl border border-border p-5">
                   <h2 className="font-semibold text-sm text-muted-foreground mb-4">Subject Radar</h2>
                   <ResponsiveContainer width="100%" height={220}>
                     <RadarChart data={radarData}>
@@ -195,7 +194,7 @@ export default function Progress() {
                       <Radar dataKey="score" stroke="hsl(258,90%,60%)" fill="hsl(258,90%,60%)" fillOpacity={0.2} strokeWidth={2} />
                     </RadarChart>
                   </ResponsiveContainer>
-                </motion.div>
+                </div>
               )}
               <div className="bg-white rounded-2xl border border-border p-5 space-y-3">
                 <h2 className="font-semibold text-sm text-muted-foreground mb-1">By Subject</h2>
@@ -214,8 +213,7 @@ export default function Progress() {
                           </span>
                         </div>
                         <div className="h-1.5 bg-muted rounded-full overflow-hidden">
-                          <motion.div className="h-full bg-gradient-to-r from-violet-400 to-purple-500 rounded-full"
-                            initial={{ width: 0 }} animate={{ width: `${pct}%` }} transition={{ duration: 0.8, ease: 'easeOut' }} />
+                          <div className="h-full bg-gradient-to-r from-violet-400 to-purple-500 rounded-full" style={{ width: `${pct}%` }} />
                         </div>
                       </div>
                     </div>
