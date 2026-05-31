@@ -1,51 +1,33 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, Brain, Layers, Star, ChevronDown, ChevronUp, Loader2, RotateCcw, Upload, Calendar, AlertTriangle } from 'lucide-react';
+import { Sparkles, Layers, Loader2, RotateCcw, Upload, Calendar, AlertTriangle } from 'lucide-react';
 import { toast } from 'sonner';
 import MiniCalendar from '@/components/dashboard/MiniCalendar';
 import SaveToFolderModal from '@/pages/SaveToFolder';
 
 const TABS = [
-  { id: 'analyze', label: 'Key Points', icon: Star },
-  { id: 'questions', label: 'Practice Questions', icon: Brain },
   { id: 'flashcards', label: 'Flashcards', icon: Layers },
   { id: 'calendar', label: 'Calendar', icon: Calendar },
 ];
 
-const subjects = ['math','science','history','geography','english','foreign_language','computer_science','other'];
 const grades = ['6th','7th','8th','9th','10th','11th','12th','college'];
-const FREE_QUESTIONS_LIMIT = 5;
-const PREMIUM_QUESTIONS_LIMIT = 50;
 
 export default function Questions() {
-  const [activeTab, setActiveTab] = useState('analyze');
+  const [activeTab, setActiveTab] = useState('flashcards');
   const [notes, setNotes] = useState('');
   const [subject, setSubject] = useState('');
   const [grade, setGrade] = useState('');
   const [file, setFile] = useState(null);
-  const [numQuestions, setNumQuestions] = useState(5);
-  const [difficulty, setDifficulty] = useState('mixed');
   const [loading, setLoading] = useState(false);
   const [generating, setGenerating] = useState(null); // label string while generating
   const [generatingError, setGeneratingError] = useState(null);
   const [result, setResult] = useState(null);
-  const [expandedHints, setExpandedHints] = useState({});
   const [showSaveModal, setShowSaveModal] = useState(false);
-  const navigate = useNavigate();
-
   const { data: user } = useQuery({ queryKey: ['currentUser'], queryFn: () => base44.auth.me() });
-  const isPremium = user?.premium_plan && user.premium_plan !== 'free' &&
-    (!user?.trial_end_date || new Date(user.trial_end_date) > new Date());
-
-  const maxQuestions = isPremium ? PREMIUM_QUESTIONS_LIMIT : FREE_QUESTIONS_LIMIT;
-
   const uploadAndGetContext = async () => {
     let context = notes;
     if (file) {
@@ -53,106 +35,6 @@ export default function Questions() {
       return { file_url: res.file_url, context };
     }
     return { file_url: null, context };
-  };
-
-  const handleAnalyze = async () => {
-    if (!notes.trim() && !file) { toast.error('Paste your notes or upload a file first!'); return; }
-    setLoading(true); setResult(null); setGeneratingError(null); setGenerating('Key Points');
-    try {
-      const { file_url, context } = await uploadAndGetContext();
-      const res = await base44.integrations.Core.InvokeLLM({
-        prompt: `You are an expert study coach. Analyze these student notes and:
-1. Identify the 5-8 most important key points most likely to appear on a test.
-2. For each key point, explain WHY it's important.
-3. Generate a brief summary of the main topic.
-Notes: ${context || '(see attached file)'}
-Subject: ${subject || 'general'}, Grade: ${grade || 'high school'}
-IMPORTANT: If the notes are blank, nonsensical, unrelated to any academic subject, or contain no real study content (e.g. a blank image), return key_points as an empty array and topic_summary as an empty string.`,
-        file_urls: file_url ? [file_url] : undefined,
-        response_json_schema: {
-          type: 'object',
-          properties: {
-            topic_summary: { type: 'string' },
-            key_points: {
-              type: 'array',
-              items: {
-                type: 'object',
-                properties: {
-                  point: { type: 'string' },
-                  importance: { type: 'string' },
-                  likely_on_test: { type: 'boolean' },
-                }
-              }
-            }
-          }
-        }
-      });
-      if (!res.key_points?.length || !res.topic_summary?.trim()) {
-        toast.error("We couldn't find any study content. Please submit real notes or a valid topic!");
-        setGenerating(null);
-        return;
-      }
-      setResult({ type: 'analyze', data: res });
-      setGenerating(null);
-    } catch (err) {
-      setGeneratingError(err?.message || 'Something went wrong. Please try again.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleGenerateQuestions = async () => {
-    if (!notes.trim() && !file) { toast.error('Paste your notes or upload a file first!'); return; }
-    const count = Math.min(numQuestions, maxQuestions);
-    setLoading(true); setResult(null); setGeneratingError(null); setGenerating('Practice Questions');
-    try {
-      const { file_url, context } = await uploadAndGetContext();
-      const res = await base44.integrations.Core.InvokeLLM({
-        prompt: `Generate exactly ${count} practice questions based on these study notes.
-Difficulty: ${difficulty === 'mixed' ? 'mix of easy, medium, and hard' : difficulty}.
-For each question include: question text, difficulty level, a hint, and the full answer explanation.
-ALL questions must be unique — do NOT repeat the same concept, fact, or phrasing across multiple questions.
-Subject: ${subject || 'general'}, Grade: ${grade || 'high school'}
-Notes: ${context || '(see attached file)'}
-IMPORTANT: If the notes contain no real study content, return an empty questions array.`,
-        file_urls: file_url ? [file_url] : undefined,
-        response_json_schema: {
-          type: 'object',
-          properties: {
-            questions: {
-              type: 'array',
-              items: {
-                type: 'object',
-                properties: {
-                  question: { type: 'string' },
-                  difficulty: { type: 'string', enum: ['easy', 'medium', 'hard'] },
-                  hint: { type: 'string' },
-                  answer: { type: 'string' },
-                }
-              }
-            }
-          }
-        }
-      });
-      if (!res.questions?.length) {
-        toast.error("No questions could be generated. Please submit real notes or a valid study topic!");
-        setGenerating(null);
-        return;
-      }
-      const seen = new Set();
-      const unique = res.questions.filter(q => {
-        const key = q.question.trim().toLowerCase();
-        if (seen.has(key)) return false;
-        seen.add(key);
-        return true;
-      });
-      setResult({ type: 'questions', data: { ...res, questions: unique } });
-      setGenerating(null);
-    } catch (err) {
-      setGeneratingError(err?.message || 'Something went wrong. Please try again.');
-    } finally {
-      setLoading(false);
-    }
   };
 
   const handleGenerateFlashcards = async () => {
@@ -210,12 +92,8 @@ IMPORTANT: If the notes contain no real study content, return an empty flashcard
   };
 
   const handleSubmit = () => {
-    if (activeTab === 'analyze') handleAnalyze();
-    else if (activeTab === 'questions') handleGenerateQuestions();
-    else handleGenerateFlashcards();
+    handleGenerateFlashcards();
   };
-
-  const diffColors = { easy: 'bg-emerald-50 text-emerald-700 border-emerald-200', medium: 'bg-amber-50 text-amber-700 border-amber-200', hard: 'bg-rose-50 text-rose-700 border-rose-200' };
 
   if (generating) return (
     <GeneratingStep
@@ -248,20 +126,6 @@ IMPORTANT: If the notes contain no real study content, return an empty flashcard
       </div>
 
       <div className="max-w-3xl mx-auto space-y-5">
-
-      {/* Premium upsell banner */}
-      {!isPremium && activeTab === 'questions' && (
-        <div className="flex items-center gap-3 bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-2xl px-4 py-3">
-          <Crown className="w-5 h-5 text-amber-500 shrink-0" />
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-black text-amber-800">Free plan: up to {FREE_QUESTIONS_LIMIT} questions</p>
-            <p className="text-xs text-amber-600">Upgrade to Premium for up to {PREMIUM_QUESTIONS_LIMIT} questions + unlimited uploads</p>
-          </div>
-          <Button size="sm" className="bg-amber-500 hover:bg-amber-600 text-white rounded-xl font-bold shrink-0" onClick={() => navigate('/premium')}>
-            Upgrade
-          </Button>
-        </div>
-      )}
 
       {/* Tabs */}
       <div className="flex gap-1 p-1 bg-secondary rounded-xl">
@@ -351,45 +215,8 @@ IMPORTANT: If the notes contain no real study content, return an empty flashcard
             </Select>
           </div>
 
-          {/* Questions-only options */}
-          {activeTab === 'questions' && (
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="text-xs font-bold text-muted-foreground mb-1 block">
-                  # Questions <span className="text-primary">(max {maxQuestions})</span>
-                </label>
-                <Input
-                  type="number" min={1} max={maxQuestions}
-                  value={numQuestions}
-                  onChange={e => setNumQuestions(Math.min(Number(e.target.value), maxQuestions))}
-                  className="h-10 rounded-xl"
-                />
-                {numQuestions > 10 && (
-                  <p className="text-xs text-amber-600 mt-1 flex items-center gap-1">
-                    <AlertTriangle className="w-3 h-3 shrink-0" />
-                    {numQuestions} questions takes ~{Math.ceil(numQuestions * 3)}s to grade
-                  </p>
-                )}
-              </div>
-              <div>
-                <label className="text-xs font-bold text-muted-foreground mb-1 block">Difficulty</label>
-                <Select value={difficulty} onValueChange={setDifficulty}>
-                  <SelectTrigger className="h-10 rounded-xl text-sm"><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="easy">😊 Easy</SelectItem>
-                    <SelectItem value="medium">🤔 Medium</SelectItem>
-                    <SelectItem value="hard">🔥 Hard</SelectItem>
-                    <SelectItem value="mixed">🎲 Mixed</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-          )}
-
           <Button onClick={handleSubmit} disabled={loading} className="w-full h-12 rounded-2xl font-bold text-base bg-violet-600 border-0 text-white shadow-lg hover:bg-violet-700">
             {loading ? <><Loader2 className="w-5 h-5 mr-2 animate-spin" /> Analyzing...</> :
-              activeTab === 'analyze' ? <><Sparkles className="w-5 h-5 mr-2" /> Find Key Points</> :
-              activeTab === 'questions' ? <><Brain className="w-5 h-5 mr-2" /> Generate Questions</> :
               <><Layers className="w-5 h-5 mr-2" /> Create Flashcards</>}
           </Button>
         </div>
@@ -404,71 +231,6 @@ IMPORTANT: If the notes contain no real study content, return an empty flashcard
       <AnimatePresence>
         {result && (
           <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
-
-            {/* Analyze results */}
-            {result.type === 'analyze' && (
-              <div className="space-y-4">
-                {result.data.topic_summary && (
-                  <div className="bg-primary/5 border border-primary/20 rounded-2xl p-4">
-                    <p className="text-xs font-black text-primary uppercase tracking-wide mb-1">Topic Summary</p>
-                    <p className="text-sm text-foreground">{result.data.topic_summary}</p>
-                  </div>
-                )}
-                <div className="space-y-2">
-                  {result.data.key_points?.map((kp, i) => (
-                    <motion.div key={i} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.05 }}
-                      className="bg-white rounded-xl border border-border p-4 flex gap-3">
-                      <div className="shrink-0">
-                        {kp.likely_on_test ? (
-                          <span className="w-7 h-7 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center text-base font-black">⭐</span>
-                        ) : (
-                          <span className="w-7 h-7 rounded-full bg-secondary text-muted-foreground flex items-center justify-center text-sm font-bold">{i + 1}</span>
-                        )}
-                      </div>
-                      <div>
-                        <p className="text-sm font-bold text-foreground">{kp.point}</p>
-                        <p className="text-xs text-muted-foreground mt-1">{kp.importance}</p>
-                        {kp.likely_on_test && <span className="text-[10px] font-black text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full mt-1 inline-block">⚠️ Likely on test</span>}
-                      </div>
-                    </motion.div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Questions results */}
-            {result.type === 'questions' && (
-              <div className="space-y-3">
-                <p className="text-xs font-black text-muted-foreground uppercase tracking-wide">{result.data.questions?.length} Practice Questions</p>
-                {result.data.questions?.map((q, i) => (
-                  <motion.div key={i} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}
-                    className="bg-white rounded-xl border border-border p-4 space-y-3">
-                    <div className="flex items-start gap-3">
-                      <span className={`text-xs font-black px-2 py-0.5 rounded-full border shrink-0 capitalize ${diffColors[q.difficulty] || diffColors.medium}`}>
-                        {q.difficulty}
-                      </span>
-                      <p className="text-sm font-semibold text-foreground">{q.question}</p>
-                    </div>
-                    <button
-                      onClick={() => setExpandedHints(h => ({ ...h, [`${i}-hint`]: !h[`${i}-hint`] }))}
-                      className="text-xs font-bold text-primary hover:underline flex items-center gap-1">
-                      💡 Hint {expandedHints[`${i}-hint`] ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
-                    </button>
-                    {expandedHints[`${i}-hint`] && (
-                      <p className="text-xs text-muted-foreground bg-blue-50 rounded-lg p-2.5 border border-blue-100">{q.hint}</p>
-                    )}
-                    <button
-                      onClick={() => setExpandedHints(h => ({ ...h, [`${i}-ans`]: !h[`${i}-ans`] }))}
-                      className="text-xs font-bold text-emerald-600 hover:underline flex items-center gap-1">
-                      ✅ Show Answer {expandedHints[`${i}-ans`] ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
-                    </button>
-                    {expandedHints[`${i}-ans`] && (
-                      <p className="text-xs text-foreground bg-emerald-50 rounded-lg p-2.5 border border-emerald-100">{q.answer}</p>
-                    )}
-                  </motion.div>
-                ))}
-              </div>
-            )}
 
             {/* Flashcards results */}
             {result.type === 'flashcards' && (
@@ -634,7 +396,4 @@ function FlashCard({ front, back, index }) {
   );
 }
 
-function Crown({ className }) {
-  return <svg className={className} fill="currentColor" viewBox="0 0 24 24"><path d="M5 16L3 7l5.5 5L12 4l3.5 8L21 7l-2 9H5zm0 2h14v2H5v-2z"/></svg>;
-}
 

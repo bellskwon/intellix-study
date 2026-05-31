@@ -248,20 +248,20 @@ function SetupStep({ topic, setTopic, subject, setSubject, grade, setGrade, diff
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
 
         {/* Subject preview card */}
-        <div className={`rounded-2xl p-5 flex items-center justify-between bg-gradient-to-br ${selected ? selected.card : 'from-slate-100 to-slate-200'}`}>
+        <div className={`rounded-2xl p-5 flex items-center justify-between bg-gradient-to-br ${selected ? selected.card : 'from-[#1a1035] to-[#261e42]'}`}>
           <div>
-            <p className={`text-lg font-black ${selected ? 'text-white' : 'text-foreground'}`}>
+            <p className="text-lg font-black text-white">
               {selected ? `${selected.label} challenge` : 'Pick a subject'}
             </p>
-            <p className={`text-sm mt-0.5 ${selected ? 'text-white/70' : 'text-muted-foreground'}`}>5 questions · AI graded</p>
+            <p className="text-sm mt-0.5 text-white/50">5 questions · AI graded</p>
           </div>
-          <SubjectIcon className={`w-12 h-12 ${selected ? 'text-white/80' : 'text-muted-foreground'}`} strokeWidth={1.2} />
+          <SubjectIcon className={`w-12 h-12 ${selected ? 'text-white/80' : 'text-white/20'}`} strokeWidth={1.2} />
         </div>
 
         {alreadyPassedToday && (
-          <div className="flex items-start gap-3 bg-emerald-50 border border-emerald-200 rounded-2xl px-4 py-3">
-            <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" />
-            <p className="text-sm text-emerald-800"><span className="font-bold">Daily point earned!</span> Extra attempts are great practice but won't award more points until tomorrow.</p>
+          <div className="flex items-start gap-3 bg-emerald-900/30 border border-emerald-500/30 rounded-2xl px-4 py-3">
+            <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />
+            <p className="text-sm text-emerald-300"><span className="font-bold">Daily point earned!</span> Extra attempts are great practice but won't award more points until tomorrow.</p>
           </div>
         )}
 
@@ -441,12 +441,12 @@ function QuizStep({ questions, currentQ, setCurrentQ, answers, setAnswers, onSub
 
       <AnimatePresence mode="wait">
         <motion.div key={currentQ} initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }} transition={{ duration: 0.25 }}
-          className="bg-white rounded-2xl border border-border p-6 shadow-sm">
+          className="bg-[#1a1035] rounded-2xl border border-white/10 p-6 shadow-sm">
           <div className="flex items-center gap-2 mb-4">
             <span className={`text-xs font-bold px-2 py-1 rounded-full ${
-              q.question_type === 'multiple_choice' ? 'bg-blue-50 text-blue-600' :
-              q.question_type === 'fill_blank' ? 'bg-purple-50 text-purple-600' :
-              'bg-emerald-50 text-emerald-600'
+              q.question_type === 'multiple_choice' ? 'bg-blue-500/20 text-blue-400' :
+              q.question_type === 'fill_blank' ? 'bg-purple-500/20 text-purple-400' :
+              'bg-emerald-500/20 text-emerald-400'
             }`}>
               {q.question_type === 'multiple_choice' ? 'Multiple Choice' : q.question_type === 'fill_blank' ? 'Fill in Blank' : 'Short Answer'}
             </span>
@@ -582,7 +582,7 @@ Keep it concise (3-5 short paragraphs), use simple language appropriate for the 
         </motion.button>
       ) : (
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
-          className="bg-white rounded-2xl border border-primary/20 p-5 shadow-sm">
+          className="bg-[#1a1035] rounded-2xl border border-primary/20 p-5 shadow-sm">
           <p className="text-xs font-black text-primary mb-3 uppercase tracking-wide">Topic Explanation</p>
           {loadingAI ? (
             <div className="flex items-center gap-3 text-muted-foreground">
@@ -598,9 +598,9 @@ Keep it concise (3-5 short paragraphs), use simple language appropriate for the 
       <div className="space-y-3">
         {graded.map((q, i) => (
           <motion.div key={i} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}
-            className="bg-white rounded-xl border border-border p-4">
+            className="bg-[#1a1035] rounded-xl border border-white/10 p-4">
             <div className="flex items-start gap-3">
-              <div className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 mt-0.5 ${q.isCorrect ? 'bg-emerald-100' : 'bg-rose-100'}`}>
+              <div className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 mt-0.5 ${q.isCorrect ? 'bg-emerald-500/20' : 'bg-rose-500/20'}`}>
                 {q.isCorrect ? <CheckCircle2 className="w-4 h-4 text-emerald-600" /> : <XCircle className="w-4 h-4 text-rose-600" />}
               </div>
               <div className="flex-1 min-w-0">
