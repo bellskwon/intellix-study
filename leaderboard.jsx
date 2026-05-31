@@ -156,7 +156,7 @@ export default function Leaderboard() {
         {TABS.map(t => (
           <button key={t.key} onClick={() => setTab(t.key)}
             className={`flex-1 flex items-center justify-center gap-1.5 text-xs font-bold py-2.5 rounded-xl transition-all ${
-              tab === t.key ? 'bg-white shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground'
+              tab === t.key ? 'bg-[#261e42] shadow-sm text-white' : 'text-muted-foreground hover:text-foreground'
             }`}>
             <t.icon className="w-3.5 h-3.5" />
             {t.label}
@@ -213,7 +213,7 @@ export default function Leaderboard() {
                   <motion.div key={user?.id} initial={{ opacity: 0, x: i === 0 ? -20 : 20 }} animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: 0.4 + i * 0.1 }}
                     onClick={() => user?.email && setSelectedEmail(user.email)}
-                    className={`flex-1 bg-white rounded-2xl border-2 p-3 flex items-center gap-3 cursor-pointer hover:border-primary/30 transition-colors ${isMe ? 'border-primary/40 bg-primary/5' : 'border-border'}`}>
+                    className={`flex-1 bg-[#1a1035] rounded-2xl border-2 p-3 flex items-center gap-3 cursor-pointer hover:border-primary/30 transition-colors ${isMe ? 'border-primary/40 bg-primary/5' : 'border-border'}`}>
                     <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${style.bg} flex items-center justify-center text-white font-black text-sm shrink-0 overflow-hidden`}>
                       {user?.avatarImg ? (
                         <img src={user.avatarImg} alt={user.displayName} className="w-full h-full object-cover" />
@@ -272,7 +272,7 @@ export default function Leaderboard() {
       )}
 
       {/* Full list */}
-      <div className="bg-white rounded-2xl border border-border overflow-hidden">
+      <div className="bg-[#1a1035] rounded-2xl border border-white/10 overflow-hidden">
         <div className="px-5 py-3 border-b border-border flex items-center justify-between">
           <p className="text-xs font-semibold text-muted-foreground">{sorted.length} Students</p>
           <p className="text-xs text-muted-foreground">Sorted by {TABS.find(t => t.key === tab)?.label}</p>

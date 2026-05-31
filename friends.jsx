@@ -67,7 +67,7 @@ function ChallengeButton({ friendEmail }) {
         <Swords className="w-4 h-4" />
       </button>
       {open && (
-        <div className="absolute right-0 top-8 z-20 bg-white rounded-xl border border-border shadow-xl p-3 w-44">
+        <div className="absolute right-0 top-8 z-20 bg-[#1a1035] rounded-xl border border-white/10 shadow-xl p-3 w-44">
           <p className="text-[10px] font-black text-muted-foreground uppercase tracking-wider mb-2">Challenge subject</p>
           <div className="space-y-1">
             {CHALLENGE_SUBJECTS.map(s => (
@@ -279,7 +279,7 @@ export default function Friends() {
           <div className="flex gap-1.5 p-1.5 bg-secondary rounded-2xl">
             {LB_TABS.map(t => (
               <button key={t.key} onClick={() => setLbTab(t.key)}
-                className={`flex-1 flex items-center justify-center gap-1.5 text-xs font-bold py-2.5 rounded-xl transition-all ${lbTab === t.key ? 'bg-white shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground'}`}>
+                className={`flex-1 flex items-center justify-center gap-1.5 text-xs font-bold py-2.5 rounded-xl transition-all ${lbTab === t.key ? 'bg-[#261e42] shadow-sm text-white' : 'text-muted-foreground hover:text-foreground'}`}>
                 <t.icon className="w-3.5 h-3.5" />{t.label}
               </button>
             ))}
@@ -287,7 +287,7 @@ export default function Friends() {
 
           {/* Podium */}
           {lbTop5.length > 0 && (
-            <div className="bg-white rounded-3xl border border-border p-6">
+            <div className="bg-[#1a1035] rounded-3xl border border-white/10 p-6">
               <p className="text-center text-[11px] font-black text-muted-foreground uppercase tracking-widest mb-8">
                 All Time Rankings
               </p>
@@ -356,7 +356,7 @@ export default function Friends() {
           )}
 
           {/* Full list */}
-          <div className="bg-white rounded-2xl border border-border overflow-hidden">
+          <div className="bg-[#1a1035] rounded-2xl border border-white/10 overflow-hidden">
             <div className="px-5 py-3 border-b border-border flex items-center justify-between">
               <p className="text-xs font-semibold text-muted-foreground">{lbSorted.length} Students</p>
               <p className="text-xs text-muted-foreground">Sorted by {LB_TABS.find(t => t.key === lbTab)?.label}</p>
@@ -409,7 +409,7 @@ export default function Friends() {
       {activeTab === 'friends' && (<>
 
       {/* Add Friend */}
-      <div className="bg-white rounded-2xl border border-border p-5">
+      <div className="bg-[#1a1035] rounded-2xl border border-white/10 p-5">
         <h2 className="font-semibold text-sm text-muted-foreground mb-3">Add a Friend</h2>
         <div className="flex gap-2">
           <Input
@@ -432,11 +432,11 @@ export default function Friends() {
 
       {/* Pending Requests */}
       {receivedRequests.length > 0 && (
-        <div className="bg-white rounded-2xl border border-amber-200 bg-amber-50/50 p-5">
+        <div className="bg-[#1a1035] rounded-2xl border border-amber-200 bg-amber-50/50 p-5">
           <h2 className="font-semibold text-sm text-muted-foreground mb-3">Friend Requests ({receivedRequests.length})</h2>
           <div className="space-y-2">
             {receivedRequests.map(req => (
-              <div key={req.id} className="bg-white rounded-xl border border-border px-4 py-3 flex items-center gap-3 cursor-pointer hover:bg-secondary/20 transition-colors"
+              <div key={req.id} className="bg-[#1a1035] rounded-xl border border-white/10 px-4 py-3 flex items-center gap-3 cursor-pointer hover:bg-secondary/20 transition-colors"
                 onClick={() => setSelectedEmail(req.requester_email)}>
                 <FriendAvatar email={req.requester_email} userMap={userMap} size="sm" />
                 <p className="flex-1 text-sm font-semibold text-foreground truncate">{getName(req.requester_email)}</p>
@@ -457,7 +457,7 @@ export default function Friends() {
       )}
 
       {/* Friends List */}
-      <div className="bg-white rounded-2xl border border-border p-5">
+      <div className="bg-[#1a1035] rounded-2xl border border-white/10 p-5">
         <h2 className="font-semibold text-sm text-muted-foreground mb-3">My Friends ({myFriends.length})</h2>
         {myFriends.length === 0 ? (
           <div className="text-center py-10">
@@ -507,7 +507,7 @@ export default function Friends() {
 
       {/* Pending Sent */}
       {sentRequests.filter(r => r.status === 'pending').length > 0 && (
-        <div className="bg-white rounded-2xl border border-border p-5">
+        <div className="bg-[#1a1035] rounded-2xl border border-white/10 p-5">
           <h2 className="font-black text-sm text-muted-foreground mb-3">Pending Sent Requests</h2>
           <div className="space-y-2">
             {sentRequests.filter(r => r.status === 'pending').map(req => (
@@ -530,7 +530,7 @@ export default function Friends() {
           .slice(0, 8);
         if (activity.length === 0) return null;
         return (
-          <div className="bg-white rounded-2xl border border-border p-5">
+          <div className="bg-[#1a1035] rounded-2xl border border-white/10 p-5">
             <h2 className="font-semibold text-sm text-muted-foreground mb-3">Friends Activity</h2>
             <div className="space-y-2">
               {activity.map((s, i) => (

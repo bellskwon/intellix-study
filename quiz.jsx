@@ -282,7 +282,7 @@ Reply with ONLY one word: "correct" or "incorrect". No explanation.`,
         <AnimatePresence mode="wait">
           <motion.div key={currentQ} initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -30 }} transition={{ duration: 0.25 }}
-            className="bg-white rounded-2xl border border-border p-6 shadow-sm">
+            className="bg-[#1a1035] rounded-2xl border border-white/10 p-6 shadow-sm">
             <div className="flex items-center gap-2 mb-4">
               <span className={`text-xs font-bold px-2 py-1 rounded-full ${
                 q.question_type === 'multiple_choice' ? 'bg-blue-50 text-blue-600' :
@@ -410,7 +410,7 @@ Reply with ONLY one word: "correct" or "incorrect". No explanation.`,
             return (
               <motion.div key={i} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.05 }}
-                className="bg-white rounded-xl border border-border p-4">
+                className="bg-[#1a1035] rounded-xl border border-white/10 p-4">
                 <div className="flex items-start gap-3">
                   <div className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 mt-0.5 ${q.isCorrect ? 'bg-emerald-100' : 'bg-rose-100'}`}>
                     {q.isCorrect
@@ -459,7 +459,7 @@ Reply with ONLY one word: "correct" or "incorrect". No explanation.`,
                           className={`flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-lg border transition-all ${
                             reported
                               ? 'bg-rose-50 border-rose-200 text-rose-400 cursor-default'
-                              : 'bg-white border-rose-200 text-rose-500 hover:bg-rose-50 hover:border-rose-300 active:scale-95'
+                              : 'bg-[#1a1035] border-rose-200 text-rose-500 hover:bg-rose-50 hover:border-rose-300 active:scale-95'
                           }`}
                         >
                           <Flag className="w-3 h-3" />
@@ -576,7 +576,7 @@ Reply with ONLY one word: "correct" or "incorrect". No explanation.`,
 
       {/* Question count — always visible when there are pending quizzes */}
       {pending.length > 0 && (
-        <div className="bg-white rounded-2xl border border-border px-5 py-4 flex items-center justify-between gap-4">
+        <div className="bg-[#1a1035] rounded-2xl border border-white/10 px-5 py-4 flex items-center justify-between gap-4">
           <div>
             <p className="text-sm font-black text-foreground">Questions per quiz</p>
             <p className="text-xs text-muted-foreground mt-0.5">Max {maxQuestions} · applied to every quiz you start</p>
@@ -605,7 +605,7 @@ Reply with ONLY one word: "correct" or "incorrect". No explanation.`,
             {pending.map((sub, i) => (
               <motion.div key={sub.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.05 }}
-                className="bg-white rounded-2xl border border-border p-4 flex items-center gap-4">
+                className="bg-[#1a1035] rounded-2xl border border-white/10 p-4 flex items-center gap-4">
                 <SubjectIcon subject={sub.subject} size="md" />
                 <div className="flex-1 min-w-0">
                   <p className="font-bold text-sm text-foreground truncate">{toTitleCase(sub.title)}</p>
@@ -632,7 +632,7 @@ Reply with ONLY one word: "correct" or "incorrect". No explanation.`,
           <p className="text-xs font-black text-muted-foreground uppercase tracking-widest mb-3">Completed · {completed.length}</p>
           <div className="space-y-2">
             {(showAllCompleted ? completed : completed.slice(0, 10)).map(sub => (
-              <div key={sub.id} className="bg-white rounded-2xl border border-border px-4 py-3.5 flex items-center gap-3">
+              <div key={sub.id} className="bg-[#1a1035] rounded-2xl border border-white/10 px-4 py-3.5 flex items-center gap-3">
                 <SubjectIcon subject={sub.subject} size="sm" />
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-bold text-foreground truncate">{toTitleCase(sub.title)}</p>

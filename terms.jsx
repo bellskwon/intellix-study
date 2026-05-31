@@ -70,7 +70,7 @@ export default function Terms() {
       <div className="space-y-4">
         {SECTIONS.map((s, i) => (
           <motion.div key={i} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}
-            className="bg-white rounded-2xl border border-border p-5">
+            className="bg-[#1a1035] rounded-2xl border border-white/10 p-5">
             <h2 className="font-black text-foreground mb-2 text-base">{s.title}</h2>
             <p className="text-sm text-muted-foreground leading-relaxed">{s.body}</p>
           </motion.div>

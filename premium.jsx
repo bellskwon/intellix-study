@@ -230,7 +230,7 @@ export default function Premium() {
                 </div>
 
                 {/* Features */}
-                <div className="bg-white p-5 flex-1 flex flex-col gap-4">
+                <div className="bg-[#1a1035] p-5 flex-1 flex flex-col gap-4">
                   <div className="space-y-2 flex-1">
                     {plan.features.map((f, fi) => (
                       <div key={fi} className="flex items-start gap-2">
@@ -263,7 +263,7 @@ export default function Premium() {
 
         {/* Manage subscription */}
         {activePlan !== 'free' && !trialExpired && (
-          <div className="bg-white rounded-2xl border border-border p-5 flex items-center gap-4">
+          <div className="bg-[#1a1035] rounded-2xl border border-white/10 p-5 flex items-center gap-4">
             <div className="flex-1">
               <p className="font-black text-sm text-foreground">Manage Subscription</p>
               <p className="text-xs text-muted-foreground mt-0.5">Update payment method, view invoices, or cancel anytime.</p>
@@ -336,7 +336,7 @@ export default function Premium() {
                 { Icon: Users, label: 'Friend Signs Up', xp: '+50 XP', color: 'text-emerald-600' },
                 { Icon: Zap, label: 'Friend Takes Quiz', xp: '+100 XP', color: 'text-violet-600' },
               ].map(r => (
-                <div key={r.label} className="bg-white rounded-xl border border-emerald-100 p-3 text-center">
+                <div key={r.label} className="bg-[#1a1035] rounded-xl border border-emerald-100 p-3 text-center">
                   <div className="w-8 h-8 rounded-lg bg-emerald-50 flex items-center justify-center mx-auto mb-1.5">
                     <r.Icon className={`w-4 h-4 ${r.color}`} />
                   </div>
@@ -347,7 +347,7 @@ export default function Premium() {
             </div>
           </div>
         </div>
-        <div className="mt-5 flex items-center gap-3 bg-white rounded-xl border border-emerald-200 p-3">
+        <div className="mt-5 flex items-center gap-3 bg-[#1a1035] rounded-xl border border-emerald-200 p-3">
           <div className="flex-1 text-xs text-muted-foreground font-mono bg-secondary px-3 py-2 rounded-lg truncate">
             {referralLink}
           </div>
@@ -368,7 +368,7 @@ export default function Premium() {
           { q: 'Can I switch plans?', a: 'Yes — upgrade or downgrade any time from this page.' },
           { q: 'What counts as a passed quiz?', a: 'Any quiz scored 80% or higher.' },
         ].map((faq, i) => (
-          <div key={i} className="bg-white rounded-xl border border-border p-4">
+          <div key={i} className="bg-[#1a1035] rounded-xl border border-white/10 p-4">
             <p className="text-sm font-bold text-foreground">{faq.q}</p>
             <p className="text-xs text-muted-foreground mt-1">{faq.a}</p>
           </div>
@@ -387,7 +387,7 @@ export default function Premium() {
         {trialPopup && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
             <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }}
-              className="bg-white rounded-3xl p-6 max-w-sm w-full shadow-2xl">
+              className="bg-[#1a1035] rounded-3xl p-6 max-w-sm w-full shadow-2xl">
               <div className="text-center mb-5">
                 <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${trialPopup.gradient} flex items-center justify-center mx-auto mb-3 shadow-lg`}>
                   <Crown className="w-8 h-8 text-white" />
@@ -421,7 +421,7 @@ export default function Premium() {
         {expiredPopup && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
             <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }}
-              className="bg-white rounded-3xl p-6 max-w-sm w-full shadow-2xl">
+              className="bg-[#1a1035] rounded-3xl p-6 max-w-sm w-full shadow-2xl">
               <div className="flex justify-end mb-2">
                 <button onClick={() => setExpiredPopup(null)} className="text-muted-foreground hover:text-foreground">
                   <X className="w-5 h-5" />

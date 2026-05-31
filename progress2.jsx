@@ -66,7 +66,7 @@ export default function Progress() {
           { label: 'Recent Trend', value: trend >= 0 ? `+${trend}%` : `${trend}%`, icon: trend >= 0 ? TrendingUp : TrendingDown, gradient: trend >= 0 ? 'gradient-emerald' : 'gradient-pink', bg: trend >= 0 ? 'shadow-emerald-200' : 'shadow-pink-200' },
         ].map((s, i) => (
           <motion.div key={s.label} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.07 }}
-            className="bg-white rounded-2xl border border-border p-5 card-hover">
+            className="bg-[#1a1035] rounded-2xl border border-white/10 p-5 card-hover">
             <div className={`w-10 h-10 rounded-xl ${s.gradient} flex items-center justify-center mb-3 shadow-lg ${s.bg}`}>
               <s.icon className="w-5 h-5 text-white" />
             </div>
@@ -77,7 +77,7 @@ export default function Progress() {
       </div>
 
       {graded.length === 0 ? (
-        <div className="text-center py-20 bg-white rounded-2xl border border-border">
+        <div className="text-center py-20 bg-[#1a1035] rounded-2xl border border-white/10">
           <Brain className="w-12 h-12 text-muted-foreground/30 mx-auto mb-3" />
           <p className="font-bold text-foreground">No quiz data yet</p>
           <p className="text-sm text-muted-foreground mt-1">Complete some quizzes to see your progress!</p>
@@ -87,7 +87,7 @@ export default function Progress() {
           {/* Score Timeline */}
           {timeline.length > 1 && (
             <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
-              className="bg-white rounded-2xl border border-border p-6">
+              className="bg-[#1a1035] rounded-2xl border border-white/10 p-6">
               <h2 className="font-black text-foreground mb-4">Score Timeline</h2>
               <ResponsiveContainer width="100%" height={200}>
                 <AreaChart data={timeline}>
@@ -114,7 +114,7 @@ export default function Progress() {
           <div className="grid md:grid-cols-2 gap-4">
             {radarData.length >= 3 && (
               <motion.div initial={{ opacity: 0, x: -16 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.4 }}
-                className="bg-white rounded-2xl border border-border p-6">
+                className="bg-[#1a1035] rounded-2xl border border-white/10 p-6">
                 <h2 className="font-black text-foreground mb-4">Subject Radar</h2>
                 <ResponsiveContainer width="100%" height={220}>
                   <RadarChart data={radarData}>
@@ -127,7 +127,7 @@ export default function Progress() {
             )}
 
             <motion.div initial={{ opacity: 0, x: 16 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.45 }}
-              className="bg-white rounded-2xl border border-border p-6 space-y-3">
+              className="bg-[#1a1035] rounded-2xl border border-white/10 p-6 space-y-3">
               <h2 className="font-black text-foreground">By Subject</h2>
               {subjectAvg.map(s => (
                 <div key={s.subject}>

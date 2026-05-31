@@ -86,7 +86,7 @@ export default function Classroom() {
       </div>
 
       {/* Join */}
-      <div className="bg-white rounded-2xl border border-border p-5">
+      <div className="bg-[#1a1035] rounded-2xl border border-white/10 p-5">
         <h2 className="font-black text-sm text-foreground mb-3 flex items-center gap-2">
           <Hash className="w-4 h-4 text-primary" /> Join a Classroom
         </h2>
@@ -102,7 +102,7 @@ export default function Classroom() {
       </div>
 
       {/* My classrooms */}
-      <div className="bg-white rounded-2xl border border-border p-5">
+      <div className="bg-[#1a1035] rounded-2xl border border-white/10 p-5">
         <div className="flex items-center justify-between mb-4">
           <h2 className="font-black text-sm text-foreground flex items-center gap-2">
             <GraduationCap className="w-4 h-4 text-primary" /> My Classrooms ({owned.length})
@@ -176,7 +176,7 @@ export default function Classroom() {
 
       {/* Enrolled */}
       {(joined.length > 0 || isLoading) && (
-        <div className="bg-white rounded-2xl border border-border p-5">
+        <div className="bg-[#1a1035] rounded-2xl border border-white/10 p-5">
           <h2 className="font-black text-sm text-foreground mb-4 flex items-center gap-2">
             <BookOpen className="w-4 h-4 text-indigo-500" /> Enrolled Classrooms ({joined.length})
           </h2>
@@ -242,7 +242,7 @@ function TeacherView({ classroom, user, onBack }) {
       <div className="flex gap-1 p-1.5 bg-secondary rounded-2xl">
         {tabs.map(t => (
           <button key={t.id} onClick={() => setTab(t.id)}
-            className={`flex-1 text-xs font-bold py-2 px-1 rounded-xl transition-all flex items-center justify-center gap-1.5 ${tab === t.id ? 'bg-white shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground'}`}>
+            className={`flex-1 text-xs font-bold py-2 px-1 rounded-xl transition-all flex items-center justify-center gap-1.5 ${tab === t.id ? 'bg-[#261e42] shadow-sm text-white' : 'text-muted-foreground hover:text-foreground'}`}>
             <t.icon className="w-3.5 h-3.5" /> {t.label}
           </button>
         ))}
@@ -297,7 +297,7 @@ function TeacherOverview({ classroom }) {
           { label: 'Class Avg', value: classAvg != null ? `${classAvg}%` : '—', icon: TrendingUp, color: 'text-emerald-500', bg: 'bg-emerald-50' },
           { label: 'Completion', value: `${completionRate}%`, icon: Award, color: 'text-amber-500', bg: 'bg-amber-50' },
         ].map(s => (
-          <div key={s.label} className="bg-white rounded-2xl border border-border p-4 text-center">
+          <div key={s.label} className="bg-[#1a1035] rounded-2xl border border-white/10 p-4 text-center">
             <div className={`w-9 h-9 rounded-xl ${s.bg} flex items-center justify-center mx-auto mb-2`}>
               <s.icon className={`w-5 h-5 ${s.color}`} />
             </div>
@@ -311,7 +311,7 @@ function TeacherOverview({ classroom }) {
       {totalStudents === 0 ? (
         <EmptyState icon={Users} title="No students yet" desc="Share your join code to get students enrolled." />
       ) : (
-        <div className="bg-white rounded-2xl border border-border overflow-hidden">
+        <div className="bg-[#1a1035] rounded-2xl border border-white/10 overflow-hidden">
           <div className="px-5 py-3 border-b border-border">
             <p className="font-black text-sm text-foreground">Student Progress</p>
           </div>
@@ -340,7 +340,7 @@ function TeacherOverview({ classroom }) {
 
       {/* Per-assignment breakdown */}
       {assignments.length > 0 && (
-        <div className="bg-white rounded-2xl border border-border overflow-hidden">
+        <div className="bg-[#1a1035] rounded-2xl border border-white/10 overflow-hidden">
           <div className="px-5 py-3 border-b border-border">
             <p className="font-black text-sm text-foreground">Assignment Breakdown</p>
           </div>
@@ -480,7 +480,7 @@ correct_answer must be the full text of the correct option. Include a 1-sentence
         ) : (
           <div className="space-y-2">
             {results.map(r => (
-              <div key={r.id} className="bg-white rounded-xl border border-border px-4 py-3 flex items-center gap-3">
+              <div key={r.id} className="bg-[#1a1035] rounded-xl border border-white/10 px-4 py-3 flex items-center gap-3">
                 <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-xs font-black text-primary shrink-0">
                   {getName(r.student_email)[0].toUpperCase()}
                 </div>
@@ -514,7 +514,7 @@ correct_answer must be the full text of the correct option. Include a 1-sentence
         </div>
 
         {/* Title + subject */}
-        <div className="bg-white rounded-2xl border border-border p-4 grid grid-cols-2 gap-3">
+        <div className="bg-[#1a1035] rounded-2xl border border-white/10 p-4 grid grid-cols-2 gap-3">
           <div className="col-span-2">
             <label className="text-xs font-black text-muted-foreground uppercase tracking-wide mb-1 block">Title *</label>
             <Input value={title} onChange={e => setTitle(e.target.value)} placeholder="e.g. Chapter 5 Quiz" className="h-10 rounded-xl" />
@@ -547,7 +547,7 @@ correct_answer must be the full text of the correct option. Include a 1-sentence
               {aiSuggestions.length > 0 && (
                 <div className="space-y-2">
                   {aiSuggestions.map((s, i) => (
-                    <div key={i} className="bg-white rounded-xl border border-violet-200 p-3 flex gap-2 items-start">
+                    <div key={i} className="bg-[#1a1035] rounded-xl border border-violet-200 p-3 flex gap-2 items-start">
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-semibold text-foreground">{s.question_text}</p>
                         <p className="text-xs text-emerald-600 font-semibold mt-1">✓ {s.correct_answer}</p>
@@ -569,7 +569,7 @@ correct_answer must be the full text of the correct option. Include a 1-sentence
         <div className="space-y-3">
           <p className="text-xs font-black text-muted-foreground uppercase tracking-wide">{validQuestions.length} question{validQuestions.length !== 1 ? 's' : ''}</p>
           {questions.map((q, qi) => (
-            <div key={qi} className="bg-white rounded-2xl border border-border p-4 space-y-3">
+            <div key={qi} className="bg-[#1a1035] rounded-2xl border border-white/10 p-4 space-y-3">
               <div className="flex items-center gap-2">
                 <span className="text-xs font-black text-primary w-6 shrink-0">Q{qi + 1}</span>
                 <Input value={q.question_text} onChange={e => updateQuestion(qi, 'question_text', e.target.value)}
@@ -639,7 +639,7 @@ correct_answer must be the full text of the correct option. Include a 1-sentence
         const aAvg = avg(scores);
         return (
           <motion.div key={a.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}
-            className="bg-white rounded-xl border border-border p-4">
+            className="bg-[#1a1035] rounded-xl border border-white/10 p-4">
             <div className="flex items-start gap-3">
               <div className="flex-1 min-w-0">
                 <p className="font-black text-foreground">{a.title}</p>
@@ -734,7 +734,7 @@ All cards must be unique.`,
         </button>
         <h2 className="font-black text-foreground">Share Flashcard Deck</h2>
 
-        <div className="bg-white rounded-2xl border border-border p-5 space-y-4">
+        <div className="bg-[#1a1035] rounded-2xl border border-white/10 p-5 space-y-4">
           <div className="grid grid-cols-2 gap-3">
             <div className="col-span-2">
               <label className="text-xs font-black text-muted-foreground uppercase tracking-wide mb-1 block">Deck Name *</label>
@@ -760,7 +760,7 @@ All cards must be unique.`,
         <div className="space-y-2">
           <p className="text-xs font-black text-muted-foreground uppercase tracking-wide">{validCards.length} cards</p>
           {cards.map((c, i) => (
-            <div key={i} className="bg-white rounded-xl border border-border p-3 flex gap-2 items-start">
+            <div key={i} className="bg-[#1a1035] rounded-xl border border-white/10 p-3 flex gap-2 items-start">
               <div className="flex-1 space-y-2">
                 <Input placeholder="Front (term / question)" value={c.front}
                   onChange={e => setCards(cs => cs.map((x, j) => j === i ? { ...x, front: e.target.value } : x))}
@@ -801,7 +801,7 @@ All cards must be unique.`,
       )}
       {decks.map((d, i) => (
         <motion.div key={d.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}
-          className="bg-white rounded-xl border border-border p-4 flex items-center gap-3">
+          className="bg-[#1a1035] rounded-xl border border-white/10 p-4 flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-violet-50 flex items-center justify-center shrink-0">
             <Layers className="w-5 h-5 text-violet-500" />
           </div>
@@ -837,7 +837,7 @@ function TeacherStudents({ classroom }) {
       {classroom.members.length === 0 ? (
         <EmptyState icon={Users} title="No students yet" desc={`Share code ${classroom.join_code} to invite students.`} />
       ) : (
-        <div className="bg-white rounded-2xl border border-border divide-y divide-border overflow-hidden">
+        <div className="bg-[#1a1035] rounded-2xl border border-white/10 divide-y divide-border overflow-hidden">
           {classroom.members.map(m => (
             <div key={m.id} className="flex items-center gap-3 px-4 py-3">
               <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-xs font-black text-primary shrink-0">
@@ -881,7 +881,7 @@ function StudentView({ classroom, user, onBack }) {
       <div className="flex gap-1 p-1.5 bg-secondary rounded-2xl">
         {tabs.map(t => (
           <button key={t.id} onClick={() => setTab(t.id)}
-            className={`flex-1 text-xs font-bold py-2.5 px-2 rounded-xl transition-all flex items-center justify-center gap-1.5 ${tab === t.id ? 'bg-white shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground'}`}>
+            className={`flex-1 text-xs font-bold py-2.5 px-2 rounded-xl transition-all flex items-center justify-center gap-1.5 ${tab === t.id ? 'bg-[#261e42] shadow-sm text-white' : 'text-muted-foreground hover:text-foreground'}`}>
             <t.icon className="w-3.5 h-3.5" /> {t.label}
           </button>
         ))}
@@ -939,7 +939,7 @@ function StudentAssignments({ classroom, user }) {
         </motion.div>
         <div className="space-y-2">
           {graded.map((q, i) => (
-            <div key={i} className="bg-white rounded-xl border border-border p-4">
+            <div key={i} className="bg-[#1a1035] rounded-xl border border-white/10 p-4">
               <div className="flex gap-3">
                 <div className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 mt-0.5 ${q.is_correct ? 'bg-emerald-100' : 'bg-rose-100'}`}>
                   {q.is_correct ? <CheckCircle2 className="w-4 h-4 text-emerald-600" /> : <XCircle className="w-4 h-4 text-rose-600" />}
@@ -984,7 +984,7 @@ function StudentAssignments({ classroom, user }) {
         <AnimatePresence mode="wait">
           <motion.div key={currentQ} initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -30 }} transition={{ duration: 0.22 }}
-            className="bg-white rounded-2xl border border-border p-6 shadow-sm">
+            className="bg-[#1a1035] rounded-2xl border border-white/10 p-6 shadow-sm">
             <p className="text-base font-bold text-foreground mb-5 leading-relaxed">{q.question_text}</p>
             <div className="space-y-2">
               {(q.options ?? []).map((opt, i) => (
@@ -1024,7 +1024,7 @@ function StudentAssignments({ classroom, user }) {
           <div className="space-y-2">
             {pending.map((a, i) => (
               <motion.div key={a.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}
-                className="bg-white rounded-xl border border-border p-4 flex items-center gap-3">
+                className="bg-[#1a1035] rounded-xl border border-white/10 p-4 flex items-center gap-3">
                 <div className="flex-1 min-w-0">
                   <p className="font-bold text-foreground text-sm">{a.title}</p>
                   <p className="text-xs text-muted-foreground">{a.questions.length} questions{a.subject ? ` · ${a.subject}` : ''}</p>
@@ -1047,7 +1047,7 @@ function StudentAssignments({ classroom, user }) {
               const r = a.results[0];
               return (
                 <motion.div key={a.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}
-                  className="bg-white rounded-xl border border-border px-4 py-3 flex items-center gap-3">
+                  className="bg-[#1a1035] rounded-xl border border-white/10 px-4 py-3 flex items-center gap-3">
                   <div className="flex-1 min-w-0">
                     <p className="font-semibold text-foreground text-sm truncate">{a.title}</p>
                     {a.subject && <p className="text-xs text-muted-foreground">{a.subject}</p>}
@@ -1095,7 +1095,7 @@ function StudentDecks({ classroom }) {
         <motion.div onClick={() => setFlipped(f => !f)} className="cursor-pointer" whileTap={{ scale: 0.98 }}>
           <AnimatePresence mode="wait">
             <motion.div key={`${cardIndex}-${flipped}`} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}
-              className={`rounded-2xl border-2 p-8 min-h-[180px] flex flex-col justify-center text-center transition-colors ${flipped ? 'bg-primary/5 border-primary/30' : 'bg-white border-border'}`}>
+              className={`rounded-2xl border-2 p-8 min-h-[180px] flex flex-col justify-center text-center transition-colors ${flipped ? 'bg-primary/5 border-primary/30' : 'bg-[#1a1035] border-border'}`}>
               <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-3">{flipped ? '✅ Answer' : '❓ Question'}</p>
               <p className="text-lg font-bold text-foreground">{flipped ? card.back : card.front}</p>
               <p className="text-xs text-muted-foreground mt-4">Tap to flip</p>
@@ -1125,7 +1125,7 @@ function StudentDecks({ classroom }) {
     <div className="space-y-3">
       {decks.map((d, i) => (
         <motion.div key={d.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}
-          className="bg-white rounded-xl border border-border p-4 flex items-center gap-3">
+          className="bg-[#1a1035] rounded-xl border border-white/10 p-4 flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-violet-50 flex items-center justify-center shrink-0">
             <Layers className="w-5 h-5 text-violet-500" />
           </div>
@@ -1150,7 +1150,7 @@ function LoadingSpinner() {
 
 function EmptyState({ icon: Icon, title, desc }) {
   return (
-    <div className="bg-white rounded-2xl border border-border py-14 px-8 text-center">
+    <div className="bg-[#1a1035] rounded-2xl border border-white/10 py-14 px-8 text-center">
       <Icon className="w-10 h-10 text-muted-foreground/30 mx-auto mb-3" />
       <p className="font-bold text-foreground text-sm mb-1">{title}</p>
       <p className="text-xs text-muted-foreground max-w-xs mx-auto">{desc}</p>

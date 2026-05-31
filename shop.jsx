@@ -398,7 +398,7 @@ export default function Shop() {
             { Icon: Gift,     bg: 'bg-rose-100',   iconColor: 'text-rose-500',   title: 'Choose Reward',  desc: 'Pick a gift card & denomination' },
             { Icon: Mail,     bg: 'bg-amber-100',  iconColor: 'text-amber-600',  title: 'Get by Email',   desc: 'Digital code within 48h' },
           ].map(h => (
-            <div key={h.title} className="bg-white rounded-2xl border border-border p-4 text-center">
+            <div key={h.title} className="bg-[#1a1035] rounded-2xl border border-white/10 p-4 text-center">
               <div className={`w-12 h-12 rounded-full ${h.bg} flex items-center justify-center mx-auto mb-2`}>
                 <h.Icon className={`w-5 h-5 ${h.iconColor}`} />
               </div>
@@ -449,14 +449,14 @@ export default function Shop() {
                 </div>
               ) : (
                 /* Locked: compact glow-icon grid */
-                <div className="bg-white border border-border rounded-2xl overflow-hidden">
+                <div className="bg-[#1a1035] border border-border rounded-2xl overflow-hidden">
                   <div className="grid grid-cols-2 divide-x divide-y divide-border">
                     {section.items.map(item => (
                       <div key={item.id} className="flex flex-col items-center justify-center py-6 px-4 gap-2">
                         <div className="relative w-16 h-16 flex items-center justify-center">
                           <div className="absolute inset-0 rounded-full"
                             style={{ background: `radial-gradient(circle, ${item.glow} 0%, transparent 70%)` }} />
-                          <div className="relative w-8 h-8 bg-white rounded-xl shadow-sm border border-white/80 flex items-center justify-center">
+                          <div className="relative w-8 h-8 bg-[#1a1035] rounded-xl shadow-sm border border-white/80 flex items-center justify-center">
                             <div className="w-4 h-4 rounded-sm border-2 border-slate-300" />
                           </div>
                         </div>
@@ -514,7 +514,7 @@ function ShopCard({ item, section, availablePoints, onOrder, ordering }) {
   const canAfford = availablePoints >= tier.points;
 
   return (
-    <div className={`bg-white rounded-2xl border-2 overflow-hidden flex flex-col transition-all
+    <div className={`bg-[#1a1035] rounded-2xl border-2 overflow-hidden flex flex-col transition-all
       ${canAfford ? `${item.color} hover:shadow-lg hover:-translate-y-0.5` : 'border-border'}`}>
 
       <div className="w-full h-40 bg-muted overflow-hidden shrink-0 flex items-center justify-center p-6">

@@ -67,7 +67,7 @@ function CameraModal({ onCapture, onClose }) {
           <X className="w-5 h-5" />
         </button>
         <button onClick={capture} disabled={!ready}
-          className="w-16 h-16 rounded-full bg-white border-4 border-white/40 shadow-xl disabled:opacity-40" />
+          className="w-16 h-16 rounded-full bg-[#1a1035] border-4 border-white/40 shadow-xl disabled:opacity-40" />
         <button onClick={flip} className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center text-white">
           <SwitchCamera className="w-5 h-5" />
         </button>
@@ -297,7 +297,7 @@ export default function SubmitStudy({ onSuccess }) {
 
       <form onSubmit={handleSubmit} className="space-y-5">
         {/* Quick Fields */}
-        <div className="bg-white rounded-2xl border border-border p-5 space-y-4">
+        <div className="bg-[#1a1035] rounded-2xl border border-white/10 p-5 space-y-4">
           <div>
             <Label className="text-xs font-black uppercase tracking-wide text-muted-foreground">Session Title *</Label>
             <Input
@@ -333,7 +333,7 @@ export default function SubmitStudy({ onSuccess }) {
         <AnimatePresence mode="wait">
           {inputMode === 'file' && (
             <motion.div key="file" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}
-              className="bg-white rounded-2xl border border-border p-5">
+              className="bg-[#1a1035] rounded-2xl border border-white/10 p-5">
               <div className="flex items-center justify-between mb-3">
                 <Label className="text-xs font-black uppercase tracking-wide text-muted-foreground">Upload Files</Label>
                 {files.length > 0 && (
@@ -374,7 +374,7 @@ export default function SubmitStudy({ onSuccess }) {
 
           {inputMode === 'text' && (
             <motion.div key="text" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}
-              className="bg-white rounded-2xl border border-border p-5">
+              className="bg-[#1a1035] rounded-2xl border border-white/10 p-5">
               <Label className="text-xs font-black uppercase tracking-wide text-muted-foreground mb-3 block">Paste / Type Notes</Label>
               <Textarea
                 className="rounded-xl min-h-[180px] text-sm resize-none"
@@ -388,7 +388,7 @@ export default function SubmitStudy({ onSuccess }) {
 
           {inputMode === 'camera' && (
             <motion.div key="camera" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}
-              className="bg-white rounded-2xl border border-border p-5">
+              className="bg-[#1a1035] rounded-2xl border border-white/10 p-5">
               <div className="flex items-center justify-between mb-3">
                 <Label className="text-xs font-black uppercase tracking-wide text-muted-foreground">Scan with Camera</Label>
                 {files.length > 0 && (
@@ -462,7 +462,7 @@ export default function SubmitStudy({ onSuccess }) {
           >
             <motion.div
               initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
-              className="bg-white rounded-3xl w-full max-w-sm shadow-2xl overflow-hidden"
+              className="bg-[#1a1035] rounded-3xl w-full max-w-sm shadow-2xl overflow-hidden"
             >
               {/* Header band */}
               <div className={`px-6 pt-6 pb-4 ${modResult.accountPaused ? 'bg-red-50' : modResult.isFinal ? 'bg-orange-50' : 'bg-amber-50'}`}>

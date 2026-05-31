@@ -305,7 +305,7 @@ export default function Profile() {
       <div className="max-w-2xl mx-auto space-y-5">
 
       {/* Stats strip */}
-      <div className="bg-white rounded-2xl border border-border divide-x divide-border grid grid-cols-4 text-center overflow-hidden">
+      <div className="bg-[#1a1035] rounded-2xl border border-white/10 divide-x divide-border grid grid-cols-4 text-center overflow-hidden">
         {[
           { label: 'POINTS',    value: totalPoints, color: 'text-amber-500' },
           { label: 'AVG SCORE', value: `${avgScore}%`, color: 'text-violet-500' },
@@ -320,7 +320,7 @@ export default function Profile() {
       </div>
 
       {/* Next Goals */}
-      <div className="bg-white rounded-2xl border border-border p-5">
+      <div className="bg-[#1a1035] rounded-2xl border border-white/10 p-5">
         <div className="flex items-center gap-2 mb-4">
           <Target className="w-4 h-4 text-primary" />
           <h2 className="font-black text-sm text-foreground">Next goals</h2>
@@ -356,7 +356,7 @@ export default function Profile() {
 
       {/* Subject Breakdown */}
       {sortedSubjects.length > 0 && (
-        <div className="bg-white rounded-2xl border border-border p-5">
+        <div className="bg-[#1a1035] rounded-2xl border border-white/10 p-5">
           <div className="flex items-center gap-2 mb-4">
             <BookOpen className="w-4 h-4 text-primary" />
             <h2 className="font-black text-sm text-foreground">Subject breakdown</h2>
@@ -386,7 +386,7 @@ export default function Profile() {
       )}
 
       {/* Achievements */}
-      <div className="bg-white rounded-2xl border border-border p-5 space-y-5">
+      <div className="bg-[#1a1035] rounded-2xl border border-white/10 p-5 space-y-5">
         <h2 className="font-semibold text-sm text-muted-foreground">Achievements</h2>
         {badgeGroups.map(group => {
           const earnedCount = group.badges.filter(b => b.earned).length;
@@ -420,7 +420,7 @@ export default function Profile() {
         <h2 className="font-bold text-sm text-foreground mb-1">Refer a Friend — Earn Bonus XP</h2>
         <p className="text-xs text-muted-foreground mb-3">Share your Intellix referral link. When a new friend signs up using your link and completes their first quiz, you both earn bonus XP!</p>
         {referralLink ? (
-          <div className="flex items-center gap-2 bg-white rounded-xl border border-violet-200 px-3 py-2 mb-2">
+          <div className="flex items-center gap-2 bg-[#1a1035] rounded-xl border border-violet-200 px-3 py-2 mb-2">
             <span className="flex-1 text-xs font-mono text-foreground truncate select-all">{referralLink}</span>
             <button onClick={() => {
               navigator.clipboard.writeText(referralLink);
@@ -432,7 +432,7 @@ export default function Profile() {
             </button>
           </div>
         ) : (
-          <div className="bg-white rounded-xl border border-violet-200 px-3 py-2 mb-2">
+          <div className="bg-[#1a1035] rounded-xl border border-violet-200 px-3 py-2 mb-2">
             <p className="text-xs text-muted-foreground">Loading your referral link...</p>
           </div>
         )}
@@ -445,7 +445,7 @@ export default function Profile() {
       </div>
 
       {/* Share with Parent */}
-      <div className="bg-white rounded-2xl border border-border p-5">
+      <div className="bg-[#1a1035] rounded-2xl border border-white/10 p-5">
         <h2 className="font-bold text-sm text-foreground mb-1">Share Progress with a Parent</h2>
         <p className="text-xs text-muted-foreground mb-3">
           Generate a read-only link your parent or guardian can bookmark to see your scores, subjects, and activity — without needing an account.
@@ -473,7 +473,7 @@ export default function Profile() {
       </div>
 
       {/* Privacy Settings */}
-      <div className="bg-white rounded-2xl border border-border p-5">
+      <div className="bg-[#1a1035] rounded-2xl border border-white/10 p-5">
         <h2 className="font-bold text-sm text-foreground mb-1">Privacy Settings</h2>
         <p className="text-xs text-muted-foreground mb-4">Control what your friends can see about your activity.</p>
         <div className="flex items-center justify-between gap-4">
@@ -504,7 +504,7 @@ export default function Profile() {
 
       {/* Quiz History */}
       {visibleSubmissions.length > 0 && (
-        <div className="bg-white rounded-2xl border border-border overflow-hidden">
+        <div className="bg-[#1a1035] rounded-2xl border border-white/10 overflow-hidden">
           <div className="px-5 py-4 border-b border-border flex items-center justify-between">
             <h2 className="font-black text-foreground">Quiz History</h2>
             <BarChart3 className="w-4 h-4 text-muted-foreground" />

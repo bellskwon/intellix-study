@@ -84,7 +84,7 @@ export default function Progress() {
               Icon: trend >= 0 ? TrendingUp : TrendingDown },
           ].map((s, i) => (
             <motion.div key={s.label} initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: i * 0.07 }}
-              className="bg-white rounded-2xl border border-border p-4 text-center">
+              className="bg-[#1a1035] rounded-2xl border border-white/10 p-4 text-center">
               <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${s.gradient} flex items-center justify-center mx-auto mb-2 shadow-md`}>
                 <s.Icon className="w-5 h-5 text-white" />
               </div>
@@ -95,7 +95,7 @@ export default function Progress() {
         </div>
 
         {graded.length === 0 ? (
-          <div className="bg-white rounded-2xl border border-border py-16 px-8 text-center">
+          <div className="bg-[#1a1035] rounded-2xl border border-white/10 py-16 px-8 text-center">
             <svg width="120" height="100" viewBox="0 0 120 100" fill="none" className="mx-auto mb-6 opacity-80">
               <rect x="20" y="30" width="80" height="55" rx="8" fill="#f3f0ff" stroke="#c4b5fd" strokeWidth="2"/>
               <rect x="32" y="44" width="56" height="6" rx="3" fill="#c4b5fd"/>
@@ -117,7 +117,7 @@ export default function Progress() {
           <>
             {/* Score Timeline */}
             {timeline.length > 1 && (
-              <div className="bg-white rounded-2xl border border-border p-5">
+              <div className="bg-[#1a1035] rounded-2xl border border-white/10 p-5">
                 <div className="flex items-center justify-between mb-4">
                   <h2 className="font-semibold text-sm text-muted-foreground">Score Timeline</h2>
                   {graded.length >= 2 && (
@@ -150,7 +150,7 @@ export default function Progress() {
             )}
 
             {/* Next Goals */}
-            <div className="bg-white rounded-2xl border border-border p-5">
+            <div className="bg-[#1a1035] rounded-2xl border border-white/10 p-5">
               <h2 className="font-semibold text-sm text-muted-foreground mb-3">Next Goals</h2>
               <div className="space-y-3">
                 {[
@@ -186,7 +186,7 @@ export default function Progress() {
             <div className="grid md:grid-cols-2 gap-4">
               {radarData.length >= 3 && (
                 <motion.div initial={{ opacity: 0, x: -16 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.4 }}
-                  className="bg-white rounded-2xl border border-border p-5">
+                  className="bg-[#1a1035] rounded-2xl border border-white/10 p-5">
                   <h2 className="font-semibold text-sm text-muted-foreground mb-4">Subject Radar</h2>
                   <ResponsiveContainer width="100%" height={220}>
                     <RadarChart data={radarData}>
@@ -197,7 +197,7 @@ export default function Progress() {
                   </ResponsiveContainer>
                 </motion.div>
               )}
-              <div className="bg-white rounded-2xl border border-border p-5 space-y-3">
+              <div className="bg-[#1a1035] rounded-2xl border border-white/10 p-5 space-y-3">
                 <h2 className="font-semibold text-sm text-muted-foreground mb-1">By Subject</h2>
                 {sortedSubjects.slice(0, 5).map(([subj, count]) => {
                   const scores = subjectScores[subj];
