@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Sparkles, Layers, Loader2, RotateCcw, Upload, Calendar, AlertTriangle } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
 import MiniCalendar from '@/components/dashboard/MiniCalendar';
 import SaveToFolderModal from '@/pages/SaveToFolder';
