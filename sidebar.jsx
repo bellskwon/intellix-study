@@ -1,22 +1,11 @@
-import React, { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
-import { LayoutDashboard, Zap, X, FlaskConical, ShoppingBag, Brain, Crown, Archive, Users, Moon, Sun, User, TrendingUp } from 'lucide-react';
+import { LayoutDashboard, Zap, X, FlaskConical, ShoppingBag, Brain, Crown, Archive, Users, User, TrendingUp } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import LevelXPBar, { calcLevelInfo } from '@/components/shared/LevelXPBar';
 
-function useDarkMode() {
-  const [dark, setDark] = useState(() => {
-    try { return localStorage.getItem('intellix_dark') === 'true'; } catch { return false; }
-  });
-  useEffect(() => {
-    document.documentElement.classList.toggle('dark', dark);
-    try { localStorage.setItem('intellix_dark', String(dark)); } catch {}
-  }, [dark]);
-  return [dark, () => setDark(d => !d)];
-}
 
 const navItems = [
   { path: '/', label: 'Dashboard', icon: LayoutDashboard, color: 'text-violet-500' },
@@ -33,7 +22,6 @@ const navItems = [
 
 export default function Sidebar({ open, onClose }) {
   const location = useLocation();
-  const [dark, toggleDark] = useDarkMode();
 
   const { data: user } = useQuery({ queryKey: ['currentUser'], queryFn: () => base44.auth.me() });
   const { data: submissions = [] } = useQuery({
@@ -118,13 +106,6 @@ export default function Sidebar({ open, onClose }) {
         {/* XP Progress + Dark Mode Toggle */}
         <div className="p-4 border-t border-border space-y-3">
           <LevelXPBar submissions={submissions} xpBonus={user?.xp_bonus || 0} />
-          <button
-            onClick={toggleDark}
-            className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-semibold text-muted-foreground hover:text-foreground hover:bg-secondary transition-all"
-          >
-            {dark ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-indigo-400" />}
-            {dark ? 'Light Mode' : 'Dark Mode'}
-          </button>
         </div>
       </aside>
     </>
