@@ -68,7 +68,7 @@ export default function MiniCalendar({ userEmail }) {
   const selectedEvents = selectedDay ? getEventsForDay(selectedDay) : [];
 
   return (
-    <div className="bg-[#1a1035] rounded-2xl border border-white/10 p-5">
+    <div className="bg-white rounded-2xl border border-border p-5">
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
@@ -158,7 +158,7 @@ export default function MiniCalendar({ userEmail }) {
                 <div className="flex gap-1 flex-wrap">
                   {Object.keys(EVENT_COLORS).map(t => (
                     <button key={t} onClick={() => setNewType(t)}
-                      className={`px-2 py-0.5 rounded-full text-[10px] font-bold capitalize transition-all ${newType === t ? EVENT_COLORS[t] + ' text-white' : 'bg-[#1a1035] border border-border text-muted-foreground'}`}>
+                      className={`px-2 py-0.5 rounded-full text-[10px] font-bold capitalize transition-all ${newType === t ? EVENT_COLORS[t] + ' text-white' : 'bg-white border border-border text-muted-foreground'}`}>
                       {t}
                     </button>
                   ))}

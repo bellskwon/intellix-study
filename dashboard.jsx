@@ -52,7 +52,7 @@ function GettingStarted({ submissions, streak, onDismiss }) {
         <div className="space-y-2">
           {tasks.map((task) => (
             <div key={task.label}
-              className={`flex items-center gap-3 p-2.5 rounded-xl transition-colors ${task.done ? 'opacity-40' : 'bg-[#1a1035] border border-blue-100'}`}>
+              className={`flex items-center gap-3 p-2.5 rounded-xl transition-colors ${task.done ? 'opacity-40' : 'bg-white border border-blue-100'}`}>
               <div className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${task.done ? 'bg-emerald-100' : 'bg-blue-50'}`}>
                 {task.done
                   ? <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />

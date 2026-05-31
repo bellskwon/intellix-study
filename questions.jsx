@@ -132,7 +132,7 @@ IMPORTANT: If the notes contain no real study content, return an empty flashcard
       <div className="flex gap-1 p-1 bg-secondary rounded-xl">
         {TABS.map(tab => (
           <button key={tab.id} onClick={() => { setActiveTab(tab.id); setResult(null); }}
-            className={`flex-1 text-xs font-semibold py-2 px-2 rounded-lg transition-all ${activeTab === tab.id ? 'bg-[#261e42] shadow-sm text-white' : 'text-muted-foreground hover:text-foreground'}`}>
+            className={`flex-1 text-xs font-semibold py-2 px-2 rounded-lg transition-all ${activeTab === tab.id ? 'bg-white shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground'}`}>
             {tab.label}
           </button>
         ))}
@@ -148,7 +148,7 @@ IMPORTANT: If the notes contain no real study content, return an empty flashcard
               placeholder="Paste notes, textbook excerpts, or a study guide..."
               value={notes}
               onChange={e => setNotes(e.target.value)}
-              className="min-h-[130px] rounded-2xl resize-none text-sm bg-[#1a1035] border-[#2d1b69] text-white placeholder:text-white/30 focus:border-violet-500"
+              className="min-h-[130px] rounded-2xl resize-none text-sm bg-secondary border-border focus:border-primary"
             />
           </div>
 
@@ -352,7 +352,7 @@ function FlashCard({ front, back, index }) {
         style={{ transformStyle: 'preserve-3d', position: 'relative', minHeight: 200 }}>
 
         {/* Front — hotel key card style */}
-        <div className="absolute inset-0 rounded-2xl bg-[#1a1035] border border-gray-100 shadow-lg flex flex-col px-6 py-5"
+        <div className="absolute inset-0 rounded-2xl bg-white border border-gray-100 shadow-lg flex flex-col px-6 py-5"
           style={{ backfaceVisibility: 'hidden' }}>
           {/* Header */}
           <div className="flex items-center justify-between mb-3">

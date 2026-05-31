@@ -166,7 +166,7 @@ export default function Storage() {
         <div className="max-w-3xl mx-auto space-y-4">
 
           {/* ── Folders ─────────────────────────────────────────────────── */}
-          <div className="bg-[#1a1035] rounded-2xl border border-white/10 overflow-hidden">
+          <div className="bg-white rounded-2xl border border-border overflow-hidden">
             <div className="flex items-center justify-between px-5 py-4 border-b border-border">
               <h2 className="font-black text-foreground flex items-center gap-2">
                 <Folder className="w-4 h-4 text-amber-500" /> Folders
@@ -249,7 +249,7 @@ export default function Storage() {
                 const folderQuizzes = ids.filter(id => id.startsWith('quiz-')).map(id => id.replace('quiz-', '')).map(qid => submissions.find(s => s.id === qid)).filter(Boolean);
                 const hasContent = folderDecks.length > 0 || folderQuizzes.length > 0;
                 return (
-                  <div className="mt-3 border border-amber-200 rounded-xl bg-[#1a1035] p-4 space-y-3">
+                  <div className="mt-3 border border-amber-200 rounded-xl bg-white p-4 space-y-3">
                     <p className="text-xs font-black text-amber-700 uppercase tracking-wider">{folder.name}</p>
                     {!hasContent && <p className="text-xs text-muted-foreground">No items yet — drag flashcard decks or quizzes into this folder.</p>}
                     {folderDecks.map(name => {
@@ -287,7 +287,7 @@ export default function Storage() {
           </div>
 
           {/* ── Flashcard Sets ──────────────────────────────────────────── */}
-          <div className="bg-[#1a1035] rounded-2xl border border-white/10 overflow-hidden">
+          <div className="bg-white rounded-2xl border border-border overflow-hidden">
             <div className="flex items-center justify-between px-5 py-4 border-b border-border">
               <h2 className="font-black text-foreground flex items-center gap-2">
                 <Layers className="w-4 h-4 text-violet-500" /> Flashcard sets
@@ -340,7 +340,7 @@ export default function Storage() {
                                       className="overflow-hidden border-t border-border">
                                       <div className="p-3 space-y-2">
                                         {deck.cards.map(card => (
-                                          <div key={card.id} className="bg-[#1a1035] rounded-xl p-3">
+                                          <div key={card.id} className="bg-white rounded-xl p-3">
                                             {editingCard === card.id ? (
                                               <div className="space-y-2">
                                                 <div>
@@ -397,7 +397,7 @@ export default function Storage() {
           </div>
 
           {/* ── Past Quizzes ─────────────────────────────────────────────── */}
-          <div className="bg-[#1a1035] rounded-2xl border border-white/10 overflow-hidden">
+          <div className="bg-white rounded-2xl border border-border overflow-hidden">
             <div className="flex items-center justify-between px-5 py-4 border-b border-border">
               <h2 className="font-black text-foreground flex items-center gap-2">
                 <ClipboardList className="w-4 h-4 text-teal-500" /> Past quizzes

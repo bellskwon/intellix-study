@@ -81,7 +81,7 @@ export default function ParentDashboard() {
 
         {/* Subjects */}
         {data.subjects_studied.length > 0 && (
-          <div className="bg-[#1a1035] rounded-2xl border border-white/10 p-5">
+          <div className="bg-white rounded-2xl border border-border p-5">
             <h2 className="font-black text-sm text-foreground mb-3">Subjects Studied</h2>
             <div className="flex flex-wrap gap-2">
               {data.subjects_studied.map(s => (
@@ -95,7 +95,7 @@ export default function ParentDashboard() {
 
         {/* Recent activity */}
         {data.recent_activity.length > 0 && (
-          <div className="bg-[#1a1035] rounded-2xl border border-white/10 p-5">
+          <div className="bg-white rounded-2xl border border-border p-5">
             <h2 className="font-black text-sm text-foreground mb-3">Recent Activity</h2>
             <div className="space-y-2">
               {data.recent_activity.map((a, i) => (

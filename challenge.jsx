@@ -441,7 +441,7 @@ function QuizStep({ questions, currentQ, setCurrentQ, answers, setAnswers, onSub
 
       <AnimatePresence mode="wait">
         <motion.div key={currentQ} initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }} transition={{ duration: 0.25 }}
-          className="bg-[#1a1035] rounded-2xl border border-white/10 p-6 shadow-sm">
+          className="bg-white rounded-2xl border border-border p-6 shadow-sm">
           <div className="flex items-center gap-2 mb-4">
             <span className={`text-xs font-bold px-2 py-1 rounded-full ${
               q.question_type === 'multiple_choice' ? 'bg-blue-500/20 text-blue-400' :
@@ -582,7 +582,7 @@ Keep it concise (3-5 short paragraphs), use simple language appropriate for the 
         </motion.button>
       ) : (
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
-          className="bg-[#1a1035] rounded-2xl border border-primary/20 p-5 shadow-sm">
+          className="bg-white rounded-2xl border border-primary/20 p-5 shadow-sm">
           <p className="text-xs font-black text-primary mb-3 uppercase tracking-wide">Topic Explanation</p>
           {loadingAI ? (
             <div className="flex items-center gap-3 text-muted-foreground">
@@ -598,7 +598,7 @@ Keep it concise (3-5 short paragraphs), use simple language appropriate for the 
       <div className="space-y-3">
         {graded.map((q, i) => (
           <motion.div key={i} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}
-            className="bg-[#1a1035] rounded-xl border border-white/10 p-4">
+            className="bg-white rounded-xl border border-border p-4">
             <div className="flex items-start gap-3">
               <div className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 mt-0.5 ${q.isCorrect ? 'bg-emerald-500/20' : 'bg-rose-500/20'}`}>
                 {q.isCorrect ? <CheckCircle2 className="w-4 h-4 text-emerald-600" /> : <XCircle className="w-4 h-4 text-rose-600" />}
